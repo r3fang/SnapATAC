@@ -2,10 +2,18 @@
 % Please edit documentation in R/readSnap.R
 \name{addBmat}
 \alias{addBmat}
+\alias{addBmat.default}
 \title{Add cell-by-bin matrix}
 \usage{
-addBmat(obj, file, ...)
+addBmat(obj, ...)
+
+\method{addBmat}{default}(obj, file, binSize = 5000)
 }
 \description{
 Add cell-by-bin matrix
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{default}: Default Interface
+}}
+

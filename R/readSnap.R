@@ -44,9 +44,9 @@ createSnap.default <- function(file, metaData=TRUE){
 	return(res);	
 }
 
+
 #' Add cell-by-bin matrix
 #' @export
-
 addBmat <- function(obj,...) {
   UseMethod("addBmat", obj);
 }
@@ -107,7 +107,6 @@ addBmat.default <- function(obj, file, binSize=5000){
 
 #' Add cell-by-peak matrix
 #' @export
-
 addPmat <- function(obj,file, ...) {
   UseMethod("addPmat");
 }
