@@ -98,7 +98,7 @@ cluster:             (cluster) :  TRUE
 t-sne:               (tsne)    :  TRUE
 umap:                (umap)    :  FALSE
 ```
-<img src="./coverage_hist.PNG" width="300" height="250" />
+<img src="./coverage_hist.png" width="300" height="250" />
 
 
 **Step 5. Calculate jaccard index matrix and normalize**
@@ -158,10 +158,8 @@ umap:                (umap)    :  FALSE
 NOTE: coverage vs. PC1 plot is slightly different from Supplementary Fig. S2 which does not perform feature selection using `filterBins `
 
 
-<img src="./Heatmap_raw.PNG" width="300" height="300" />
-<img src="./Heatmap_norm.PNG" width="300" height="300" />
-<img src="./Coverage_PC1_raw.PNG" width="300" height="300" />
-<img src="./Coverage_PC1_norm.PNG" width="300" height="300" />
+<img src="./Heatmap_raw.png" width="300" height="300" /> <img src="./Heatmap_norm.png" width="300" height="300" />
+<img src="./Coverage_PC1_raw.png" width="300" height="300" /> <img src="./Coverage_PC1_norm.png" width="300" height="300" />
 
 
 **Step 7. Visulization**
@@ -177,8 +175,7 @@ NOTE: coverage vs. PC1 plot is slightly different from Supplementary Fig. S2 whi
 
 > plotViz(x.sp, method="tsne", pch=19, cex=0.7);
 ```
-<img src="./Viz_tsne.PNG" width="300" height="300" />
-<img src="./Viz_tsne_label.PNG" width="300" height="300" />
+<img src="./Viz_tsne.png" width="300" height="300" /> <img src="./Viz_tsne_label.png" width="300" height="300" />
 
 
 **Step 8. Find Cluster**
@@ -197,8 +194,7 @@ NOTE: coverage vs. PC1 plot is slightly different from Supplementary Fig. S2 whi
 
 ```
 
-<img src="./Viz_tsne_cluster.PNG" width="300" height="300" />
-<img src="./Viz_tsne_label.PNG" width="300" height="300" />
+<img src="./Viz_tsne_cluster.png" width="300" height="300" /> <img src="./Viz_tsne_label.png" width="300" height="300" />
 
 
 
