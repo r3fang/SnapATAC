@@ -2,9 +2,10 @@
 #' @export
 
 plotGene <- function(obj, ...) {
-  UseMethod("plotGene");
+  UseMethod("plotGene", obj);
 }
 
+#' @export
 plotGene.default <- function(
 	obj, 
 	gene.sel, 

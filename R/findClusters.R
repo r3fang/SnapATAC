@@ -17,9 +17,10 @@
 #' @export
 	
 runCluster <- function(object, ...) {
-  UseMethod("runCluster");
+  UseMethod("runCluster", object);
 }
 
+#' @export
 runCluster.default <- function(
 	object, 
 	k=15, 

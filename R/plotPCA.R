@@ -3,9 +3,10 @@
 #' @param obj a snap object
 #' @export
 plotPCA <- function(obj, ...) {
-  UseMethod("plotPCA");
+  UseMethod("plotPCA", obj);
 }
 
+#' @export
 plotPCA.default <- function(object, method=c("elbow", "pairwise"), max.cell=5000){
 	n <- 60
 	qual_col_pals = brewer.pal.info[brewer.pal.info$category == 'qual',]

@@ -94,6 +94,7 @@ setValidity("snap", .valid.snap)
 newSnap <- function (...) {
   UseMethod("newSnap");
 }
+#' @export
 newSnap.default <- function(){
 	metaData=data.frame();
 	barcode = as.character(c());

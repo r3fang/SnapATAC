@@ -4,7 +4,7 @@
 \alias{runPCA}
 \title{Linear Dimentionality Reduction}
 \usage{
-runPCA(x, ...)
+runPCA(object, ...)
 }
 \arguments{
 \item{object}{A snap object.}

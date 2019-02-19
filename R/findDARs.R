@@ -30,6 +30,7 @@ findDAR <- function(object, input=c("cmat", "gmat"), cluster=NULL, rep=NULL, tre
   UseMethod("findDAR");
 }
 
+#' @export
 findDAR.default <- function(object, input=c("cmat", "gmat"), cluster=NULL, rep=NULL, treat=NULL, ctrl=NULL, down.sample=TRUE, dispersion=0.3, min.row.sum=10, max.row.sum=500, rand.seed=10, ...){
 	# 1. check if object is a snap;
 	if(class(object) != "snap"){

@@ -3,11 +3,12 @@
 #' This function takes a snap object as input and check if the current bin size is ok
 #'
 #' @param obj character. a snap object
-#'
+#' @export
 checkBinSize <- function(obj1, ...) {
   UseMethod("checkBinSize");
 }
 
+#' @export
 checkBinSize.default <- function(obj1, obj2=NULL){
 	if(!is.snap(obj1)){
 		stop("'obj1' is not a snap object")

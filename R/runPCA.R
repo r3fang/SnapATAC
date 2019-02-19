@@ -12,10 +12,11 @@
 #' @param seed.use a numeric integer value interpreted as an integer [10];
 #'
 #' @export
-runPCA <- function(x, ...) {
-  UseMethod("runPCA");
+runPCA <- function(object, ...) {
+  UseMethod("runPCA", object);
 }
 
+#' @export
 runPCA.default <- function(
 	object, 
 	pc.num=50,

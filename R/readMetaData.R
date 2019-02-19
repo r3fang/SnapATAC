@@ -10,9 +10,10 @@
 #' barcodes.df <- readMetaData(snap_file);
 #' @export
 readMetaData <- function(file, ...) {
-  UseMethod("readMetaData");
+  UseMethod("readMetaData", file);
 }
 
+#' @export
 readMetaData.default <- function(file){
 	if(!file.exists(file)){stop(paste("Error @readMetaData: ", file, " does not exist!", sep=""))};
 	if(!isSnapFile(file)){stop(paste("Error @readMetaData: ", file, " is not a snap-format file!", sep=""))};

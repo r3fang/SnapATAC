@@ -22,11 +22,12 @@
 #' )
 #' head(x = FetchData(object = pbmc_filtered, vars.all = 'LTB'))
 #'
-
+#' @export
 filterCells <- function(obj, ...) {
   UseMethod("filterCells");
 }
 
+#' @export
 filterCells.default <- function(obj, subset.names, low.thresholds, high.thresholds){
 	if(class(obj) != "snap"){stop("'obj' is not a snap object")};
 	metaData = getMetaData(obj);		

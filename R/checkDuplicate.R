@@ -8,9 +8,10 @@
 #' @export
 
 checkDuplicate <- function(x, ...) {
-  UseMethod("checkDuplicate");
+  UseMethod("checkDuplicate", x);
 }
 
+#' @export
 checkDuplicate.default <- function(x, sd=1e-10){
 	dup_id <- which(duplicated(x))
 	if (length(dup_id) > 0) {

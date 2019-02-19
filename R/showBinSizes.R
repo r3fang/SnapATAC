@@ -14,8 +14,10 @@
 #' @export
 #'
 showBinSizes <- function(file) {
-  UseMethod("showBinSizes");
+  UseMethod("showBinSizes", file);
 }
+
+#' @export
 showBinSizes.default <- function(file){
 	# this is to check what are the binSizes have been generated
 	if(!file.exists(file)){stop("file does not exist!")}

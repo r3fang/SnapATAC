@@ -3,9 +3,10 @@
 #' @export
 
 scaleCountMatrix <- function(obj, ...) {
-  UseMethod("scaleCountMatrix");
+  UseMethod("scaleCountMatrix", obj);
 }
 
+#' @export
 scaleCountMatrix.default <- function(obj, mat=c("gmat", "bmat", "pmat"), cov, method=c("RPM", "log")){	
 	
 	if(class(obj) != "snap"){

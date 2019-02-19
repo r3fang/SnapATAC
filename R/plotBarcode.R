@@ -10,9 +10,10 @@
 #' plotBarcode(x.sp);
 #' @export
 plotBarcode <- function(obj) {
-  UseMethod("plotBarcode");
+  UseMethod("plotBarcode", obj);
 }
 
+#' @export
 plotBarcode.default <- function(obj){	
 	# check the input
 	if(!(class(obj)=="snap")){stop(paste("Error @plotBarcode: obj is not a snap object!", sep=""))};

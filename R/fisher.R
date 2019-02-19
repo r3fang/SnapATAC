@@ -23,9 +23,10 @@
 #' @export
 
 findDAR.fisher <- function(object, input=c("cmat", "gmat"), idx=NULL, idy=NULL, psudo.count=TRUE, min.cov=0.01, min.fc=2, max.cov = 0.8, norm=TRUE, step=1){
-  UseMethod("findDAR.fisher");
+  UseMethod("findDAR.fisher", object);
 }
 
+#' @export
 findDAR.fisher.default <- function(object, input=c("cmat", "gmat"), idx=NULL, idy=NULL, psudo.count=TRUE, min.cov=0.01, max.cov = 0.8, min.fc=2, norm=TRUE, step=1){
 	# 1. check if object is a snap;
 	if(class(object) != "snap"){

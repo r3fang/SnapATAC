@@ -20,9 +20,10 @@
 #' @export
 
 runViz<- function(object, ...) {
-  UseMethod("runViz");
+  UseMethod("runViz", object);
 }
 
+#' @export
 runViz.default <- function(
 	object, 
 	dims=2,

@@ -4,9 +4,10 @@
 #' @export
 
 plotViz <- function(object, method, ...) {
-  UseMethod("plotViz");
+  UseMethod("plotViz", object);
 }
 
+#' @export
 plotViz.default <- function(object, method=c("tsne", "umap"), ...){
     tsnecols = c("#E31A1C","#FFD700","#771122","#777711","#1F78B4","#68228B","#AAAA44",
                  "#60CC52","#771155","#DDDD77","#774411","#AA7744","#AA4455","#117744",

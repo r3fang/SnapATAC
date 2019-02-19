@@ -14,7 +14,7 @@
 #' @export
 #' 
 isSnapFile <- function(file) {
-  UseMethod("isSnapFile");
+  UseMethod("isSnapFile", file);
 }
 
 #' @describeIn isSnapFile Default Interface

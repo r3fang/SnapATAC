@@ -13,9 +13,10 @@
 #' 
 
 filterBins <- function(object, ...) {
-  UseMethod("filterBins");
+  UseMethod("filterBins", object);
 }
 
+#' @export
 filterBins.default <- function(object, low.threshold=-2, high.threshold=2, mat=c("bmat", "pmat")){
 	if(class(object) != "snap"){
 		stop("'object' is not a snap object")

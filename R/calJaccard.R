@@ -30,9 +30,10 @@
 #' @export
 
 calJaccard <- function(object, ...) {
-  UseMethod("calJaccard");
+  UseMethod("calJaccard", object);
 }
 
+#' @export
 calJaccard <- function(
 	object, 
 	mat = c("bmat", "pmat", "gmat"),

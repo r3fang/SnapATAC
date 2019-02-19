@@ -11,11 +11,11 @@
 #' @param object A snap object
 #'
 #' @export
-#'
 normTFIDF <- function(object, ...) {
-  UseMethod("normTFIDF");
+  UseMethod("normTFIDF", object);
 }
 
+#' @export
 normTFIDF.default <- function(object){	
 	
 	# 1. check if object is a snap;

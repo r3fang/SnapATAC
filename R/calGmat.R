@@ -11,11 +11,11 @@
 #' @return Returns a Snap object with the cell x gene matrix stored in object@gmat
 #'
 #' @export
-
 calCellGeneTable <- function(object, gene, ...) {
-  UseMethod("calCellGeneTable");
+  UseMethod("calCellGeneTable", object);
 }
 
+#' @export
 calCellGeneTable.default <- function(
 	object, 
 	gene, 
