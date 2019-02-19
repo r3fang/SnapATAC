@@ -48,7 +48,7 @@ createSnap.default <- function(file, metaData=TRUE){
 #' @export
 
 addBmat <- function(obj,file, ...) {
-  UseMethod("addBmat");
+  UseMethod("addBmat", obj);
 }
 
 #' @describeIn addBmat Default Interface
