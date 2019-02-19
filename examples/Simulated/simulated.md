@@ -110,7 +110,7 @@ umap:                (umap)    :  FALSE
 
 ```
 
-<img src="./Viz_tsne.PNG" width="300" height="300" /> <img src="./Viz_umap.PNG" width="300" height="300" />
+<img src="./Viz_tsne.png" width="300" height="300" /> <img src="./Viz_umap.png" width="300" height="300" />
 
 
 **Step 8. Comparision with cell label**

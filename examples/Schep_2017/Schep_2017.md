@@ -159,7 +159,7 @@ NOTE: coverage vs. PC1 plot is slightly different from Supplementary Fig. S2 whi
 
 
 <img src="./Heatmap_raw.png" width="300" height="300" /> <img src="./Heatmap_norm.png" width="300" height="300" />
-<img src="./coverage_PC1_raw.png" width="300" height="300" /> <img src="./Coverage_PC1_norm.png" width="300" height="300" />
+<img src="./Coverage_PC1_raw.png" width="300" height="300" /> <img src="./Coverage_PC1_norm.png" width="300" height="300" />
 
 
 **Step 7. Visulization**

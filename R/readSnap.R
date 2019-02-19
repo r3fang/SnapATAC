@@ -51,6 +51,8 @@ addBmat <- function(obj,file, ...) {
   UseMethod("addBmat");
 }
 
+#' @describeIn addBmat Default Interface
+#' @export
 addBmat.default <- function(obj, file, binSize=5000){	
 	# close the previously opened H5 file
 	H5close();
@@ -109,6 +111,8 @@ addBmat.default <- function(obj, file, binSize=5000){
 addPmat <- function(obj,file, ...) {
   UseMethod("addPmat");
 }
+
+#' @export
 addPmat.default <- function(obj, file){
         # close the previously opened H5 file
         H5close();
@@ -161,6 +165,8 @@ addPmat.default <- function(obj, file){
 addGmat <- function(obj,file, ...) {
   UseMethod("addGmat");
 }
+
+#' @export
 addGmat.default <- function(obj, file){
         # close the previously opened H5 file
         H5close();
@@ -208,6 +214,7 @@ createSnapFromBmat <- function(mat, barcodes, bins) {
   UseMethod("createSnapFromBmat");
 }
 
+#' @export
 createSnapFromBmat.default <- function(mat, barcodes, bins){
 	if(missing(mat) || missing(barcodes) || missing(bins)){
 		stop("mat or barcodes or bins is missing");
@@ -241,6 +248,7 @@ createSnapFromPmat <- function(mat, barcodes, peaks) {
   UseMethod("createSnapFromPmat");
 }
 
+#' @export
 createSnapFromPmat.default <- function(mat, barcodes, peaks){
 	if(missing(mat) || missing(barcodes) || missing(peaks)){
 		stop("mat or barcodes or peaks is missing");
@@ -274,6 +282,7 @@ createSnapFromGmat <- function(mat, barcodes, geneNames) {
   UseMethod("createSnapFromGmat");
 }
 
+#' @export
 createSnapFromGmat.default <- function(mat, barcodes, geneNames){
 	if(missing(mat) || missing(barcodes) || missing(geneNames)){
 		stop("mat or barcodes or geneNames is missing");
