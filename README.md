@@ -12,7 +12,7 @@ SnapATAC is composed of two components: [Snaptools](https://github.com/r3fang/Sn
 Install snaptools from PyPI
 
 ```bash
-$ pip install snaptools --user
+$ pip install "snaptools==1.2" --user
 ```
 
 Or install snaptools from source code

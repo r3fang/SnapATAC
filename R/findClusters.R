@@ -15,7 +15,7 @@
 #' @return Returns a Snap object with the cluster stored in object@cluster
 #'
 #' @export
-	
+
 runCluster <- function(object, ...) {
   UseMethod("runCluster", object);
 }
@@ -26,11 +26,11 @@ runCluster.default <- function(
 	k=15, 
 	centers=NULL,
 	pca_dims=NULL, 
-	method = c("jaccard_louvain", "louvain", "kmeans", "densityClust"), 
+	method=c("jaccard_louvain", "louvain", "kmeans", "densityClust"), 
 	resolution=1, 
 	data_path=NULL, 
 	result_path=NULL,
-	path_to_louvain=NULL
+	path_to_snaptools=NULL
 ){		
 	if (is.null(data_path)) {
 		data_path <- tempfile(pattern='community_data_', fileext='.dat')
@@ -39,13 +39,13 @@ runCluster.default <- function(
 		result_path <- tempfile(pattern='community_result_', fileext='.dat')
 	}
 	if(method %in% c("jaccard_louvain", "louvain")){
-		if (is.null(path_to_louvain)) {
-			path_to_louvain <- system2('which', 'community_louvain', stdout=TRUE)
+		if (is.null(path_to_snaptools)) {
+			path_to_snaptools <- system2('which', 'snaptools', stdout=TRUE)
 		}
-		path_to_louvain <- normalizePath(path_to_louvain)
+		path_to_snaptools <- normalizePath(path_to_snaptools)
 
-		if (!file_test('-x', path_to_louvain)) {
-			stop(path_to_louvain, " does not exist or is not executable; check your fast_tsne_path parameter")
+		if (!file_test('-x', path_to_snaptools)) {
+			stop(path_to_snaptools, " does not exist or is not executable; check your path_to_snaptools parameter")
 		}		
 	}
 	
@@ -57,7 +57,7 @@ runCluster.default <- function(
 
 	# 2. check if smat exists
 	if(nrow(object@smat) == 0){
-		stop("smat does not exist in object");
+		stop("smat does not exist in object, run PCA first");
 	}
 	
 	ncell = nrow(object@smat);
@@ -87,7 +87,8 @@ runCluster.default <- function(
 		edges = edges[edges[,1] < edges[,2],]
 		edges$value = adj[as.matrix(edges)]
 		write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
-		flag = system2(command=path_to_louvain, args=c("-i", data_path, "-o", result_path, "-r", resolution));
+		print(c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution))
+		flag = system2(command=path_to_snaptools, args=c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
 		if (flag != 0) {
 		   	stop("'runCluster' call failed");
 		}
@@ -103,7 +104,8 @@ runCluster.default <- function(
 		edges = as.data.frame(t(edges));	
 		edges$weight = 1;
 		write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
-		flag = system2(command=path_to_louvain, args=c("-i", data_path, "-o", result_path, "-r", resolution));
+		print(c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution))
+		flag = system2(command=path_to_snaptools, args=c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
 		if (flag != 0) {
 		   	stop("'runCluster' call failed");
 		}	

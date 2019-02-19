@@ -5,7 +5,7 @@
 #' @param obj character. a snap object
 #' @export
 checkBinSize <- function(obj1, ...) {
-  UseMethod("checkBinSize");
+  UseMethod("checkBinSize", obj1);
 }
 
 #' @export
@@ -26,13 +26,16 @@ checkBinSize.default <- function(obj1, obj2=NULL){
 		}
 		
 		# check if obj2 has the same features
-		if(any(x.sp@feature$name != x.sp@feature$name)){
+		if(any(obj1@feature$name != obj2@feature$name)){
 			stop("'obj1' and 'obj2' have different features")			
-		}						
+		}
+		obj1 = makeBinary(obj1);						
+		obj2 = makeBinary(obj2);						
 		cov1 = log(Matrix::colSums(obj1@bmat) + 1, 10);
-		cov2 = log(Matrix::colSums(obj1@bmat) + 1, 10);	
+		cov2 = log(Matrix::colSums(obj2@bmat) + 1, 10);	
 		
 	}else{
+		obj1 = makeBinary(obj1);						
 		ncell = length(obj1@barcode);
 		idx1 = sort(sample(seq(ncell), ncell/2));
 		idx2 = setdiff(seq(ncell), idx1);

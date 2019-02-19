@@ -18,7 +18,8 @@ Depends:
 	RANN,
 	RColorBrewer,
 	Rcpp,
-	umap
+	umap,
+	scales
 License: MIT
 Encoding: UTF-8
 LazyData: true
