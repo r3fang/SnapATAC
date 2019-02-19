@@ -12,9 +12,11 @@
 #' @export
 
 createSnap <- function(file, ...) {
-  UseMethod("createSnap");
+  UseMethod("createSnap", file);
 }
 
+#' @describeIn createSnap Default Interface
+#' @export
 createSnap.default <- function(file, metaData=TRUE){	
 	# close the previously opened H5 file
 	H5close();

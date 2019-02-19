@@ -2,9 +2,12 @@
 % Please edit documentation in R/readSnap.R
 \name{createSnap}
 \alias{createSnap}
+\alias{createSnap.default}
 \title{Create a Snap object from a snap file}
 \usage{
 createSnap(file, ...)
+
+\method{createSnap}{default}(file, metaData = TRUE)
 }
 \arguments{
 \item{file}{A character object for the snap-format file name which the data are to be read from.}
@@ -17,6 +20,11 @@ A snap object
 \description{
 Import a snap file as a snap object.
 }
+\section{Methods (by class)}{
+\itemize{
+\item \code{default}: Default Interface
+}}
+
 \examples{
 snap_file <- system.file("extdata", "Fang.3C1.snap", package = "SNAPATAC");
 showBinSizes(snap_file);
