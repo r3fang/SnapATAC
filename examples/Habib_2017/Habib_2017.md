@@ -93,7 +93,7 @@ umap:                (umap)    :  FALSE
 > plotPCA(x.sp, method="pairwise");
 ```
 
-<img src="./PCA_elbow_plot.png" width="350" height="350" /> <img src="./PCA_scatter_plot.png" width="400" height="400" />
+<img src="./PCA_elbow_plot.png" width="350" height="350" /> <img src="./PCA_scatter_plot.png" width="350" height="350" />
 
 **Step 6. Clustering**
 

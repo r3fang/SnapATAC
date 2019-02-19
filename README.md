@@ -6,7 +6,7 @@ SnapATAC is composed of two components: [Snaptools](https://github.com/r3fang/Sn
 
 ## Requirements 
 * Python (2.7)
-* R (R 3.4)
+* R (>= 3.4.0)
 
 ## Quick Install 
 Install snaptools from PyPI
@@ -65,6 +65,6 @@ Please see the wiki for other installation method.
 [<img src="./images/Fang_2019.png" width="250" height="290" />](./examples/Fang_2019/Fang_2019.html)
 [<img src="./images/Cusanovich_2018.png" width="250" height="290" />](./examples/Cusanovich_2018/Cusanovich_2018.html)
 [<img src="./images/Lake_2018.png" width="250" height="290" />](./examples/Lake_2018/Lake_2018.html)
-[<img src="./images/Schep_2017.png" width="250" height="290" />](./examples/Schep_2017/Schep_2017.html)
+[<img src="./images/Schep_2017.png" width="250" height="290" />](./examples/Schep_2017/Schep_2017.md)
 [<img src="./images/Habib_2017.png" width="250" height="290" />](./examples/Habib_2017/Habib_2017.md)
 [<img src="./images/Simulated_2019.png" width="250" height="290" />](./examples/Simulated_2019/Simulated_2019.html)
