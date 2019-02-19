@@ -307,25 +307,6 @@ setGeneric("getUMAP", function(obj) standardGeneric("getUMAP"))
 #' @aliases getUMAP,snap-method
 setMethod("getUMAP", "snap", function(obj) obj@umap)
 
-##' getGraph for snap object.
-##'
-##' This function takes a snap object and returns its consensus KNN-jaccard graph
-##' @name getGraph
-##' @param obj snap; a snap object
-##' @rdname getGraph-methods
-##' @exportMethod getGraph
-#setGeneric("getGraph", function(obj) standardGeneric("getGraph"))
-#
-##' @rdname getGraph-methods
-##' @aliases getGraph,snap-method
-#setMethod("getGraph", "snap", function(obj){
-#	if(nrow(obj@graph) == 0){
-#		return(NULL)
-#	}else{
-#		return(graph_from_adjacency_matrix(obj@graph, mode="undirected", weighted=TRUE))
-#	}
-#})
-
 #' nrow for snap object.
 #'
 #' This function takes a snap object and returns number of barcodes
