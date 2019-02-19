@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Fang_2019</title>
+
+
+<style type="text/css">
+body {
+  font-family: Helvetica, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: white;
+  padding: 30px; }
+
+body > *:first-child {
+  margin-top: 0 !important; }
+body > *:last-child {
+  margin-bottom: 0 !important; }
+
+a {
+  color: #4183C4; }
+a.absent {
+  color: #cc0000; }
+a.anchor {
+  display: block;
+  padding-left: 30px;
+  margin-left: -30px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0; }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+  cursor: text;
+  position: relative; }
+
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA09pVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoMTMuMCAyMDEyMDMwNS5tLjQxNSAyMDEyLzAzLzA1OjIxOjAwOjAwKSAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OUM2NjlDQjI4ODBGMTFFMTg1ODlEODNERDJBRjUwQTQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OUM2NjlDQjM4ODBGMTFFMTg1ODlEODNERDJBRjUwQTQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5QzY2OUNCMDg4MEYxMUUxODU4OUQ4M0REMkFGNTBBNCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5QzY2OUNCMTg4MEYxMUUxODU4OUQ4M0REMkFGNTBBNCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsQhXeAAAABfSURBVHjaYvz//z8DJYCRUgMYQAbAMBQIAvEqkBQWXI6sHqwHiwG70TTBxGaiWwjCTGgOUgJiF1J8wMRAIUA34B4Q76HUBelAfJYSA0CuMIEaRP8wGIkGMA54bgQIMACAmkXJi0hKJQAAAABJRU5ErkJggg==) no-repeat 10px center;
+  text-decoration: none; }
+
+h1 tt, h1 code {
+  font-size: inherit; }
+
+h2 tt, h2 code {
+  font-size: inherit; }
+
+h3 tt, h3 code {
+  font-size: inherit; }
+
+h4 tt, h4 code {
+  font-size: inherit; }
+
+h5 tt, h5 code {
+  font-size: inherit; }
+
+h6 tt, h6 code {
+  font-size: inherit; }
+
+h1 {
+  font-size: 28px;
+  color: black; }
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #cccccc;
+  color: black; }
+
+h3 {
+  font-size: 18px; }
+
+h4 {
+  font-size: 16px; }
+
+h5 {
+  font-size: 14px; }
+
+h6 {
+  color: #777777;
+  font-size: 14px; }
+
+p, blockquote, ul, ol, dl, li, table, pre {
+  margin: 15px 0; }
+
+hr {
+  background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC) repeat-x 0 0;
+  border: 0 none;
+  color: #cccccc;
+  height: 4px;
+  padding: 0;
+}
+
+body > h2:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+body > h1:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+  body > h1:first-child + h2 {
+    margin-top: 0;
+    padding-top: 0; }
+body > h3:first-child, body > h4:first-child, body > h5:first-child, body > h6:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0; }
+
+h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
+  margin-top: 0; }
+
+li p.first {
+  display: inline-block; }
+li {
+  margin: 0; }
+ul, ol {
+  padding-left: 30px; }
+
+ul :first-child, ol :first-child {
+  margin-top: 0; }
+
+dl {
+  padding: 0; }
+  dl dt {
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+    margin: 15px 0 5px; }
+    dl dt:first-child {
+      padding: 0; }
+    dl dt > :first-child {
+      margin-top: 0; }
+    dl dt > :last-child {
+      margin-bottom: 0; }
+  dl dd {
+    margin: 0 0 15px;
+    padding: 0 15px; }
+    dl dd > :first-child {
+      margin-top: 0; }
+    dl dd > :last-child {
+      margin-bottom: 0; }
+
+blockquote {
+  border-left: 4px solid #dddddd;
+  padding: 0 15px;
+  color: #777777; }
+  blockquote > :first-child {
+    margin-top: 0; }
+  blockquote > :last-child {
+    margin-bottom: 0; }
+
+table {
+  padding: 0;border-collapse: collapse; }
+  table tr {
+    border-top: 1px solid #cccccc;
+    background-color: white;
+    margin: 0;
+    padding: 0; }
+    table tr:nth-child(2n) {
+      background-color: #f8f8f8; }
+    table tr th {
+      font-weight: bold;
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr td {
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr th :first-child, table tr td :first-child {
+      margin-top: 0; }
+    table tr th :last-child, table tr td :last-child {
+      margin-bottom: 0; }
+
+img {
+  max-width: 100%; }
+
+span.frame {
+  display: block;
+  overflow: hidden; }
+  span.frame > span {
+    border: 1px solid #dddddd;
+    display: block;
+    float: left;
+    overflow: hidden;
+    margin: 13px 0 0;
+    padding: 7px;
+    width: auto; }
+  span.frame span img {
+    display: block;
+    float: left; }
+  span.frame span span {
+    clear: both;
+    color: #333333;
+    display: block;
+    padding: 5px 0 0; }
+span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-center > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: center; }
+  span.align-center span img {
+    margin: 0 auto;
+    text-align: center; }
+span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px 0 0;
+    text-align: right; }
+  span.align-right span img {
+    margin: 0;
+    text-align: right; }
+span.float-left {
+  display: block;
+  margin-right: 13px;
+  overflow: hidden;
+  float: left; }
+  span.float-left span {
+    margin: 13px 0 0; }
+span.float-right {
+  display: block;
+  margin-left: 13px;
+  overflow: hidden;
+  float: right; }
+  span.float-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: right; }
+
+code, tt {
+  margin: 0 2px;
+  padding: 0 5px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px; }
+
+pre code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent; }
+
+.highlight pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+  pre code, pre tt {
+    background-color: transparent;
+    border: none; }
+
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+
+kbd {
+  display: inline-block;
+  padding: 3px 5px;
+  font-size: 11px;
+  line-height: 10px;
+  color: #555;
+  vertical-align: middle;
+  background-color: #fcfcfc;
+  border: solid 1px #ccc;
+  border-bottom-color: #bbb;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #bbb
+}
+
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:0 auto;
+    }
+}
+@media print {
+	table, pre {
+		page-break-inside: avoid;
+	}
+	pre {
+		word-wrap: break-word;
+	}
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h2 id="toc_0">Analysis of Mouse Secondary Motor Cortex (MOs)</h2>
+
+<p><strong>Step 1. Barcode Demultiplexing</strong>. 
+We first de-multicomplex FASTQ file by adding the barcode to the beginning of each read in the following format: &quot;@&quot; + &quot;barcode&quot; + &quot;:&quot; + &quot;read_name&quot;. Below is one example of demultiplexed fastq file. Because barcode design can be very different between experiments and platforms, we decide not to include this part in the current analysis pipline. However, this can be easily implemented by awk or python script (see Wiki). Here we are downloading a subset of MOs dataset for demonstration. </p>
+
+<div><pre><code class="language-bash">&gt; wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/CEMBA180306_2B.demultiplexed.R1.fastq.gz
+&gt; wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/CEMBA180306_2B.demultiplexed.R2.fastq.gz
+&gt; zcat CEMBA180226_1A.demultiplexed.R1.fastq.gz | head 
+@AGACGGAGTGCAGCTATGTCAGCTACTGCATA:7001113:948:HLFKYBCX2:1:1108:1237:1880 1:N:0:0
+CACTCTGTGGTTGCTGGGACCTGAACCTGGATCCTCTGCAAGAGCAGCCA
++
+DBDDDIHHIIEEFHGHIHFHIIFHGHFEEHHHIIHIHIIIIIIIIHIIII</code></pre></div>
+
+<p><strong>Step 2. Index Reference Genome (snaptools)</strong>. 
+Index the reference genome before alingment if you do not have a indexed genome. (skip this step if you already have indexed genome). Here we show how to index the genome using BWA. User can choose different <code>--aligner</code>. </p>
+
+<div><pre><code class="language-bash">&gt; snaptools index-genome                \
+    --input-fasta=mm10.fa                \
+    --output-prefix=mm10                 \
+    --aligner=bwa                       \
+    --path-to-aligner=path_to_bwa/bin/   \
+    --num-threads=3</code></pre></div>
+
+<p><strong>Step 3. Alignment (snaptools)</strong>. 
+We next aligned de-multicomplexed reads to the corresponding reference genome using snaptools with following command. After alignment, reads are sorted by the read names which allows for grouping reads according to the barcode (<code>--if-sort</code>). User can mutiple CPUs to speed up this step (<code>--num-threads</code>).</p>
+
+<div><pre><code class="language-bash">&gt; snaptools align-paired-end            \
+    --input-reference=mm10.fa            \
+    --input-fastq1=CEMBA180306_2B.demultiplexed.R1.fastq.gz      \
+    --input-fastq2=CEMBA180306_2B.demultiplexed.R2.fastq.gz      \
+    --output-bam= CEMBA180226_1A.bam     \
+    --aligner=bwa                        \
+    --path-to-aligner=path_to_bwa/bin/   \
+    --read-fastq-command=zcat            \
+    --min-cov=0                          \
+    --num-threads=5                      \
+    --if-sort=True                       \
+    --tmp-folder=./                      \
+    --overwrite=TRUE                     </code></pre></div>
+
+<p><strong>Step 4. Pre-processing (snaptools)</strong>. 
+After alignment, we converted pair-end reads into fragments and for each fragment, we check the following attributes: 1) mapping quality score MAPQ; 2) whether two ends are appropriately paired according to the alignment flag information; 3) fragment length. We only keep the properly paired fragments whose MAPQ (<code>--min-mapq</code>) is greater than 30 with fragment length less than 1000bp (<code>--max-flen</code>). Because the reads have been sorted based on the names, fragments belonging to the same cell (or barcode) are naturally grouped together which allows for removing PCR duplicates. After alignment and filtration, we generated a snap-format (Single-Nucleus Accessibility Profiles) file that contains meta data, cell-by-bin count matrices of a variety of resolutions, cell-by-peak count matrix. Detailed information about snap file can be found in here. </p>
+
+<div><pre><code class="language-bash">&gt; wget http://hgdownload.cse.ucsc.edu/goldenPath/mm10/bigZips/mm10.chrom.sizes
+&gt; snaptools snap-pre                     \
+    --input-file=CEMBA180306_2B.bam      \
+    --output-snap=CEMBA180306_2B.snap    \
+    --genome-name=mm10                   \
+    --genome-size=mm10.chrom.sizes       \
+    --min-mapq=30                        \
+    --min-flen=0                         \
+    --max-flen=1000                      \
+    --keep-chrm=TRUE                     \
+    --keep-single=TRUE                   \
+    --keep-secondary=False               \
+    --overwrite=True                     \
+    --min-cov=100                        \
+    --verbose=True</code></pre></div>
+
+<p><strong>Step 5. Cell-by-Bin Matrix Generation (snaptools)</strong>. 
+Using generated snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, three cell-by-bin matrices are created with bin size of 1,000, 5,000 and 10,000. </p>
+
+<div><pre><code class="language-bash">&gt; snaptools snap-add-bmat             \
+    --snap-file=CEMBA180306_2B.snap    \
+    --bin-size-list 1000 5000 10000    \
+    --verbose=True</code></pre></div>
+
+<p><strong>Step 6. Cell-by-gene Matrix Generation (snaptools)</strong>. 
+We next create the cell-by-gene matrix which is later used for cluster annotation.</p>
+
+<div><pre><code class="language-bash">&gt; snaptools snap-add-gmat             \
+    --snap-file=CEMBA180306_2B.snap    \
+    --gtf-file=gencode.vM16.gene.bed  \
+    --verbose=True</code></pre></div>
+
+<p><strong>Step 7. Barcode Selection (snapATAC)</strong>. 
+Using snap file, we next identify the high-quality barcode based on the following metrices: 1) <code>fragment.num</code> - Total Sequencing Fragments; 2) <code>umap.ratio</code> - uniquely mapped ratio; 3) <code>dup.ratio</code> - duplate ratio; 4) <code>pair.ratio</code> - properly paired ratio; 5) <code>mito.ratio</code> - mitochondrial ratio. </p>
+
+<div><pre><code class="language-R">&gt; R
+&gt; library(snapATAC);
+&gt; x.sp = createSnap(&quot;CEMBA180306_2B.snap&quot;, metaData=TRUE);
+&gt; plotBarcode(x.sp);                             
+# filter cells based on the following cutoffs
+&gt; x.sp = filterCells(x.sp, 
+                   subset.names=c(&quot;fragment.num&quot;,
+                                  &quot;mito.ratio&quot;,
+                                  &quot;dup.ratio&quot;,
+                                  &quot;umap.ratio&quot;,
+                                  &quot;pair.ratio&quot;),
+                   low.thresholds=c(1000, 0, 0, 0.8, 0.9),
+                   high.thresholds=c(Inf, 0.1, 0.5, 1, 1)
+                  );
+&gt; x.sp 
+
+number of barcodes: 11251
+number of bins: 0
+number of peaks: 0
+number of genes: 0
+==========================
+meta data            (metData) :  TRUE
+cellxbin matrix      (bmat)    :  FALSE
+cellxpeak matrix     (pmat)    :  FALSE
+cellxgene matrix     (gmat)    :  FALSE
+jaccard matrix       (jmat)    :  FALSE
+normalization        (nmat)    :  FALSE
+PCA:                 (smat)    :  FALSE
+cluster:             (cluster) :  FALSE
+t-sne:               (tsne)    :  FALSE
+umap:                (umap)    :  FALSE</code></pre></div>
+
+<p><img src="barcode_QC.PNG" width="400" height="400" /></p>
+
+<p><strong>Step 8. Bin Size Selection (snapATAC)</strong>. 
+Using remaining cells, we next choose the optimal bin size based on the correlation between replicates. If there is no biological replicates given, the cells are evenly splitted into two psuedo-replicates. We recommand to chose the smallest bin size that have correlation greater than 0.95.</p>
+
+<div><pre><code class="language-R"># show what bin sizes exist in CEMBA180306_2B.snap file
+&gt; showBinSizes(&quot;CEMBA180306_2B.snap&quot;);
+# try 1kb resolution
+&gt; x.sp = addBmat(x.sp, &quot;CEMBA180306_2B.snap&quot;, binSize=1000);
+&gt; checkBinSize(x.sp);
+# try 5kb resolution
+&gt; x.sp = addBmat(x.sp, &quot;CEMBA180306_2B.snap&quot;, binSize=5000);
+&gt; checkBinSize(x.sp);
+# try 10kb resolution
+&gt; x.sp = addBmat(x.sp, &quot;CEMBA180306_2B.snap&quot;, binSize=10000);
+&gt; checkBinSize(x.sp);
+# based on the correlation, we choose 5kb resolution. 
+# in most cases, we recommand for 5kb resolution
+&gt; x.sp = addBmat(x.sp, &quot;CEMBA180306_2B.snap&quot;, binSize=5000);</code></pre></div>
+
+<p><strong>Step 9. Matrix Binarization (snapATAC)</strong>. 
+For cell-by-bin count matrix, we next convert it to a binary matrix. We found some items in the matrix can have exceedingly high coverage perhaps due to the alignment error. Therefore, we first remove top 0.1% items in the count matrix and then convert it to a binary matrix.</p>
+
+<div><pre><code class="language-R">&gt; x.sp = makeBinary(x.sp, mat=&quot;bmat&quot;);</code></pre></div>
+
+<p><strong>Step 10. Feature Selection (snapATAC)</strong>. 
+We calculate the <code>log10(count+1)</code> for every bin as its coverage. The distribution is approximately obey to a gussian distribution. We then converted to coverage into zscore and filter the bin of exceedingly high coverage (<code>high.threshold</code>) which represent the genomic regions that are less variable between cells. We also found that filtering bins of extreme low coverage (<code>low.threshold</code>) which may be a result of random noise can improve the robustness of downstream clustering. </p>
+
+<div><pre><code class="language-R">&gt; black_list = read.table(&quot;mm10.blacklist.bed.gz&quot;);
+&gt; black_list.gr = GRanges(
+                          black_list[,1], 
+                          IRanges(black_list[,2], black_list[,3])
+                         );
+&gt; idy = queryHits(FindOverlaps(x.sp, black_list.gr, mat=&quot;bmat&quot;));
+&gt; x.sp = x.sp[,-idy, mat=&quot;bmat&quot;];
+&gt; plotBinCoverage(x.sp);
+&gt; x.sp = filterBins(
+    x.sp,
+    low.threshold=-2,
+    high.threshold=2,
+    mat=&quot;bmat&quot;
+    );</code></pre></div>
+
+<p><strong>Step 11. Jaccard Matrix &amp; Normlaization (snapATAC)</strong>. We next convert the genome-wide cell-by-bin matrix into a cell-by-cell similarity matrix by estimating the jaccard index between two cells in the basis of overlaps. Instead of calculating a full N-by-N jaccard matrix, we calculate a partial jaccard index matrix by randomly choosing K cells (<code>max.var</code>). By doing so, we demonstrate that it does not sacriface the performance but significantly improves the running time. Due to the high dropout rate, the jaccard index is highly biased toward high coverage cells. To remove the read depth effect, we developed a normalization method (<code>norm.method</code>).</p>
+
+<div><pre><code class="language-R">&gt; x.sp = calJaccard(
+    x.sp,
+    mat = &quot;bmat&quot;,
+    ncell.chunk=1000,
+    max.var=5000,
+    seed.use=10,
+    norm.method=&quot;normOVE&quot;,
+    row.center=TRUE,
+    row.scale=TRUE,
+    low.threshold=-5,
+    high.threshold=5,
+    keep.jmat=FALSE,
+    do.par=TRUE,
+    num.cores=5
+    )</code></pre></div>
+
+<p><strong>Step 12. PCA (snapATAC)</strong>. Like other single-cell analysis, scATAC-seq contains extensive technical noise due to the high drop-out rate. To overcome this challenge, PCA or SVD is often applied to combine information across a correlated feature set hereby creating a mega-feature and exclude the variance potential resulting from technical noise. Here, we performed PCA against the normalized matrix. We used IRLBA algorithm, a fast and memory-efficient algorithm, to compute a partial PCA. IRLBA is implemented in  “irlba” R package.</p>
+
+<div><pre><code class="language-R">&gt; x.sp = runPCA(
+    x.sp,
+    pc.num=30,
+    input.mat=&quot;nmat&quot;,
+    method=&quot;svd&quot;,
+    weight.by.sd = TRUE,
+    center=TRUE,
+    scale=FALSE,
+    seed.use=10
+    )</code></pre></div>
+
+<p><strong>Step 13. Determine statistically significant principal components (snapATAC)</strong>. We next Determine how many PCs to include for downstream analysis. We use an ad hoc method for determining which PCs to use is to look at a plot of the standard deviations of the principle components and draw your cutoff where there is a clear elbow in the graph. The other ad hoc way to determine PCs is to plot out every two PCs and select until PCs that have no obvious structure. </p>
+
+<div><pre><code class="language-R">&gt; plotPCA(x.sp, method=&quot;elbow&quot;);
+&gt; plotPCA(x.sp, method=&quot;pairwise&quot;);</code></pre></div>
+
+<p><img src="PCA_elbow_plot.PNG" width="400" height="350" /></p>
+
+<p><img src="PCA_scatter_plot.PNG" width="400" height="250" /></p>
+
+<p><strong>Step 14. Clustering (snapATAC)</strong>. Using the selected PC vector, snapATAC next used a graph-based algorithm Louvain for finding cluster. </p>
+
+<div><pre><code class="language-R">&gt; x.sp = runCluster(
+                    x.sp,
+                    pca_dims=1:25,
+                    k=15,
+                    resolution=0.5,
+                    method=&quot;jaccard_louvain&quot;,
+                    path_to_louvain=&quot;../../../../github/snapR/bin/findCommunityLouvain&quot;
+    )</code></pre></div>
+
+<p><strong>Step 15. Visulization (snapATAC)</strong>. snapATAC uses tSNE and UMAP to visualize and explore these datasets. </p>
+
+<div><pre><code class="language-R"># umap
+&gt; x.sp = runViz(
+    x.sp, 
+    pca_dims=1:25, 
+    dims=2, 
+    method=&quot;umap&quot;,
+    )
+# tsne
+&gt; x.sp = runViz(
+    x.sp, 
+    pca_dims=1:25, 
+    dims=2, 
+    method=&quot;Rtsne&quot;,
+    init_dims=x.sp@tsne
+    )
+# visulization
+&gt; plotViz(x.sp, method=&quot;tsne&quot;, pch=19, cex=0.3);
+&gt; plotViz(x.sp, method=&quot;umap&quot;, pch=19, cex=0.3);</code></pre></div>
+
+<p><img src="Viz_tsne.PNG" width="350" height="350" />
+<img src="Viz_umap.PNG" width="350" height="350" /></p>
+
+<p><strong>Step 16. Gene-body based Annotation (snapATAC)</strong>. To annotate identified cell clusters, snapATAC next loads the cell-by-gene matrix which estimates the gene body accessibility level.</p>
+
+<div><pre><code class="language-R">&gt; x.sp = addGmat(x.sp, &quot;CEMBA180306_2B.snap&quot;);
+&gt; x.sp@gmat = x.sp@gmat / rowSums(x.sp@gmat) * 100000;
+&gt; marker.genes = c(&quot;Snap25&quot;, &quot;Gad2&quot;, &quot;Apoe&quot;, &quot;C1qb&quot;, &quot;Pvalb&quot;, 
+                   &quot;Vip&quot;, &quot;Sst&quot;, &quot;Lamp5&quot;, &quot;Slc17a7&quot;, &quot;Mog&quot;, 
+                   &quot;Pdgfra&quot;, &quot;Cspg4&quot;,&quot;Cx3cr1&quot;,&quot;F3&quot;,&quot;Aqp4&quot;, &quot;Rorb&quot;);
+&gt; plotGene(x.sp, gene.sel= marker.genes, method=&quot;tsne&quot;);</code></pre></div>
+
+<p><img src="gene_plot.PNG" width="500" height="500" /></p>
+
+<p><strong>Step 17. Output MetaData (snapATAC)</strong>. Store the meta data including the tsne and umap coordinates and cluster labels. But don&#39;t close the R session becuase we are going back to the analysis at step 20.</p>
+
+<div><pre><code class="language-R">write.metadata(x.sp, file=&quot;CEMBA180226_1A.txt&quot;)</code></pre></div>
+
+<p><strong>Step 18. Identifcation of <em>cis</em>-regulatory elements (snaptools)</strong>. A key utility of single cell chromatin accessibility analysis is to identify regulatory sequences in the genome. By pooling reads from nuclei in each cluster, snapATAC derived cell-type specific chromatin landscapes allowed for identifying candidate cis-elements in each cell type separately.</p>
+
+<div><pre><code class="language-bash">&gt; grep Vip CEMBA180226_1A.txt &gt; CEMBA180226_1A.vip.txt
+&gt; snaptools call-peak                  \
+    --snap-file=demo.snap               \
+    --barcode-file=barcode.vip.txt      \
+    --output-prefix=MOs_Vip            \
+    --path-to-macs=path_to_macs         \
+    --gsize=mm                          \
+    --tmp-folder=./
+# repeat above for all identified types
+# combine cis-elements to create a complete map
+&gt; cat *nrrowPeak       |               \
+  sort -k1,1 -k2,2n -  |               \
+  bedtools merge -i stdin &gt; all.bed</code></pre></div>
+
+<p><strong>Step 19. Cell-by-Peak Count Matrix Generaton (snaptools)</strong>. Using the merged peak list, snaptools generates cell-by-peak matrix. </p>
+
+<div><pre><code class="language-bash">&gt; wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/MOs_snATAC/peaks/all_peak.bed
+&gt; snaptools snap-add-pmat            \
+   --snap-file=CEMBA180306_2B.snap   \
+   --peak-file=all_peak.bed</code></pre></div>
+
+<p><strong>Step 20. Identifcation of Cell-type Specific Elements (snapATAC)</strong>.</p>
+
+<div><pre><code class="language-R">&gt; x.sp = addPmat(x.sp,&quot;CEMBA180306_2B.snap&quot;);</code></pre></div>
+
+<p><strong>Step 21. Inference of potential master regulator (snapATAC)</strong>. We infer the master regulators for each cell type using HOMER. See wiki how to install Homer and merge R package.</p>
+
+<div><pre><code class="language-R">&gt; library(merge)
+&gt; x.sp = addPmat(x.sp, &quot;CEMBA180306_2B.snap&quot;);</code></pre></div>
+
+<p><strong>Step 22. GREAT Anlysis</strong>. We predict the function of each cell type using Genomic Region Enrichment Annotation Tools (GREAT). </p>
+
+<div><pre><code class="language-R">&gt; x.sp = addPmat(x.sp, &quot;CEMBA180306_2B.snap&quot;);</code></pre></div>
+
+<p><strong>Step 23. GREAT Anlysis</strong>. SnapATAC also provides API to other single cell ATAC-seq analysis softwares such as LSA, Cis-Topic, chromVAR and Cicero (linking distal elements to target genes).</p>
+
+<div><pre><code class="language-R">&gt; x.sp = addPmat(x.sp, &quot;CEMBA180306_2B.snap&quot;);</code></pre></div>
+
+
+
+
+</body>
+
+</html>
