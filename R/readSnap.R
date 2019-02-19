@@ -47,7 +47,7 @@ createSnap.default <- function(file, metaData=TRUE){
 #' Add cell-by-bin matrix
 #' @export
 
-addBmat <- function(obj,file, ...) {
+addBmat <- function(obj,...) {
   UseMethod("addBmat", obj);
 }
 
