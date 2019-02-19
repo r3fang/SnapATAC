@@ -42,6 +42,9 @@ createSnap.default <- function(file, metaData=TRUE){
 	return(res);	
 }
 
+#' Add cell-by-bin matrix
+#' @export
+
 addBmat <- function(obj,file, ...) {
   UseMethod("addBmat");
 }
@@ -98,6 +101,9 @@ addBmat.default <- function(obj, file, binSize=5000){
 	return(obj);
 }
 
+#' Add cell-by-peak matrix
+#' @export
+
 addPmat <- function(obj,file, ...) {
   UseMethod("addPmat");
 }
@@ -147,6 +153,9 @@ addPmat.default <- function(obj, file){
 
 }
 
+#' Add cell-by-gene matrix
+#' @export
+
 addGmat <- function(obj,file, ...) {
   UseMethod("addGmat");
 }
@@ -191,7 +200,8 @@ addGmat.default <- function(obj, file){
         return(obj);
 }
 
-
+#' Create a snap object from cell-by-bin matrix
+#' @export
 createSnapFromBmat <- function(mat, barcodes, bins) {
   UseMethod("createSnapFromBmat");
 }
@@ -223,7 +233,8 @@ createSnapFromBmat.default <- function(mat, barcodes, bins){
 	return(obj);
 }
 
-
+#' Create a snap object from cell-by-peak matrix
+#' @export
 createSnapFromPmat <- function(mat, barcodes, peaks) {
   UseMethod("createSnapFromPmat");
 }
@@ -255,7 +266,8 @@ createSnapFromPmat.default <- function(mat, barcodes, peaks){
 	return(obj);
 }
 
-
+#' Create a snap object from cell-by-gene matrix
+#' @export
 createSnapFromGmat <- function(mat, barcodes, geneNames) {
   UseMethod("createSnapFromGmat");
 }
