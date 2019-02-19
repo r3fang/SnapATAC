@@ -6,7 +6,7 @@
 #' @export
 #' @examples
 #' cat_function()
-
+ 
 cat_function <- function(love=TRUE){
     if(love==TRUE){
         print("I love cats!")
@@ -15,4 +15,3 @@ cat_function <- function(love=TRUE){
         print("I am not a cool person.")
     }
 }
-

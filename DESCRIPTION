@@ -1,10 +1,25 @@
 Package: SnapATAC
-Title: What the Package Does (one line, title case)
-Version: 0.0.0.9000
-Authors@R: person("First", "Last", email = "first.last@example.com", role = c("aut", "cre"))
+Title: Single Nucleus Analysis Package for ATAC-seq
+Version: 1.0
+Authors@R: person("Rongxin", "Fang", email = "r4fang@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
-Depends: R (>= 3.4.0)
-License: What license is it under?
+Depends:
+	R (>= 3.4.0),
+	GenomicRanges,
+	Matrix,
+	rhdf5,
+	raster,
+	irlba,
+	parallel,
+	igraph,
+	FastKNN,
+	Rtsne,
+	edgeR,
+	RANN,
+	RColorBrewer,
+	Rcpp,
+	umap
+License: MIT
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
