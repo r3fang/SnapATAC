@@ -499,40 +499,6 @@ setMethod("FindOverlaps", "snap", function(x, y, mat=c("bmat", "pmat")){
 	return(ov);
 });
 
-#' rmSlot for snap object.
-#'
-#' Function to remove a certain slot from a snap object
-#' @name rmSlot
-#' @param x any snap object.
-#' @rdname rmSlot-methods
-#' @exportMethod rmSlot
-setGeneric("rmSlot", function(x, ...) standardGeneric("rmSlot"))
-
-#' @rmSlot rmSlot-methods
-#' @aliases rmSlot,snap-method
-setMethod("rmSlot", "snap", function(x, mat=c("bmat", "pmat", "gmat", "jmat", "nmat", "smat", "tsne", "umap", "cluster")){
-	mat = match.arg(mat);
-	if(mat == "bmat"){
-		x@bmat = Matrix(0, 0, 0);
-	}else if(mat == "gmat"){
-		x@gmat = Matrix(0, 0, 0);
-	}else if(mat == "pmat"){
-		x@pmat = Matrix(0, 0, 0);
-	}else if(mat == "jmat"){
-		x@jmat = matrix(0, 0, 0);
-	}else if(mat == "nmat"){
-		x@nmat = matrix(0, 0, 0);		
-	}else if(mat == "smat"){
-		x@smat = matrix(0, 0, 0);		
-	}else if(mat == "tsne"){
-		x@tsne = matrix(0, 0, 0);		
-	}else if(mat == "umap"){
-		x@umap = matrix(0, 0, 0);
-	}else if(mat == "cluster"){
-		x@cluster = c();
-	}
-	return(x);
-});
 
 setMethod("show", signature = "snap",
 	definition = function(object) {
