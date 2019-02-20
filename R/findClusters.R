@@ -77,21 +77,18 @@ runCluster.default <- function(
 		dx = dx[,2:(k+1)]
 		edges <- matrix(unlist(sapply(1:nrow(dx),function(i) { rbind(rep(i,k),dx[i,])})),nrow=2);
 		edges = as.data.frame(t(edges));	
-		edges$weight = 1;
-		ajm = Matrix(0, ncell, ncell, sparse=TRUE);
-		ajm[as.matrix(edges[,1:2])] = edges[,3];
-		g = graph_from_adjacency_matrix(ajm, mode="undirected", weighted=NULL);		
-		g = graph_from_adjacency_matrix(similarity(g, method = "jaccard"), mode="undirected", weighted=TRUE)			
-		adj=get.adjacency(g,attr='weight') 
-		edges = as.data.frame(Matrix::which(adj > 0, arr.ind=TRUE))
-		edges = edges[edges[,1] < edges[,2],]
-		edges$value = adj[as.matrix(edges)]
+		g = graph_from_edgelist(as.matrix(edges), directed=FALSE);
+		#g = graph_from_adjacency_matrix(ajm, mode="undirected", weighted=NULL);		
+		#g = graph_from_adjacency_matrix(similarity(g, method = "jaccard"), mode="undirected", weighted=TRUE)			
+		#adj=get.adjacency(g,attr='weight') 
+		gm = Matrix(similarity(g, method = "jaccard"), sparse=TRUE);		
+		edges = data.frame(i= gm@i+1, j=findInterval(seq(gm@x)-1,gm@p[-1])+1, value=gm@x);
+		edges = edges[edges[,1] < edges[,2],];
 		write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
 		flag = system2(command=path_to_snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
 		if (flag != 0) {
 		   	stop("'runCluster' call failed");
-		}
-	
+		}	
 		cluster = read.table(result_path);
 		object@cluster = factor(cluster[order(cluster[,1]),2]);
 		file.remove(data_path)
