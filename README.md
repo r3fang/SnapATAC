@@ -12,7 +12,7 @@ SnapATAC is composed of two components: [Snaptools](https://github.com/r3fang/Sn
 Install snaptools from PyPI
 
 ```bash
-$ pip install "snaptools==1.2" --user
+$ pip install snaptools==1.2.2 --user
 ```
 
 Or install snaptools from source code
@@ -26,7 +26,7 @@ $ ./bin/snaptools
 usage: snaptools [-h]  ...
 
 Program: snaptools (A module for working with snap files in Python)
-Version: 1.1
+Version: 1.2.2
 Contact: Rongxin Fang
 E-mail:  r4fang@gmail.com
 
@@ -47,6 +47,7 @@ functions:
     dump-fragment   Dump fragments of selected barcodes from a snap file.
     dump-barcode    Dump barcodes from a snap file.
     call-peak       Call peak using selected barcodes.
+    louvain         Louvain communities finding.
 ```
 
 Install snapATAC from github

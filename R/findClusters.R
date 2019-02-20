@@ -87,8 +87,7 @@ runCluster.default <- function(
 		edges = edges[edges[,1] < edges[,2],]
 		edges$value = adj[as.matrix(edges)]
 		write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
-		print(c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution))
-		flag = system2(command=path_to_snaptools, args=c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
+		flag = system2(command=path_to_snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
 		if (flag != 0) {
 		   	stop("'runCluster' call failed");
 		}
@@ -104,8 +103,7 @@ runCluster.default <- function(
 		edges = as.data.frame(t(edges));	
 		edges$weight = 1;
 		write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
-		print(c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution))
-		flag = system2(command=path_to_snaptools, args=c(path_to_snaptools, "louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
+		flag = system2(command=path_to_snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));
 		if (flag != 0) {
 		   	stop("'runCluster' call failed");
 		}	
