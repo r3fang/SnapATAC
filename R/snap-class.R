@@ -1,3 +1,12 @@
+#    ____  __   __  __    ____
+#   / __/ / \ \/ / /  \  |    \
+#  _\ \  / / \/ / / __ \ |____/
+# /___/ /_/  /_/ /_/  \_\|_|
+#    __    _____    __    ____
+#   /  \  |_   _|  /  \  |  __|
+#  / __ \   | |   / __ \ | |__
+# /_/  \_\  |_|  /_/  \_\|____|
+
 #' An S4 class snap to represent single-nucleus accessibility object.
 #'
 #' Class snap defines a snap object.
@@ -582,3 +591,5 @@ setMethod("[", "snap",
 	   x@tsne = .tsne;
 	   return(x);
 })
+
+

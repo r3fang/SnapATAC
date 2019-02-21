@@ -12,7 +12,7 @@ SnapATAC is composed of two components: [Snaptools](https://github.com/r3fang/Sn
 Install snaptools from PyPI
 
 ```bash
-$ pip install snaptools==1.2.2 --user
+$ pip install snaptools==1.2.3 --user
 ```
 
 Or install snaptools from source code
@@ -26,7 +26,7 @@ $ ./bin/snaptools
 usage: snaptools [-h]  ...
 
 Program: snaptools (A module for working with snap files in Python)
-Version: 1.2.2
+Version: 1.2.3
 Contact: Rongxin Fang
 E-mail:  r4fang@gmail.com
 
@@ -56,11 +56,10 @@ Install snapATAC from github
 $ R
 > install.packages("devtools")
 > library(devtools)
-> github_install("r3fang/SnapATAC");
+> install_github("r3fang/SnapATAC");
 > library(SnapATAC);
 ```
 
-Please see the wiki for other installation method.
 
 ## Galleries 
 [<img src="./images/Fang_2019.png" width="250" height="290" />](./examples/Fang_2019/Fang_2019.md)

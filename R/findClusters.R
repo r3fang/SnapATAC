@@ -26,7 +26,7 @@ runCluster.default <- function(
 	k=15, 
 	centers=NULL,
 	pca_dims=NULL, 
-	method=c("jaccard_louvain", "louvain", "kmeans", "densityClust"), 
+	method=c("louvain", "jaccard_louvain", "kmeans", "densityClust"), 
 	resolution=1, 
 	data_path=NULL, 
 	result_path=NULL,

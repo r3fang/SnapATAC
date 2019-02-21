@@ -25,10 +25,6 @@ runHomer.default <- function(
 	keep_minimal = FALSE,
 	...
 	){
-		if(!require("marge")){
-			stop("package 'merge' needs to be installed first")
-		}
-		
 		if (is.null(result_dir)) {
 			result_dir <- tempfile(pattern='homer')
 		}
@@ -38,7 +34,7 @@ runHomer.default <- function(
 			stop("'object' is not a snap object")
 		}
 		
-		mat = match.args(mat);
+		mat = match.arg(mat);
 		if(mat == "pmat"){
 			peaks <- as_tibble(as.data.frame(object@peak)[,c(1:3)]);
 		}else if(mat == "bmat"){
@@ -48,26 +44,6 @@ runHomer.default <- function(
 		if(nrow(peaks) == 0){
 			stop("feature for motif analysis is empty")
 		}
-		
-		find_motifs_genome(
-			peaks,
-			path = result_dir,
-			genome = genome,
-			motif_length = motif_length,
-			scan_size = scan_size,
-			optimize_count = optimize_count,
-			background = background,
-			local_background = local_background,
-			only_known = only_known, 
-			only_denovo = only_denovo,
-			fdr_num = fdr_num,
-			cores = cores, 
-			cache = cache,
-			overwrite = overwrite, 
-			keep_minimal = keep_minimal,
-			...
-		)
-		
 		
 	    ## Error checking -----------------------------------------------------
 	    if (overwrite == FALSE & dir.exists(path)) {
@@ -159,7 +135,7 @@ runHomer.default <- function(
 	    }
 		
 		x = read.csv(paste0(result_dir, "/knownResults.txt"), sep="\t", head=TRUE);
-	    system("rm -f *.tmp")
+	    system("rm -f *.tmp");
 		return(x)
 }
 

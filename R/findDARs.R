@@ -27,137 +27,122 @@
 #' @export
 
 findDAR <- function(object, input=c("cmat", "gmat"), cluster=NULL, rep=NULL, treat=NULL, ctrl=NULL, down.sample=TRUE, dispersion=0.2, min.row.sum = 10, max.row.sum=500, rand.seed=10, ...) {
-  UseMethod("findDAR");
+  UseMethod("findDAR", object);
 }
 
 #' @export
-findDAR.default <- function(object, input=c("cmat", "gmat"), cluster=NULL, rep=NULL, treat=NULL, ctrl=NULL, down.sample=TRUE, dispersion=0.3, min.row.sum=10, max.row.sum=500, rand.seed=10, ...){
-	# 1. check if object is a snap;
-	if(class(object) != "snap"){
-		stop("Not a snap object")
-	}
-	if(missing(cluster)){
-		stop("cluster is missing")		
-	}
-
-	if(class(cluster) != "factor"){
-		stop("cluster is not a factor")		
-	}
-	
-	if(missing(rep)){
-		stop("rep is missing")		
-	}
-
-	if(class(rep) != "factor"){
-		stop("rep is not a factor")		
-	}
-	
-	if((nrow(object) != length(cluster)) | nrow(object) != length(rep)){
-		stop("cluster or rep incorrect length")				
-	}
-
-	if(any(treat %in% cluster == FALSE)){
-		stop("treat is not contained in cluster")						
-	}
-
-	if(any(ctrl %in% cluster == FALSE)){
-		stop("ctrl is not contained in cluster")						
-	}
-	
-	input = match.arg(input);
-	cluster = droplevels(cluster);
-	rep = droplevels(rep);
-	
-	if(input == "cmat"){
-		cmat = object@cmat;		
-	}else if(input == "bmat"){
-		cmat = object@bmat;		
-	}else if(input == "gmat"){
-		cmat = gmat;
-	}
-	
-	nrep = length(levels(rep));
-	if(nrep == 1){
-		stop("Does not support 1 replciate!")
-	}
-
-	ncluster = length(levels(cluster));
-	nfeature = ncol(cmat);
-	
-	if(nfeature <= 0 ){
-		stop("0 feature detected in object")
-	}
-
-	# find the min cell number
-	if(down.sample){
-		ncell.treat <- min(length(which(cluster %in% treat)), length(which(cluster %in% ctrl)));
-		ncell.ctrl <- min(length(which(cluster %in% treat)), length(which(cluster %in% ctrl)));
-		set.seed(rand.seed);
-		idx.treat <- sample(which(cluster %in% treat), ncell.treat);
-		set.seed(rand.seed);
-		idx.ctrl <- sample(which(cluster %in% ctrl), ncell.ctrl);
-		# reconstruct all the input
-	}else{
-		ncell.treat <- length(which(cluster %in% treat));
-		ncell.ctrl <- length(which(cluster %in% ctrl));
-		set.seed(rand.seed);
-		idx.treat <- sample(which(cluster %in% treat), ncell.treat);
-		set.seed(rand.seed);
-		idx.ctrl <- sample(which(cluster %in% ctrl), ncell.ctrl);
-	}
+findDAR.default <- function(
+	object,
+	mat=c("pmat", "bmat", "gmat"),
+	barcodes.sel,
+	bcv=0.1,
+	rand.seed=10,
+	pca_dims,
+	fdr=5e-2,
+	method=c("exactTest", "LRT", "QLF"),
+	k=30,
+	...
+	){
+		# 1. check if object is a snap;
+		if(class(object) != "snap"){
+			stop("object is not a snap object")
+		}
 		
-	cmat = cmat[c(idx.treat, idx.ctrl),];
-	cluster = cluster[c(idx.treat, idx.ctrl)];
-	rep = rep[c(idx.treat, idx.ctrl)];
-	
-	# create the ensemble signal
-	x = matrix(0, nfeature, 2*nrep)
-	
-	i = 1
-	for(rep_i in levels(rep)){	
-		x[,i] = Matrix::colSums(cmat[which(cluster %in% treat & rep == rep_i),])
-		i = i + 1
-	}
-
-	for(rep_i in levels(rep)){		
-		x[,i] = Matrix::colSums(cmat[which(cluster %in% ctrl & rep == rep_i),])
-		i = i + 1
-	}
-	
-	group <- factor(c(rep(1, nrep), rep(2, nrep)));
-	design <- model.matrix(~group);
-	keep = which(rowSums(x) >= min.row.sum & rowSums(x) <= max.row.sum)
-	x = x[keep,,drop=FALSE]
-	y <- DGEList(counts=x, group=group);	
-	# pre-filteration of low-coverage and high coverage
-	y <- calcNormFactors(y);
-	
-	y <- estimateDisp(y, design, trend.method="locfit");
-	fit <- glmFit(y, design);				
-	tb <- glmLRT(fit,coef=2)$table;
-	
-	#if(nrep == 1){
-	#	if(method == "LRT"){
-	#		fit <- glmFit(y, design, dispersion=0.2^2);				
-	#		tb <- glmLRT(fit,coef=2)$table;
-	#	}else if(method == "QLF"){		
-	#		fit <- glmQLFit(y, design, dispersion=0.2^2)$table;				
-	#	}else{
-	#		tb <- exactTest(y, dispersion=0.2^2)$table;
-	#	}	
-	#}else{
-	#	if(method == "LRT"){
-	#		y <- estimateDisp(y, design, trend.method="locfit");
-	#		fit <- glmFit(y, design);				
-	#		tb <- glmLRT(fit,coef=2)$table;
-	#	}else if(method == "QLF"){		
-	#		y <- estimateDisp(y,design, trend.method="locfit");
-	#		fit <- glmQLFit(y, design)$table;				
-	#	}else{
-	#		y <- estimateDisp(y,design, trend.method="locfit");
-	#		tb <- exactTest(y)$table;
-	#	}	
-	#}
-	tb$fdr <- p.adjust(tb$PValue, method="BH");
-	return(cbind(id=keep, cpm(y), tb));
+		if(missing(barcodes.sel)){
+			stop("barcodes.sel is missing")
+		}else{
+			if(any(!(barcodes.sel %in% object@barcode))){
+				stop("some 'barcodes' do not exist in the object");
+			}
+		}
+		
+		mat = match.arg(mat);
+		if(mat == "bmat"){
+			cmat = object@bmat;
+		}else if(mat == "pmat"){
+			cmat = object@pmat;
+		}else if(mat == "gmat"){
+			cmat = object@gmat;
+		}
+		
+		if(missing(pca_dims)){
+			stop("pca_dims is missing")
+		}
+		
+		method = match.arg(method);
+		
+		message("Identifying accessible regions using postive sample");
+		# positive cells
+		idx.pos = which(object@barcode %in% barcodes);
+		
+		# identify negative control cells
+		dx = nn2(object@smat[,pca_dims], k = k+1)$nn.idx;
+		dx = dx[,2:(k+1)];
+		edges = matrix(unlist(sapply(1:nrow(dx),function(i) { rbind(rep(i,k),dx[i,])})),nrow=2);
+		edges = as.matrix(t(edges));
+		freq = table(edges[which((edges[,1] %in% idx.pos) & !(edges[,2] %in% idx.pos)),2]);
+		idx.neg = as.numeric(names(freq)[order(freq, decreasing=TRUE)])[seq(min(length(idx.pos), length(freq)))];
+		
+		# calcualte coverage for posive and negative cells
+		cmat.pos = cmat[idx.pos,];
+		cmat.neg = cmat[idx.neg,];
+		
+		# perform test
+		x = data.frame(colSums(cmat.neg), colSums(cmat.pos))
+		group <- factor(c(1,2));
+		design <- model.matrix(~group);
+		y <- DGEList(counts=x, group=group);
+		
+		if(method == "LRT"){
+			fit <- glmFit(y, design, dispersion=bcv^2);
+			tb.pos <- glmLRT(fit,coef=2)$table;
+		}else if(method == "QLF"){
+			tb.pos <- glmQLFit(y, design, dispersion=bcv^2)$table;
+		}else{
+			tb.pos <- exactTest(y, dispersion=bcv^2)$table;
+		}
+		
+		message("Identifying accessible regions using negative control sample")
+		# negative control by randomly select k cells
+		set.seed(rand.seed);
+		neg.idx.pos = sample(seq(nrow(object)), length(idx.pos))
+		
+		# identify negative control cells
+		freq = table(edges[which((edges[,1] %in% neg.idx.pos) & !(edges[,2] %in% neg.idx.pos)),2]);
+		neg.idx.neg = as.numeric(names(freq)[order(freq, decreasing=TRUE)])[seq(min(length(neg.idx.pos), length(freq)))];
+		
+		
+		# calcualte coverage for posive and negative cells
+		neg.cmat.pos = cmat[neg.idx.pos,];
+		neg.cmat.neg = cmat[neg.idx.neg,];
+		
+		x = data.frame(colSums(neg.cmat.pos), colSums(neg.cmat.neg))
+		group <- factor(c(1,2));
+		design <- model.matrix(~group);
+		y <- DGEList(counts=x, group=group);
+		
+		if(method == "LRT"){
+		fit <- glmFit(y, design, dispersion=bcv^2);
+			tb.neg <- glmLRT(fit,coef=2)$table;
+		}else if(method == "QLF"){
+			tb.neg <- glmQLFit(y, design, dispersion=bcv^2)$table;
+		}else{
+			tb.neg <- exactTest(y, dispersion=bcv^2)$table;
+		}
+		
+		message("calculating p-value and FDR table")
+		fdr_table = data.frame()
+		for(p_i in seq(0.001, 0.05, by=0.001)){
+		fdr_table = rbind(fdr_table,
+			data.frame(
+			PValue=p_i,
+			fdr=length(which(tb.neg$PValue < p_i & tb.neg$logFC > 0)) / length(which(tb.pos$PValue < p_i & tb.pos$logFC > 0))
+			)
+			)
+		}
+		if(length(which(fdr_table[,2] <= fdr)) > 0){
+			fdr.idx = max(which(fdr_table[,2] <= fdr));
+			return(which(tb.pos$PValue < fdr_table[fdr.idx,1] & tb.pos$logFC > 0))
+		}
+		return(c())
 }
