@@ -17,7 +17,7 @@ SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) an
 Install snaptools from PyPI
 
 ```bash
-$ pip install snaptools==1.2.3 --user
+$ pip install snaptools==1.2.5 --user
 ```
 
 See how to install snaptools on [MAC OS](https://github.com/r3fang/SnapATAC/wiki/SnapTools-Installation). 
