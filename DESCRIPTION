@@ -19,7 +19,8 @@ Depends:
 	RColorBrewer,
 	Rcpp,
 	umap,
-	scales
+	scales,
+	doSNOW
 License: MIT
 Encoding: UTF-8
 LazyData: true
