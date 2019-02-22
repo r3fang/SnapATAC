@@ -14,6 +14,7 @@ plotGene.default <- function(
 	p=0.1, 
 	plot.row=4, 
 	plot.col=4, 
+	background=TRUE,
 	...
 	){	
 	
@@ -56,7 +57,7 @@ plotGene.default <- function(
 			for(i in seq(ndim)){
 				id.sel = which(colnames(obj@gmat) == gene.sel[i]);
 				y = obj@gmat[,id.sel];
-				id.pos = order(y, decreasing=TRUE)[1:round(min(length(which(y > 0)), p*ncell))];		
+				id.pos = order(y, decreasing=TRUE)[1:round(min(length(which(y > 0)), p*ncell))];	
 				plot(x,
 			   		col="grey", 
 			   		main=gene.sel[i],
@@ -72,16 +73,33 @@ plotGene.default <- function(
 			for(i in seq(ndim)){
 				id.sel = which(colnames(obj@gmat) == gene.sel[i]);
 				y = obj@gmat[,id.sel];
+				if(background){
+					plot(x, 
+			   			 main=gene.sel[i],
+						 col=alpha("grey", 0.1), 
+	 			   		 yaxt='n', 
+	 			   		 xaxt="n",
+	 			   		 xlab="", 
+	 			   		 ylab="",
+	 					 ...
+						 );					
+					
+					points(x, 
+						 col=alpha("red", pmin(1, y/quantile(y[which(y > 0)], 0.99))), 
+	 					 ...
+						 );										
+				}else{
+					plot(x, 
+			   			 main=gene.sel[i],
+						 col=alpha("red", pmin(1, y/quantile(y[which(y > 0)], 0.99))), 
+	 			   		 yaxt='n', 
+	 			   		 xaxt="n",
+	 			   		 xlab="", 
+	 			   		 ylab="",
+	 					 ...
+						 );					
+				}
 				
-				plot(x, 
-		   			 main=gene.sel[i],
-					 col=alpha("red", pmin(1, y/quantile(y[which(y > 0)], 0.99))), 
- 			   		 yaxt='n', 
- 			   		 xaxt="n",
- 			   		 xlab="", 
- 			   		 ylab="",
- 					 ...
-					 );
 			}						
 		}
 }
