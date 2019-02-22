@@ -2,9 +2,9 @@
 Single Nuclesus Analysis Package for ATAC-seq. 
 
 ## Introduction
-SnapATAC is fast, accurate and truely unbiased method for analyzing single cell ATAC-seq datasets. Compared to previous methods, SnapATAC 1) overcomes the bias introduced by reliance on accessibility peaks defined by aggragte signals; 2) as a result, reveals novel cis-elements only acitive in rare populations; 3) adjusts for differing sequencing depth effect between cells; 4) scales up to millions of cells using a novel dimensionality reduction method. 
+SnapATAC is fast, accurate and unbiased method for analyzing single cell ATAC-seq datasets. Compared to previous methods, SnapATAC 1) overcomes the bias introduced by reliance on accessibility peaks defined by aggragte/bulk signal; 2) as a result, reveals novel cis-elements only acitive in rare populations; 3) adjusts for differing sequencing depth between cells; 4) scales up to millions of cells. 
 
-SnapATAC is composed of two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
+SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
 
 * Snaptools is a module for working with [snap](https://github.com/r3fang/SnapATAC/wiki/What-is-a-snap-file%3F) file in Python. 
 * SnapATAC is a R package for the downstream analysis. 
@@ -20,41 +20,6 @@ Install snaptools from PyPI
 
 ```bash
 $ pip install snaptools==1.2.3 --user
-```
-
-Alteratively, install snaptools from source code
-
-```bash
-$ git clone https://github.com/r3fang/snaptools.git
-$ cd snaptools
-$ python setup.py install --user
-$ ./bin/snaptools
-
-usage: snaptools [-h]  ...
-
-Program: snaptools (A module for working with snap files in Python)
-Version: 1.2.3
-Contact: Rongxin Fang
-E-mail:  r4fang@gmail.com
-
-optional arguments:
-  -h, --help        show this help message and exit
-
-functions:
-
-    index-genome    Index reference genome.
-    align-paired-end
-                    Align paired-end reads.
-    align-single-end
-                    Align single-end reads.
-    snap-pre        Create a snap file from bam or bed file.
-    snap-add-bmat   Add cell x bin count matrix to snap file.
-    snap-add-pmat   Add cell x peak count matrix to snap file.
-    snap-add-gmat   Add cell x gene count matrix to snap file.
-    dump-fragment   Dump fragments of selected barcodes from a snap file.
-    dump-barcode    Dump barcodes from a snap file.
-    call-peak       Call peak using selected barcodes.
-    louvain         Louvain communities finding.
 ```
 
 See how to install snaptools on [MAC OS](https://github.com/r3fang/SnapATAC/wiki/SnapTools-Installation). 

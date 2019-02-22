@@ -377,6 +377,31 @@ setMethod("colSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=FA
 	return(res);
 });
 
+
+#' Summary for snap objects
+#'
+#' This function takes a snap object and returns the quality control metrics summary.
+#' @name Summary
+#' @param x snap; a snap object
+#' @rdname Summary-methods
+#' @aliases Summary,snap-method
+#' @exportMethod Summary
+setMethod("Summary", "snap", function(x){
+	if(nrow(x@metaData) == 0){
+		stop("metaData is empty")
+	}
+	barcode = getMetaData(x);
+	message("Total  number of barcodes: ", length(x@barcode));	
+	message("Median number of sequencing fragments: ", median(barcode$TN));
+	message("Median number of uniquely mapped fragments: ", median(barcode$UQ));
+	message("Median number of mappability ratio: ", round(median((barcode$UM+1)/(barcode$TN+1)),2));
+	message("Median number of properly paired ratio: ", round(median((barcode$PP+1)/(barcode$UM+1)),2));
+	message("Median number of duplicate ratio: ", round(median(1 - (barcode$UQ+1)/(barcode$PP+1)),2));
+	message("Median number of chrM ratio: ", round(median((barcode$CM+1) / (barcode$UQ+1)),2));
+	message("Median number of unique molecules (UMI): ", median(barcode$UQ));
+});
+
+
 #' rowMeans for snap objects
 #'
 #' This function takes a snap object and returns the row means of its count matrix.
