@@ -2,14 +2,12 @@
 Single Nuclesus Analysis Package for ATAC-seq. 
 
 ## Introduction
-SnapATAC is fast, accurate and unbiased method for analyzing single cell ATAC-seq datasets. Compared to previous methods, SnapATAC 1) overcomes the bias introduced by reliance on accessibility peaks defined by aggragte/bulk signal; 2) as a result, reveals novel cis-elements only acitive in rare populations; 3) adjusts for differing sequencing depth between cells; 4) scales up to millions of cells. 
+SnapATAC is fast, accurate and unbiased method for analyzing single cell ATAC-seq datasets. Compared to previous methods, SnapATAC 1) overcomes limitation of reliance on open chromatin peaks defined by aggregate/bulk signal; 2) reveals novel cis-elements active in rare populations; 3) adjusts for differing sequencing depth between cells; 4) scales up to millions of cells.
 
 SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
 
 * Snaptools is a module for working with [snap](https://github.com/r3fang/SnapATAC/wiki/What-is-a-snap-file%3F) file in Python. 
 * SnapATAC is a R package for the downstream analysis. 
-
-Together, SnapATAC represents an end-to-end solution of single cell ATAC-seq analysis.
 
 ## Requirements 
 * Python (2.7)
@@ -34,7 +32,7 @@ $ R
 > library(SnapATAC);
 ```
 
-## Galleries 
+## Galleries & Tutorials
 [<img src="./images/Fang_2019.png" width="250" height="290" />](./examples/Fang_2019/Fang_2019.md)
 [<img src="./images/Cusanovich_2018.png" width="250" height="290" />](./examples/Cusanovich_2018/Cusanovich_2018.md)
 [<img src="./images/Lake_2018.png" width="250" height="290" />](./examples/Lake_2018/Lake_2018.md)
