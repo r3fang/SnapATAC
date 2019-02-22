@@ -9,7 +9,7 @@ SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) an
 * Snaptools is a module for working with [snap](https://github.com/r3fang/SnapATAC/wiki/What-is-a-snap-file%3F) file in Python. 
 * SnapATAC is a R package for the downstream analysis. 
 
-## Requirements 
+## Requirements  
 * Python (2.7)
 * R (>= 3.4.0)
 
