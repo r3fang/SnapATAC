@@ -150,7 +150,7 @@ umap:                (umap)    :  FALSE
 
 **Step 9. Comparision between PFC and HP**
 
-```
+```R
 > plot(x.sp@tsne, col="grey", cex=0.5, xlab="tsne-1", ylab="tsne2");
 > points(x.sp@tsne[grep("PFC", x.sp@barcode),], col="black", cex=0.5);
 > legend(-40, 45, legend=c("PFC", "CA"),

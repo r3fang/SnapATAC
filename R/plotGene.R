@@ -15,6 +15,7 @@ plotGene.default <- function(
 	plot.row=4, 
 	plot.col=4, 
 	background=TRUE,
+	background_rho=0.2,
 	...
 	){	
 	
@@ -76,7 +77,7 @@ plotGene.default <- function(
 				if(background){
 					plot(x, 
 			   			 main=gene.sel[i],
-						 col=alpha("grey", 0.1), 
+						 col=alpha("grey", background_rho), 
 	 			   		 yaxt='n', 
 	 			   		 xaxt="n",
 	 			   		 xlab="", 

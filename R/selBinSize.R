@@ -29,13 +29,19 @@ checkBinSize.default <- function(obj1, obj2=NULL){
 		if(any(obj1@feature$name != obj2@feature$name)){
 			stop("'obj1' and 'obj2' have different features")			
 		}
-		obj1 = makeBinary(obj1);						
-		obj2 = makeBinary(obj2);						
+		if(max(obj1@bmat) > 1){
+			obj1 = makeBinary(obj1);									
+		}
+		if(max(obj2@bmat) > 1){
+			obj2 = makeBinary(obj2);									
+		}
 		cov1 = log(Matrix::colSums(obj1@bmat) + 1, 10);
 		cov2 = log(Matrix::colSums(obj2@bmat) + 1, 10);	
 		
 	}else{
-		obj1 = makeBinary(obj1);						
+		if(max(obj1@bmat) > 1){
+			obj1 = makeBinary(obj1);									
+		}
 		ncell = length(obj1@barcode);
 		idx1 = sort(sample(seq(ncell), ncell/2));
 		idx2 = setdiff(seq(ncell), idx1);

@@ -1,6 +1,7 @@
 ## Re-analysis of mouse pre-frontal cortex (PFC) from Cusanovich 2018 
 
-**Step 1. Download pre-frontal cortex sciATAC-seq from UW mouse atlas website**. Based on the bam header, reads are mapped to mm9 using bowtie2 with parameters `basic-0 -p 12 -X 2000 -3 1 -x` and sorted by coordiantes. In order to generate `snap` file, we first need to resort the reads based on the read name.
+**Step 1. Download pre-frontal cortex sciATAC-seq dataset from UW mouse atlas website**.      
+Here we download the bam file that contains the alingments. Based on the header info, reads are mapped to mm9 using bowtie2 with parameters `basic-0 -p 12 -X 2000 -3 1 -x` and sorted by coordiantes. In order to generate `snap` file, we first need to re-sort the reads based on the read name.
 
 ```
 > wget http://krishna.gs.washington.edu/content/members/ajh24/mouse_atlas_data_release/bams/PreFrontalCortex_62216.bam
@@ -48,35 +49,45 @@
 > samtools sort -n -@ 5 PreFrontalCortex_62216.bam -o PreFrontalCortex_62216.nsrt.bam
 ```
 
-**Step 2. Pre-processing (snaptools)**. 
-After read name sorting, we next create a snap file with the following command. 
+**Step 2. Pre-processing (snaptools)**.         
+After sorted by read name, we next create a snap file with the following command. 
 
 ```bash
 > wget http://hgdownload.cse.ucsc.edu/goldenPath/mm9/bigZips/mm9.chrom.sizes
-> snaptools snap-pre                                 \
-	--input-file=PreFrontalCortex_62216.nsrt.bam     \
-	--output-snap=PreFrontalCortex_62216.snap        \
-	--genome-name=mm9 	                             \
-	--genome-size=mm9.chrom.sizes                    \
-	--min-mapq=30      	                             \
-	--min-flen=0       	                             \
-	--max-flen=1000    	                             \
-	--keep-chrm=FALSE                                \
-	--keep-single=TRUE                               \
-	--keep-secondary=False                           \
-	--overwrite=True                                 \
-	--min-cov=100                                    \
+> snaptools snap-pre	\
+	--input-file=PreFrontalCortex_62216.nsrt.bam	\
+	--output-snap=PreFrontalCortex_62216.snap	\
+	--genome-name=mm9	\
+	--genome-size=mm9.chrom.sizes	\
+	--min-mapq=30	\
+	--min-flen=0	\
+	--max-flen=1000	\
+	--keep-chrm=FALSE	\
+	--keep-single=TRUE	\
+	--keep-secondary=False	\
+	--overwrite=True	\
+	--min-cov=100	\
 	--verbose=True
 ```
 
-**Step 3. Cell-by-Bin Matrix Generation (snaptools)**. 
-Using generated snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, three cell-by-bin matrices are created with bin size of 5,000 and 10,000. 
+**Step 3. Cell-by-bin matrix (snaptools)**.         
+Using generated snap file, we next create the cell-by-bin matrix with 5kb resolution. 
 
 ```bash
-> snaptools snap-add-bmat \
-	--snap-file=PreFrontalCortex_62216.snap \
-	--bin-size-list 5000 10000      
+> snaptools snap-add-bmat	\
+	--snap-file=PreFrontalCortex_62216.snap	\
+	--bin-size-list 1000 5000 10000      
 ```
+
+**Step 4. Cell-by-gene matrix (snaptools)**.         
+Using generated snap file, we next create the cell-by-bin matrix with 5kb resolution. 
+
+```bash
+> snaptools snap-add-gmat	\
+	--snap-file=PreFrontalCortex_62216.snap	\
+	--gene-file=gencode.vM1.annotation.gene.bed       
+```
+
 
 **Step 4. Create a snap object (snapATAC).**
 
@@ -84,13 +95,24 @@ Using generated snap file, we next create the cell-by-bin matrix. Snap file allo
 > R
 > library(snapATAC)
 > x.sp = createSnap("PreFrontalCortex_62216.snap", metaData=TRUE);
-> plotBarcode(x.sp);                             
+> plotBarcode(x.sp);
 # filter cells based on the following cutoffs
-> x.sp = filterCells(x.sp, 
+> x.sp = filterCells(x.sp,
                      subset.names=c("UMI"),
                      low.thresholds=c(1000),
                      high.thresholds=c(Inf)
                      );
+> Summary(x.sp);
+
+Total  number of barcodes: 6247
+Median number of sequencing fragments: 13034
+Median number of uniquely mapped fragments: 11833
+Median number of mappability ratio: 0.92
+Median number of properly paired ratio: 1
+Median number of duplicate ratio: 0
+Median number of chrM ratio: 0
+Median number of unique molecules (UMI): 11833
+
 > x.sp 
 
 number of barcodes: 6247
@@ -117,9 +139,10 @@ umap:                (umap)    :  FALSE
 ```R
 # show what bin sizes exist in Cusanovich_PreFrontalCortex.snap file
 > showBinSizes("PreFrontalCortex_62216.snap");
+[1]  1000  5000 10000
 > x.sp = addBmat(x.sp, "PreFrontalCortex_62216.snap", binSize=5000);
 > checkBinSize(x.sp);
-[1] 0.9895708
+[1] 0.989501
 ```
 
 **Step 6. Make it to binary matrix.**
@@ -128,7 +151,7 @@ umap:                (umap)    :  FALSE
 > x.sp = makeBinary(x.sp, mat="bmat");
 ```
 
-**Step 7. Feature Selection.**
+**Step 7. Feature Selection.**        
 We filtered bins that are mapped to random chromsome, overlapping with blacklisted genomic regions and 0 coverage bins.
 
 ```R
@@ -143,8 +166,7 @@ We filtered bins that are mapped to random chromsome, overlapping with blacklist
 # remove bins that are mapped to undesired chromsomes
 > idy2 = grep("random|chrM", x.sp@feature);
 # remove bins that are not covered 
-> idy3 = which(colSums(x.sp, mat="bmat")==0);
-> idy = unique(c(idy1, idy2, idy3));
+> idy = unique(c(idy1, idy2));
 > x.sp = x.sp[,-idy, mat="bmat"];
 > plotBinCoverage(x.sp);
 > x.sp = filterBins(
@@ -175,10 +197,9 @@ umap:                (umap)    :  FALSE
 <img src="./coverage_hist.png" width="300" height="250" />
 
 
-**Step 8. Jaccard Index Matrix & Normalization**
+**Step 8. Jaccard Index Matrix & Normalization.**
 
 ```R
-# Calculate Jaccard Index Matrix
 > x.sp = calJaccard(
     x.sp,
 	mat = "bmat",
@@ -196,7 +217,7 @@ umap:                (umap)    :  FALSE
 	)
 ```
 
-**Step 9. PCA analysis**
+**Step 9. PCA analysis.**
 
 ```
 > x.sp = runPCA(
@@ -211,18 +232,17 @@ umap:                (umap)    :  FALSE
 	)
 ```
 
-**Step 10. Determine the significant principle components**
+**Step 10. Determine the significant principle components.**
 
 ```
 > plotPCA(x.sp, method="elbow");
 > plotPCA(x.sp, method="pairwise");
 ```
 
-<img src="./PCA_elbow.png" width="400" height="350" />
-<img src="./PCA_scatter.png" width="400" height="400" />
+<img src="./PCA_elbow.png" width="350" height="350" /> <img src="./PCA_scatter.png" width="350" height="350" />
 
 
-**Step 11. Find clusters**
+**Step 11. Find clusters.**
 
 ```R
 > x.sp = runCluster(
@@ -231,100 +251,56 @@ umap:                (umap)    :  FALSE
                     k=15,
                     resolution=1.0,
                     method="jaccard_louvain",
-                    path_to_louvain="../../../../github/snapR/bin/findCommunityLouvain"
+                    path_to_snaptools="/home/r3fang/anaconda2/bin/snaptools"
                     )
 ```
 
 **Step 12. Visulization**
 
 ```	
-# umap
 > x.sp = runViz(
                 x.sp, 
 	            pca_dims=1:20, 
 	            dims=2, 
 	            method="umap"
 	            )
-# umap plot
 > plotViz(x.sp, method="umap", pch=19, cex=0.7);
 ```
-<img src="./Viz_umap.png" width="250" height="250" /> <img src="./Viz_umap_label.png" width="250" height="250" />
+<img src="./Viz_umap.png" width="350" height="350" /> <img src="./Viz_umap_label.png" width="350" height="350" />
 
 **Step 13. Gene accessibility enrichment for expected marker genes**
 
 ```R
-> library();
-> gene.gr <- import("gencode.vM1.annotation.gtf.gz");
-> gene.gr <- gene.gr[gene.gr$type == "gene",];
-> marker.genes <- c("Snap25", "Gad2", "Apoe", 
-                    "Pvalb", "C1qb", "Mog",
-                    "Vip",    "Sst", "Slc17a7"
-                    );
-> gene.sel.gr <- gene.gr[match(marker.genes, gene.gr$gene_name),];
-> x.sp = calCellGeneTable(
-                          x.sp, 
-                          gene.sel.gr, 
-                          mat="bmat"
-                          );
+> x.sp = addGmat(x.sp, "PreFrontalCortex_62216.snap");
 > x.sp = scaleCountMatrix(
                           x.sp, 
                           mat="gmat", 
                           cov=rowSums(x.sp, mat="bmat"), 
                           method="RPM"
                           );
+> marker.genes <- c("Snap25", "Gad2", "Apoe", 
+                    "Pvalb", "C1qb", "Mog",
+                    "Vip",    "Sst", "Slc17a7"
+                    );
 > plotGene(
            obj=x.sp, 
            gene.sel=marker.genes, 
            method="umap", 
            plot.row=3,
            plot.col=3, 
-           cex=0.1,
+           cex=0.2,
+		   background=TRUE,
+		   background_rho=0.4,
            binary=FALSE
            );
 ```
 
-<img src="./gene_plot.png" width="500" height="500" />
-
-**Step 14. Gene accessibility enrichment for EXC**
-
-```R
-> idx = which(x.sp@cluster %in% c(18, 2, 5, 16, 6, 5, 9, 3, 4, 10, 1));
-> x.exc.sp = x.sp[idx,];
-> marker.genes <- c("Cux1",   "Cux2", "Rorb", 
-                    "Deptor",  "Sulf1", "Tle4",
-                    "Foxp2", "Grik3", "Tshz2"
-                    );
-> gene.sel.gr <- gene.gr[match(marker.genes, gene.gr$gene_name),];
-> x.exc.sp = calCellGeneTable(
-                          x.exc.sp, 
-                          gene.sel.gr, 
-                          mat="bmat"
-                          );
-> x.exc.sp = scaleCountMatrix(
-                          x.exc.sp, 
-                          mat="gmat", 
-                          cov=rowSums(x.exc.sp, mat="bmat"), 
-                          method="RPM"
-                          );
-> plotGene(
-           obj=x.exc.sp, 
-           gene.sel=marker.genes, 
-           method="umap", 
-           plot.row=3,
-           plot.col=3, 
-           cex=0.1,
-           binary=FALSE
-           );
-
-```
-
-<img src="./gene_plot_exc.png" width="500" height="500" />
-
+<img src="./gene_plot.png" width="700" height="700" />
 
 **Step 15. Subclustering of cluster 9 (Sst+Pv)**
 
 ```R
-> idx = which(x.sp@cluster == 8);
+> idx = which(x.sp@cluster == 19);
 > x.sub.sp = x.sp[idx,]
 > x.sub.sp = filterBins(
                     x.sub.sp,

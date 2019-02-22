@@ -57,7 +57,6 @@ calCellGeneTable.default <- function(
 	if(nrow(ov) > 0){
 		# calculate gene count vector per cell in parallel;
 		ov.ls <- split(ov, ov$subjectHits);
-
 		# generate the count vector per cell in parallel;
 		count.ls <- mclapply(ov.ls, function(x){
 			if(nrow(x) > 1){
