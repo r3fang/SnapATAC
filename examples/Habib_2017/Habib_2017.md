@@ -14,7 +14,7 @@ $ R
 > library(SnapATAC);
 > dat = read.table(
                    "GTEx_droncseq_hip_pcf/GTEx_droncseq_hip_pcf.umi_counts.txt.gz", 
-                   head=TRUE, 
+				   head=TRUE, 
 				   row.name=1
 				   );
 > cmat = Matrix(t(as.matrix(dat)),sparse=TRUE);
