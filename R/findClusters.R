@@ -42,8 +42,7 @@ runCluster.default <- function(
 		if (is.null(path_to_snaptools)) {
 			path_to_snaptools <- system2('which', 'snaptools', stdout=TRUE)
 		}
-		path_to_snaptools <- normalizePath(path_to_snaptools)
-
+		path_to_snaptools <- normalizePath(path_to_snaptools);
 		if (!file_test('-x', path_to_snaptools)) {
 			stop(path_to_snaptools, " does not exist or is not executable; check your path_to_snaptools parameter")
 		}		

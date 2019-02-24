@@ -39,8 +39,8 @@ findDAR.default <- function(
 	rand.seed=10,
 	pca_dims,
 	fdr=5e-2,
+	background_method=c("exact", "fast"),
 	method=c("exactTest", "LRT", "QLF"),
-	k=30,
 	...
 	){
 		# 1. check if object is a snap;
@@ -76,12 +76,20 @@ findDAR.default <- function(
 		idx.pos = which(object@barcode %in% barcodes);
 		
 		# identify negative control cells
-		dx = nn2(object@smat[,pca_dims], k = k+1)$nn.idx;
-		dx = dx[,2:(k+1)];
-		edges = matrix(unlist(sapply(1:nrow(dx),function(i) { rbind(rep(i,k),dx[i,])})),nrow=2);
-		edges = as.matrix(t(edges));
-		freq = table(edges[which((edges[,1] %in% idx.pos) & !(edges[,2] %in% idx.pos)),2]);
-		idx.neg = as.numeric(names(freq)[order(freq, decreasing=TRUE)])[seq(min(length(idx.pos), length(freq)))];
+		background_method = match.arg(background_method);
+		if(background_method == "exact"){
+			d = as.matrix(dist(object@smat[,pca_dims]))
+			idx.neg = order(colMeans(d[idx.pos,-idx.pos]))[1:min(ncol(d) - length(idx.pos), length(idx.pos))]
+		}else if("fast"){
+			k = 50;
+			dx = nn2(object@smat[,pca_dims], k = k+1)$nn.idx;
+			dx = dx[,2:(k+1)];
+			edges = matrix(unlist(sapply(1:nrow(dx),function(i) { rbind(rep(i,k),dx[i,])})),nrow=2);
+			edges = as.matrix(t(edges));
+			freq = table(edges[which((edges[,1] %in% idx.pos) & !(edges[,2] %in% idx.pos)),2]);
+			idx.neg = as.numeric(names(freq)[order(freq, decreasing=TRUE)])[seq(min(length(idx.pos), length(freq)))];			
+		}
+		
 		
 		# calcualte coverage for posive and negative cells
 		cmat.pos = cmat[idx.pos,];
@@ -106,12 +114,8 @@ findDAR.default <- function(
 		# negative control by randomly select k cells
 		set.seed(rand.seed);
 		neg.idx.pos = sample(seq(nrow(object)), length(idx.pos))
-		
-		# identify negative control cells
-		freq = table(edges[which((edges[,1] %in% neg.idx.pos) & !(edges[,2] %in% neg.idx.pos)),2]);
-		neg.idx.neg = as.numeric(names(freq)[order(freq, decreasing=TRUE)])[seq(min(length(neg.idx.pos), length(freq)))];
-		
-		
+		neg.idx.neg = sample(seq(nrow(object)), length(idx.pos))
+				
 		# calcualte coverage for posive and negative cells
 		neg.cmat.pos = cmat[neg.idx.pos,];
 		neg.cmat.neg = cmat[neg.idx.neg,];

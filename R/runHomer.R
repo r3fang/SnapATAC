@@ -25,7 +25,11 @@ runHomer.default <- function(
 	keep_minimal = FALSE,
 	...
 	){
-
+		path_to_homer <- normalizePath(path_to_homer);
+		if (!file_test('-x', path_to_homer)) {
+			stop(path_to_homer, " does not exist or is not executable; check your path_to_homer parameter")
+		}		
+		
 		if (is.null(result_dir)) {
 			result_dir <- tempfile(pattern='homer')
 		}
@@ -118,8 +122,12 @@ runHomer.default <- function(
 	    if (scan_size == "given") {
 	        cmd <- paste(cmd, "-chopify")
 	    }
-	    system(cmd)
-
+		
+		flag = system2(cmd);
+		if (flag != 0) {
+		   	stop("'runHomer' call failed");
+		}	
+		
 	    ## Remove extraneous files if desired
 	    if (keep_minimal == TRUE) {
 	        extra_files <- c("homerResults.html",
@@ -136,7 +144,6 @@ runHomer.default <- function(
 	                              collapse = "; ")
 	        system(remove_extra)
 	    }
-		
 		x = read.csv(paste0(result_dir, "/knownResults.txt"), sep="\t", head=TRUE);
 	    system("rm -f *.tmp");
 		return(x)
