@@ -5,7 +5,7 @@ Authors@R: person("Rongxin", "Fang", email = "r4fang@gmail.com", role = c("aut",
 Description: What the package does (one paragraph).
 biocViews:
 Depends:
-	R (>= 3.4.0)
+	R (>= 3.4.0),
 	GenomicRanges,
 	Matrix,
 	rhdf5,
