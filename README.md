@@ -33,10 +33,10 @@ $ R
 ```
 
 ## Galleries & Tutorials
-[<img src="./images/Fang_2019.png" width="300" height="350" />](./examples/Fang_2019/Fang_2019.md)
-[<img src="./images/10X_2018.png" width="300" height="350" />](./examples/10X_2018/10X_2018.md)
-[<img src="./images/Cusanovich_2018.png" width="300" height="350" />](./examples/Cusanovich_2018/Cusanovich_2018.md)
-[<img src="./images/Lake_2018.png" width="300" height="350" />](./examples/Lake_2018/Lake_2018.md)
-[<img src="./images/Schep_2017.png" width="300" height="350" />](./examples/Schep_2017/Schep_2017.md)
-[<img src="./images/Habib_2017.png" width="300" height="350" />](./examples/Habib_2017/Habib_2017.md)
+[<img src="./images/Fang_2019.png" width="275" height="315" />](./examples/Fang_2019/Fang_2019.md)
+[<img src="./images/10X_2018.png" width="275" height="315" />](./examples/10X_2018/10X_2018.md)
+[<img src="./images/Cusanovich_2018.png" width="275" height="315" />](./examples/Cusanovich_2018/Cusanovich_2018.md)
+[<img src="./images/Lake_2018.png" width="275" height="315" />](./examples/Lake_2018/Lake_2018.md)
+[<img src="./images/Schep_2017.png" width="275" height="315" />](./examples/Schep_2017/Schep_2017.md)
+[<img src="./images/Habib_2017.png" width="275" height="315" />](./examples/Habib_2017/Habib_2017.md)
 
