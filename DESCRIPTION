@@ -3,8 +3,11 @@ Title: Single Nucleus Analysis Package for ATAC-seq
 Version: 1.0
 Authors@R: person("Rongxin", "Fang", email = "r4fang@gmail.com", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
+biocViews:
 Depends:
-	R (>= 3.4.0),
+	R (>= 3.4.0)
+biocViews:
+imports:
 	GenomicRanges,
 	Matrix,
 	rhdf5,

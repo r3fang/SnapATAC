@@ -1,4 +1,4 @@
-## SnapATAC
+## SnapATAC (internal testing)
 Single Nuclesus Analysis Package for ATAC-seq. 
 
 ## Introduction
@@ -20,7 +20,7 @@ Install snaptools from PyPI
 $ pip install snaptools==1.2.5 --user
 ```
 
-See how to install snaptools on [MAC OS](https://github.com/r3fang/SnapATAC/wiki/SnapTools-Installation). 
+See how to install snaptools on [FAQs](https://github.com/r3fang/SnapATAC/wiki/FAQs). 
 
 ## Install SnapATAC
 
