@@ -21,7 +21,8 @@ Depends:
 	Rcpp,
 	umap,
 	scales,
-	doSNOW
+	doSNOW,
+	limma
 License: MIT
 Encoding: UTF-8
 LazyData: true
