@@ -6,8 +6,6 @@ Description: What the package does (one paragraph).
 biocViews:
 Depends:
 	R (>= 3.4.0)
-biocViews:
-imports:
 	GenomicRanges,
 	Matrix,
 	rhdf5,
