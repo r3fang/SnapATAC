@@ -62,26 +62,6 @@ umap:                (umap)    :  FALSE
 > plotViz(mos, method="tsne");
 ```
 
-<img src="./images/mos_tsne.png" width="350" height="350" /> <img src="./images/mos_tsne_label.png" width="350" height="350" />
-
-
-```R
-> mos = scaleCountMatrix(mos, cov=rowSums(mos, mat="bmat"), mat="gmat");
-> marker.genes = c(
-	"Snap25", "Gad2", "Apoe", "C1qb", "Pvalb", 
-	"Vip", "Sst", "Lamp5", "Slc17a7", "Mog", 
-	"Pdgfra", "Cspg4","Cx3cr1","F3","Aqp4", "Rorb"
-	);
-> plotGene(
-	mos, 
-	gene.sel=marker.genes, 
-	cex=0.5,
-	pch=19,
-	background=TRUE
-	);
-```
-<img src="./images/mos_gene.png" width="800" height="800" /> 
-
 ## Galleries & Tutorials
 [<img src="./images/Fang_2019.png" width="275" height="315" />](./examples/Fang_2019/Fang_2019.md)
 [<img src="./images/10X_2018.png" width="275" height="315" />](./examples/10X_2018/10X_2018.md)
