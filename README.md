@@ -37,7 +37,6 @@ $ R
 ```R
 > library(SnapATAC);
 > data(mos);
-> mos
 > mos = calJaccard(mos);
 > mos = runPCA(mos, pc.num=20);
 > mos = runCluster(mos, k=15, resolution=0.5);

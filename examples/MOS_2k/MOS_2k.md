@@ -93,7 +93,7 @@ snapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 # tsne
 > mos = runViz(
 	mos, 
-	pca_dims=1:25, 
+	pca_dims=1:20, 
 	dims=2, 
 	method="Rtsne"
 	)
