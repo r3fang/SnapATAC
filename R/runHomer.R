@@ -123,10 +123,7 @@ runHomer.default <- function(
 	        cmd <- paste(cmd, "-chopify")
 	    }
 		
-		flag = system2(cmd);
-		if (flag != 0) {
-		   	stop("'runHomer' call failed");
-		}	
+		system(cmd);
 		
 	    ## Remove extraneous files if desired
 	    if (keep_minimal == TRUE) {

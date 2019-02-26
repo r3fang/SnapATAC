@@ -80,7 +80,7 @@ findDAR.default <- function(
 		if(background_method == "exact"){
 			d = as.matrix(dist(object@smat[,pca_dims]))
 			idx.neg = order(colMeans(d[idx.pos,-idx.pos]))[1:min(ncol(d) - length(idx.pos), length(idx.pos))]
-		}else if("fast"){
+		}else if(background_method == "fast"){
 			k = 50;
 			dx = nn2(object@smat[,pca_dims], k = k+1)$nn.idx;
 			dx = dx[,2:(k+1)];

@@ -60,9 +60,23 @@ umap:                (umap)    :  FALSE
 > mos = runCluster(mos, k=15, resolution=0.5);
 > mos = runViz(mos, dims=2, method="Rtsne");
 > plotViz(mos, method="tsne");
+> mos = scaleCountMatrix(mos, cov=rowSums(mos, mat="bmat"), mat="gmat");
+> marker.genes = c(
+	"Snap25", "Gad2", "Apoe", "C1qb", "Pvalb", 
+	"Vip", "Sst", "Lamp5", "Slc17a7", "Mog", 
+	"Pdgfra", "Cspg4","Cx3cr1","F3","Aqp4", "Rorb"
+	);
+> plotGene(
+	mos, 
+	gene.sel=marker.genes, 
+	cex=0.5,
+	pch=19,
+	background=TRUE
+	);
 ```
 
-## Galleries & Tutorials
+## Galleries & Tutorials (click on the image for details)
+[<img src="./images/MOS_2k.png" width="275" height="315" />](./examples/MOS_2k/MOS_2k.md)
 [<img src="./images/Fang_2019.png" width="275" height="315" />](./examples/Fang_2019/Fang_2019.md)
 [<img src="./images/10X_2018.png" width="275" height="315" />](./examples/10X_2018/10X_2018.md)
 [<img src="./images/Cusanovich_2018.png" width="275" height="315" />](./examples/Cusanovich_2018/Cusanovich_2018.md)
