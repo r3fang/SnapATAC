@@ -6,7 +6,7 @@ SnapATAC is fast, accurate and unbiased method for analyzing single cell ATAC-se
 
 SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
 
-* Snaptools is a module for working with [snap](https://github.com/r3fang/SnapATAC/wiki/What-is-a-snap-file%3F) file in Python. 
+* Snaptools is a module for working with [snap](https://github.com/r3fang/SnapATAC/wiki/FAQs) file in Python. 
 * SnapATAC is a R package for the downstream analysis. 
 
 ## Requirements  
