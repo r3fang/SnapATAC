@@ -91,11 +91,11 @@ meta data            (metData) :  FALSE
 cellxbin matrix      (bmat)    :  FALSE
 cellxpeak matrix     (pmat)    :  TRUE
 cellxgene matrix     (gmat)    :  FALSE
-jaccard matrix       (jmat)    :  TRUE
-normalization        (nmat)    :  TRUE
-PCA:                 (smat)    :  TRUE
+jaccard matrix       (jmat)    :  FALSE
+normalization        (nmat)    :  FALSE
+PCA:                 (smat)    :  FALSE
 cluster:             (cluster) :  TRUE
-t-sne:               (tsne)    :  TRUE
+t-sne:               (tsne)    :  FALSE
 umap:                (umap)    :  FALSE
 ```
 <img src="./coverage_hist.png" width="300" height="250" />
@@ -149,11 +149,11 @@ umap:                (umap)    :  FALSE
 	weight.by.sd=FALSE,
 	seed.use=10
 	);
+> library(fields);
 > image.plot(x.sp@nmat[order(x.sp@cluster), order(x.sp@cluster)]);
 > image.plot(x.sp@jmat[order(x.sp@cluster), order(x.sp@cluster)]);
 > plot(x.sp@smat[,1], log(rowSums(x.sp, "pmat")+1, 10), col=x.sp@cluster, pch=19, type="n", xlab="PC1", ylab="log10(coverage + 1)");
 > text(x.sp@smat[,1], log(rowSums(x.sp, "pmat")+1, 10), col=c(1:20)[x.sp@cluster], label=x.sp@cluster, cex=0.9);
-> library(fields);
 ```
 NOTE: coverage vs. PC1 plot is slightly different from Supplementary Fig. S2 which does not perform feature selection using `filterBins `
 
@@ -176,30 +176,6 @@ NOTE: coverage vs. PC1 plot is slightly different from Supplementary Fig. S2 whi
 > plotViz(x.sp, method="tsne", pch=19, cex=0.7);
 ```
 <img src="./Viz_tsne.png" width="300" height="300" /> <img src="./Viz_tsne_label.png" width="300" height="300" />
-
-
-**Step 8. Find Cluster**
-
-```	
-> x.sp = runCluster(
-	x.sp,
-	pca_dims=1:20,
-	k=30,
-	resolution=0.5,
-	method="jaccard_louvain",
-	path_to_louvain="../../../../github/snapR/bin/community_louvain_silencer"
-	);
-	
-> plotViz(x.sp, method="tsne", pch=19, cex=0.7);
-
-```
-
-<img src="./Viz_tsne_cluster.png" width="300" height="300" /> <img src="./Viz_tsne_label.png" width="300" height="300" />
-
-
-
-
-
 
 
 
