@@ -32,47 +32,16 @@ $ R
 > library(SnapATAC);
 ```
 
-## Get Started
+## Get Started (see more details in MOs 2k in tutorials)
 
 ```R
 > library(SnapATAC);
 > data(mos);
 > mos
-
-number of barcodes: 2000
-number of bins: 476595
-number of peaks: 316257
-number of genes: 53278
-==========================
-meta data            (metData) :  TRUE
-cellxbin matrix      (bmat)    :  TRUE
-cellxpeak matrix     (pmat)    :  TRUE
-cellxgene matrix     (gmat)    :  TRUE
-jaccard matrix       (jmat)    :  FALSE
-normalization        (nmat)    :  TRUE
-PCA:                 (smat)    :  TRUE
-cluster:             (cluster) :  TRUE
-t-sne:               (tsne)    :  TRUE
-umap:                (umap)    :  FALSE
-
 > mos = calJaccard(mos);
 > mos = runPCA(mos, pc.num=20);
 > mos = runCluster(mos, k=15, resolution=0.5);
 > mos = runViz(mos, dims=2, method="Rtsne");
-> plotViz(mos, method="tsne");
-> mos = scaleCountMatrix(mos, cov=rowSums(mos, mat="bmat"), mat="gmat");
-> marker.genes = c(
-	"Snap25", "Gad2", "Apoe", "C1qb", "Pvalb", 
-	"Vip", "Sst", "Lamp5", "Slc17a7", "Mog", 
-	"Pdgfra", "Cspg4","Cx3cr1","F3","Aqp4", "Rorb"
-	);
-> plotGene(
-	mos, 
-	gene.sel=marker.genes, 
-	cex=0.5,
-	pch=19,
-	background=TRUE
-	);
 ```
 
 ## Galleries & Tutorials (click on the image for details)
