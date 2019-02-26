@@ -38,6 +38,8 @@ runCluster.default <- function(
 	if (is.null(result_path)) {
 		result_path <- tempfile(pattern='community_result_', fileext='.dat')
 	}
+	
+	method = match.arg(method);
 	if(method %in% c("jaccard_louvain", "louvain")){
 		if (is.null(path_to_snaptools)) {
 			path_to_snaptools <- system2('which', 'snaptools', stdout=TRUE)
@@ -48,7 +50,6 @@ runCluster.default <- function(
 		}		
 	}
 	
-	method = match.arg(method);
 	# 1. check if object is a snap object
 	if(class(object) != "snap"){
 		stop("'object' is not a snap object");
