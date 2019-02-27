@@ -12,8 +12,8 @@ findDAR.default <- function(
 	bcv=0.1,
 	pca_dims=NULL,
 	fdr=5e-2,
-	background_method = c("knn", "random", "all", "other"),
-	test_method = c("exactTest", "LRT", "QLF"),
+	background_method=c("knn", "random", "all", "other"),
+	test_method=c("exactTest", "LRT", "QLF"),
 	rand.seed=10,
 	...
 	){
@@ -32,6 +32,9 @@ findDAR.default <- function(
 		}
 		
 		mat = match.arg(mat);
+		background_method = match.arg(background_method);
+		test_method = match.arg(test_method);
+		
 		if(mat == "bmat"){
 			cmat = object@bmat;
 		}else if(mat == "pmat"){
@@ -44,17 +47,16 @@ findDAR.default <- function(
 		if(is.null(pca_dims)){
 			pca_dims = seq(ncol(object@smat));
 		}else{
-			if(any((object %in% seq(ncol(object@smat))) == FALSE)){
+			if(any((pca_dims %in% seq(ncol(object@smat))) == FALSE)){
 				stop("'pca_dims' exceeds the PCA space, reset 'pca_dims' and run it again")
 			}		
 		}
 		
 		message("Identifying accessible regions using postive sample");
 		# positive cells
-		idx.pos = which(object@barcode %in% barcodes);
+		idx.pos = which(object@barcode %in% barcodes.sel);
 		
 		# identify negative control cells
-		background_method = match.arg(background_method);
 		# use exact method with cell number less than 5000
 		if(background_method == "knn"){
 			idx.neg = setdiff(seq(ncell), idx.pos)
@@ -82,7 +84,6 @@ findDAR.default <- function(
 		design <- model.matrix(~group);
 		y <- DGEList(counts=x, group=group);
 		
-		test_method = match.arg(test_method);
 		if(test_method == "LRT"){
 			fit <- glmFit(y, design, dispersion=bcv^2);
 			tb.pos <- glmLRT(fit,coef=2)$table;
@@ -147,3 +148,5 @@ findDAR.default <- function(
 		}
 		return(c())
 }
+
+

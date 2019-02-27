@@ -137,18 +137,16 @@ Now we go back to the R session and continue the SnapATAC. We identify cis-eleme
 ```R
 > barcodes = mos@barcode[which(mos@cluster == 12)];
 > idy = findDAR(
-	object=mos, 
+	object=mos,
 	mat="pmat",
 	barcodes.sel=barcodes,
-	bcv=0.4, 
-	rand.seed=10, 
+	bcv=0.4,
 	pca_dims=1:20,
 	fdr=1e-1,
-	method="exactTest",
-	k=30,
-	background_method="exact"
+	background_method="knn",
+	test_method="exactTest",
+	rand.seed=10	
 	)
-	
 > y = rowSums(mos@pmat[,idy]) / rowSums(mos@pmat);
 > y = y/max(y);
 > plot(mos@tsne, 
