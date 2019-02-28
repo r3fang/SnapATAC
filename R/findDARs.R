@@ -21,7 +21,6 @@ findDAR.default <- function(
 			stop("object is not a snap object")
 		}
 		
-		ncell = nrow(object);
 		if(missing(barcodes.sel)){
 			stop("barcodes.sel is missing")
 		}else{
@@ -58,19 +57,19 @@ findDAR.default <- function(
 		# identify negative control cells
 		# use exact method with cell number less than 5000
 		if(background_method == "knn"){
-			idx.neg = setdiff(seq(ncell), idx.pos)
+			idx.neg = setdiff(seq(nrow(object)), idx.pos)
 			avg.profile = t(colMeans(object@smat[idx.pos,pca_dims]));
 			nn.num = min(length(idx.pos), length(idx.neg));
 			dx = nn2(object@smat[-idx.pos,pca_dims], avg.profile, nn.num)$nn.idx;
-			idx.neg = idx.neg[dx[1,]];
+			idx.neg = idx.neg[as.numeric(dx)];
 		}else if(background_method == "random"){
-			idx.neg = setdiff(seq(ncell), idx.pos);
+			idx.neg = setdiff(seq(nrow(object)), idx.pos);
 			nn.num = min(length(idx.pos), length(idx.neg));
 			idx.neg = sample(idx.neg, nn.num);	
 		}else if(background_method == "all"){
-			idx.neg = seq(ncell)
+			idx.neg = seq(nrow(object))
 		}else if(background_method == "other"){
-			idx.neg = setdiff(seq(ncell), idx.pos);			
+			idx.neg = setdiff(seq(nrow(object)), idx.pos);			
 		}
 		
 		# calcualte coverage for posive and negative cells
@@ -91,27 +90,26 @@ findDAR.default <- function(
 		}else{
 			tb.pos <- exactTest(y, dispersion=bcv^2)$table;
 		}
-		
-		message("Identifying accessible regions using negative control sample")
+		message("Identifying accessible regions using negative sample")
 		# negative control by randomly select k cells
 		set.seed(rand.seed);
 		neg.idx.pos = sample(seq(nrow(object)), length(idx.pos))
 		background_method = "random";
 		if(background_method == "knn"){
-			neg.idx.neg = setdiff(seq(ncell), neg.idx.pos)
+			neg.idx.neg = setdiff(seq(nrow(object)), neg.idx.pos)
 			avg.profile = t(colMeans(object@smat[neg.idx.pos,pca_dims]));
 			nn.num = min(length(neg.idx.neg), length(neg.idx.pos));
 			dx = nn2(object@smat[-neg.idx.pos,pca_dims], avg.profile, nn.num)$nn.idx;
-			neg.idx.neg = neg.idx.neg[dx[1,]];
+			neg.idx.neg = neg.idx.neg[as.numeric(dx)];
 		}else if(background_method == "random"){
-			neg.idx.neg = setdiff(seq(ncell), neg.idx.pos);
+			neg.idx.neg = setdiff(seq(nrow(object)), neg.idx.pos);
 			nn.num = min(length(neg.idx.pos), length(neg.idx.neg));
 			set.seed(rand.seed);
 			neg.idx.neg = sample(neg.idx.neg, nn.num);	
 		}else if(background_method == "all"){
-			neg.idx.neg = seq(ncell)
+			neg.idx.neg = seq(nrow(object))
 		}else if(background_method == "other"){
-			neg.idx.neg = setdiff(seq(ncell), neg.idx.pos);			
+			neg.idx.neg = setdiff(seq(nrow(object)), neg.idx.pos);			
 		}
 						
 		# calcualte coverage for posive and negative cells

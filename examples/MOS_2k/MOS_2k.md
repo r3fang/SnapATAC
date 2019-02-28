@@ -98,7 +98,7 @@ snapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	method="Rtsne"
 	)
 
-> plotViz(mos, method="tsne", pch=19, cex=1);
+> plotViz(mos, method="tsne", pch=19, cex=0.5);
 ```
 
 <img src="./Viz_tsne.png" width="350" height="350" /> <img src="./Viz_tsne_label.png" width="350" height="350" />
@@ -122,7 +122,7 @@ To help annotate identified cell clusters, snapATAC next loads the cell-by-gene 
 	gene.sel=marker.genes, 
 	method="tsne",
 	binary=FALSE,
-	cex=1,
+	cex=0.5,
 	pch=19,
 	background=TRUE
 	);

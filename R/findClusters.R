@@ -24,7 +24,6 @@ runCluster <- function(object, ...) {
 runCluster.default <- function(
 	object, 
 	k=15, 
-	centers=NULL,
 	pca_dims=NULL, 
 	method=c("louvain", "jaccard_louvain"), 
 	resolution=1, 
