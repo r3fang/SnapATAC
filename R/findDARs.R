@@ -17,7 +17,6 @@ findDAR.default <- function(
 	rand.seed=10,
 	...
 	){
-
 		if(class(object) != "snap"){
 			stop("object is not a snap object")
 		}
@@ -79,7 +78,7 @@ findDAR.default <- function(
 		cmat.neg = cmat[idx.neg,];
 		
 		# perform test
-		x = data.frame(colSums(cmat.neg), colSums(cmat.pos))
+		x = data.frame(Matrix::colSums(cmat.neg), Matrix::colSums(cmat.pos))
 		group <- factor(c(1,2));
 		design <- model.matrix(~group);
 		y <- DGEList(counts=x, group=group);
@@ -97,7 +96,7 @@ findDAR.default <- function(
 		# negative control by randomly select k cells
 		set.seed(rand.seed);
 		neg.idx.pos = sample(seq(nrow(object)), length(idx.pos))
-		
+		background_method = "random";
 		if(background_method == "knn"){
 			neg.idx.neg = setdiff(seq(ncell), neg.idx.pos)
 			avg.profile = t(colMeans(object@smat[neg.idx.pos,pca_dims]));
@@ -107,6 +106,7 @@ findDAR.default <- function(
 		}else if(background_method == "random"){
 			neg.idx.neg = setdiff(seq(ncell), neg.idx.pos);
 			nn.num = min(length(neg.idx.pos), length(neg.idx.neg));
+			set.seed(rand.seed);
 			neg.idx.neg = sample(neg.idx.neg, nn.num);	
 		}else if(background_method == "all"){
 			neg.idx.neg = seq(ncell)
@@ -118,7 +118,7 @@ findDAR.default <- function(
 		neg.cmat.pos = cmat[neg.idx.pos,];
 		neg.cmat.neg = cmat[neg.idx.neg,];
 		
-		x = data.frame(colSums(neg.cmat.pos), colSums(neg.cmat.neg))
+		x = data.frame(Matrix::colSums(neg.cmat.pos), Matrix::colSums(neg.cmat.neg))
 		group <- factor(c(1,2));
 		design <- model.matrix(~group);
 		y <- DGEList(counts=x, group=group);
