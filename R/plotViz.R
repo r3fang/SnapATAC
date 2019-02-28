@@ -11,7 +11,7 @@ plotViz <- function(object, method, ...) {
 plotViz.default <- function(object, method=c("tsne", "umap"), ...){
     tsnecols = c("#E31A1C","#FFD700","#771122","#777711","#1F78B4","#68228B","#AAAA44",
                  "#60CC52","#771155","#DDDD77","#774411","#AA7744","#AA4455","#117744",
-                 "#000080","#44AA77","#AA4488","#DDAA77", colVector(100))
+                 "#000080","#44AA77","#AA4488","#DDAA77")
 	
 	# 1. check if object is a snap;
 	if(class(object) != "snap"){
@@ -24,6 +24,7 @@ plotViz.default <- function(object, method=c("tsne", "umap"), ...){
 			stop("tsne does not exist, run runViz first!")
 		}
 		if(length(object@cluster) != 0L){
+			tsnecols = rep(tsnecols, round(length(unique(object@cluster)) / length(tsnecols)));			
 			plot(object@tsne, col=tsnecols[object@cluster], ..., main="tsne scatter plot", xlab="tsne-1", ylab="tsne-2")
 			plot(object@tsne, col=tsnecols[object@cluster], ..., type="n", main="tsne cluster label", xlab="tsne-1", ylab="tsne-2")
 			text(object@tsne, col=tsnecols[object@cluster], label=object@cluster, ...)
@@ -35,6 +36,7 @@ plotViz.default <- function(object, method=c("tsne", "umap"), ...){
 			stop("umap does not exist, run runViz first!")
 		}
 		if(length(object@cluster) != 0L){
+			tsnecols = rep(tsnecols, round(length(unique(object@cluster)) / length(tsnecols)));			
 			plot(object@umap, col=tsnecols[object@cluster], main="umap scatter plot", xlab="umap-1", ylab="umap-2", ...)
 			plot(object@umap, col=tsnecols[object@cluster], type="n", main="umap cluster label", xlab="umap-1", ylab="umap-2", ...)
 			text(object@umap, col=tsnecols[object@cluster], label=object@cluster, ...)

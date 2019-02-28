@@ -13,13 +13,9 @@ Depends:
 	raster,
 	irlba,
 	parallel,
-	igraph,
-	FastKNN,
 	Rtsne,
 	edgeR,
 	RANN,
-	RColorBrewer,
-	Rcpp,
 	umap,
 	scales,
 	doSNOW
