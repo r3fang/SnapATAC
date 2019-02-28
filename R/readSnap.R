@@ -235,7 +235,7 @@ createSnapFromBmat.default <- function(mat, barcodes, bins){
 	}
 	
 	obj = newSnap();
-	obj@bmat = bmat;
+	obj@bmat = mat;
 	obj@barcode = barcodes;
 	obj@feature = bins;
 	return(obj);
