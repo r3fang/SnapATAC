@@ -177,7 +177,6 @@ addGmat.default <- function(obj, file){
         message("Epoch: reading cell-gene count matrix session ...");
         ############################################################################
 		barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
-        options(scipen=999);
         geneName = tryCatch(geneName <- h5read(file, "GM/name"), error = function(e) {stop(paste("Warning @addGmat: 'GM/name' not found in ",file))})
 
         if(length(geneName) == 0){
@@ -193,10 +192,6 @@ addGmat.default <- function(obj, file){
         idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));
         idy = idy[ind.sel];
         count = count[ind.sel];
-
-		if(length(obj@barcode) != max(idx)){
-			stop("Error @addGmat: barcode number does not match with cell-by-gene matrix row name")
-		}
 		
         M = Matrix(0, nrow=length(obj@barcode), ncol=max(idy), sparse=TRUE);
         M[cbind(idx,idy)] = count;
