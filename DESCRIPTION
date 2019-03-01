@@ -16,7 +16,6 @@ Depends:
 	Rtsne,
 	edgeR,
 	RANN,
-	umap,
 	scales,
 	doSNOW
 License: MIT
