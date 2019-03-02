@@ -46,126 +46,126 @@
 #  UseMethod("normJaccard");
 #}
 
-#normJaccard.default <- function(object, k=15, outlier.filter=1e-3, eps=1e-6, cell.pcore=1000, ncore=5, method=c("normOVE", "normOVN"), row.center=TRUE, row.scale=TRUE){	
-#	is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
-#	if (!is.wholenumber(k) || k<=0) { stop("Incorrect k (OVN).")}
-#	if (!is.numeric(outlier.filter) || outlier.filter<=0 || outlier.filter > 1) { stop("Incorrect outlier.filter.")}
-#	
-#	method <- match.arg(method);	
-#	
-#	# 1. check if object is a snap;
-#	if(class(object) != "snap"){
-#		stop("Not a snap object")
-#	}
-#		
-#	# 2. check of jmat exists;
-#	if(nrow(object@jmat) == 0){
-#		stop("@jmat is empty")		
-#	}	
-#
-#	# 3. check of emat exists;
-#	if(nrow(object@nmat) != 0){
-#		message("Warning: @nmat already exists")		
-#	}	
-#	
-#	# 3. make sure k is odd number
-#	if((k %% 2) == 0) {
-#		k = k + 1
-#	}
-#	
-#	# 4. check idx
-#	if(length(object@idx) == 0){
-#		stop("@idx is empty");		
-#	}else{
-#		if(any(!object@idx %in% 1:nrow(object))){			
-#			stop("@idx exceeds cell number");		
-#		}
-#	}
-#	
-#	row.means = Matrix::rowMeans(object@bmat);
-#	ncell = length(row.means);
-#	
-#	# number of cells
-#	if(ncell <= cell.pcore){
-#		x = object@jmat;
-#		x[x == 1] = mean(x);		
-#		b1 = row.means;
-#		b2 = row.means[object@idx];
-#		emat = eval(parse( text = paste(".", method, "(x, b1, b2, k)", sep="")));	
-#		x[x == 1] = mean(x)
-#		data = data.frame(x=c(emat), y=c(x))
-#		model = lm(y ~ x, data)
-#		nmat = matrix(model$residuals, nrow(emat), ncol(emat));
-#	}else{
-#		# first cut the entire binary matrix into small pieces
-#		id = 1:ncell;
-#		id.ls = split(id, ceiling(seq_along(id)/cell.pcore));
-#		
-#		# always combine the last one with 2nd last one
-#		# just to prevent from having a chunk with less 
-#		# than 2 cells
-#		if(length(id.ls) > 1){
-#			id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
-#			# remove the last item of the list
-#			id.ls = id.ls[-length(id.ls)];
-#		}
-#		
-#		jmat = object@jmat
-#		# conquar each small problem sperately and combine them together
-#		nmat.chunk <- mclapply(id.ls, function(id_i){	
-#			id_j = object@idx;
-#			x = jmat[id_i,];
-#			x[x == 1] = mean(x);		
-#			b1 = row.means[id_i];
-#			b2 = row.means[id_j];
-#			emat = eval(parse( text = paste(".", method, "(x, b1, b2, k)", sep="")));	
-#			x[x == 1] = mean(x)
-#			data = data.frame(x=c(emat), y=c(x))
-#			model = lm(y ~ x, data)
-#			nmat = matrix(model$residuals, nrow(emat), ncol(emat));
-#		}, mc.cores=ncore);		
-#		nmat = do.call(rbind, nmat.chunk);
-#	}
-#	
-#	# scale emat to the same level with jaccard index
-#	#y = object@jmat
-#	#y[y == 1] = mean(y)
-#	#data = data.frame(x=c(emat), y=c(y))
-#	#model = lm(y ~ x, data)
-#	#nmat = matrix(model$residuals, nrow(emat), ncol(emat));
-#
-#	# if row.norm is true
-#	if(row.center || row.scale){
-#		nmat = t(scale(t(nmat), center=row.center, scale=row.scale));
-#	}
-#	
-#	# check if nmat is complete 
-#	if(nrow(nmat) != nrow(object@bmat)){
-#		stop("@nmat error detected, nmat is incomplete, try to use fewer cores!")		
-#	}
-#	object@nmat = nmat;
-#	return(object);
-#}
-#
-## estimate the expected jaccard index using OVN
-#.normOVN <- function(o, p1, p2, k){
-#	# sort the jaccard index matrix based on the coverage
-#	ind1 = order(p1);
-#	ind2 = order(p2);
-#	
-#	o_srt <- as.matrix(o[ind1, ind2, drop=FALSE]);
-#    
-#	# calculate expected jaccard index
-#	mask_mat <- matrix(1, k, k);
-#	exp = focal(raster(as.matrix(o_srt)), mask_mat, mean, na.rm=TRUE, pad = T);
-#	ee = raster::as.matrix(exp)[order(ind1),order(ind2),drop=FALSE];
-#	return(ee)
-#}
-#
-## estimate the expected jaccard index using OVE
-#.normOVE <- function(o, p1, p2, k){
-#    pp = tcrossprod(p1, p2);
-#	ss = matrix(rep(p1,each=length(p2)), ncol=length(p2), byrow=TRUE) +  matrix(rep(p2, each=length(p1)), ncol=length(p2), byrow=FALSE)
-#	ee = pp/(ss - pp)
-#	return(ee)	
-#}
+normJaccard.default <- function(object, k=15, outlier.filter=1e-3, eps=1e-6, cell.pcore=1000, ncore=5, method=c("normOVE", "normOVN"), row.center=TRUE, row.scale=TRUE){	
+	is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
+	if (!is.wholenumber(k) || k<=0) { stop("Incorrect k (OVN).")}
+	if (!is.numeric(outlier.filter) || outlier.filter<=0 || outlier.filter > 1) { stop("Incorrect outlier.filter.")}
+	
+	method <- match.arg(method);	
+	
+	# 1. check if object is a snap;
+	if(class(object) != "snap"){
+		stop("Not a snap object")
+	}
+		
+	# 2. check of jmat exists;
+	if(nrow(object@jmat) == 0){
+		stop("@jmat is empty")		
+	}	
+
+	# 3. check of emat exists;
+	if(nrow(object@nmat) != 0){
+		message("Warning: @nmat already exists")		
+	}	
+	
+	# 3. make sure k is odd number
+	if((k %% 2) == 0) {
+		k = k + 1
+	}
+	
+	# 4. check idx
+	if(length(object@idx) == 0){
+		stop("@idx is empty");		
+	}else{
+		if(any(!object@idx %in% 1:nrow(object))){			
+			stop("@idx exceeds cell number");		
+		}
+	}
+	
+	row.means = Matrix::rowMeans(object@bmat);
+	ncell = length(row.means);
+	
+	# number of cells
+	if(ncell <= cell.pcore){
+		x = object@jmat;
+		x[x == 1] = mean(x);		
+		b1 = row.means;
+		b2 = row.means[object@idx];
+		emat = eval(parse( text = paste(".", method, "(x, b1, b2, k)", sep="")));	
+		x[x == 1] = mean(x)
+		data = data.frame(x=c(emat), y=c(x))
+		model = lm(y ~ x, data)
+		nmat = matrix(model$residuals, nrow(emat), ncol(emat));
+	}else{
+		# first cut the entire binary matrix into small pieces
+		id = 1:ncell;
+		id.ls = split(id, ceiling(seq_along(id)/cell.pcore));
+		
+		# always combine the last one with 2nd last one
+		# just to prevent from having a chunk with less 
+		# than 2 cells
+		if(length(id.ls) > 1){
+			id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
+			# remove the last item of the list
+			id.ls = id.ls[-length(id.ls)];
+		}
+		
+		jmat = object@jmat
+		# conquar each small problem sperately and combine them together
+		nmat.chunk <- mclapply(id.ls, function(id_i){	
+			id_j = object@idx;
+			x = jmat[id_i,];
+			x[x == 1] = mean(x);		
+			b1 = row.means[id_i];
+			b2 = row.means[id_j];
+			emat = eval(parse( text = paste(".", method, "(x, b1, b2, k)", sep="")));	
+			x[x == 1] = mean(x)
+			data = data.frame(x=c(emat), y=c(x))
+			model = lm(y ~ x, data)
+			nmat = matrix(model$residuals, nrow(emat), ncol(emat));
+		}, mc.cores=ncore);		
+		nmat = do.call(rbind, nmat.chunk);
+	}
+	
+	# scale emat to the same level with jaccard index
+	#y = object@jmat
+	#y[y == 1] = mean(y)
+	#data = data.frame(x=c(emat), y=c(y))
+	#model = lm(y ~ x, data)
+	#nmat = matrix(model$residuals, nrow(emat), ncol(emat));
+
+	# if row.norm is true
+	if(row.center || row.scale){
+		nmat = t(scale(t(nmat), center=row.center, scale=row.scale));
+	}
+	
+	# check if nmat is complete 
+	if(nrow(nmat) != nrow(object@bmat)){
+		stop("@nmat error detected, nmat is incomplete, try to use fewer cores!")		
+	}
+	object@nmat = nmat;
+	return(object);
+}
+
+# estimate the expected jaccard index using OVN
+.normOVN <- function(o, p1, p2, k){
+	# sort the jaccard index matrix based on the coverage
+	ind1 = order(p1);
+	ind2 = order(p2);
+	
+	o_srt <- as.matrix(o[ind1, ind2, drop=FALSE]);
+    
+	# calculate expected jaccard index
+	mask_mat <- matrix(1, k, k);
+	exp = focal(raster(as.matrix(o_srt)), mask_mat, mean, na.rm=TRUE, pad = T);
+	ee = raster::as.matrix(exp)[order(ind1),order(ind2),drop=FALSE];
+	return(ee)
+}
+
+# estimate the expected jaccard index using OVE
+.normOVE <- function(o, p1, p2, k){
+    pp = tcrossprod(p1, p2);
+	ss = matrix(rep(p1,each=length(p2)), ncol=length(p2), byrow=TRUE) +  matrix(rep(p2, each=length(p1)), ncol=length(p2), byrow=FALSE)
+	ee = pp/(ss - pp)
+	return(ee)	
+}
