@@ -45,8 +45,9 @@ runCluster.default <- function(
 		if (!file_test('-x', path_to_snaptools)) {
 			warning(path_to_snaptools, " does not exist or is not executable; switch to igraph cluster_louvain function, but resolution is not supported")
 			method = "R-igraph";			
+		}else{
+			method = "pyhton-louvain";			
 		}		
-		method = "pyhton-louvain";
 	}else{
 		method = "R-igraph";
 		warning("Using igraph cluster_louvain function, resolution is not supported");
