@@ -18,6 +18,7 @@ Depends:
 	RANN,
 	scales,
 	doSNOW,
+	igraph,
 	RColorBrewer
 License: MIT
 Encoding: UTF-8

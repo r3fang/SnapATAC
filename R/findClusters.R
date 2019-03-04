@@ -1,102 +1,102 @@
-#' Find Clusters Using Louvain Method
+#' Find Clusters Using Louvain Algorithm
 #'
-#' This function takes a snap object with "smat" attributes and identify cluster using graph-based clustering method
+#' @param obj A snap object
+#' @param k Neighbour size for creating K-nearest neighbour (knn) graph [k=15].
+#' @param pca_dims Selected principal components to use for creating kNN graph.
+#' @param method A character class that indicates what cluster method to use c("louvain", "jaccard_louvain") ["louvain"].
+#' @param resolution A numeric class that indicates the resolution for louvain clustering [1].
+#' @param data_path Directory path that stores temporary data [NULL].
+#' @param result_path Directory path that stores clustering result [NULL].
+#' @param path_to_snaptools Path to snaptools excutable binary file [NULL].
+#' @return Returns a Snap obj with the cluster stored in obj@cluster
 #'
-#' @param object A snap object.
-#' @param k A numeric object indicates the size for KNN graphs [15].
-#' @param pc.sel A numeric vector indicates which PCs are used for creating KNN graph [NULL].
-#' @param func A character object indicates what louvain function to use "python" or "R" [python] .
-#' @param method A character object indicates what cluster methods to use "louvain" or "jaccard.louvain" [louvain].
-#' @param resolution A numeric vector between 0 and 1 indicates what resolution to use for louvain [0.5].
-#' @param data_path A character variable indicates the path for storing graph data [NULL].
-#' @param result_path A character variable indicates the path for storing clustering result [NULL].
-#' @param community_path A character variable indicates the path to community_louvain program [bin/community_louvain].
-#'
-#' @return Returns a Snap object with the cluster stored in object@cluster
-#'
+#' @importFrom RANN nn2
+#' @importFrom igraph graph_from_adjacency_matrix cluster_louvain
+#' @importFrom utils file_test write.table read.table file.remove
+#' 
 #' @export
 
-runCluster <- function(object, ...) {
-  UseMethod("runCluster", object);
+runCluster <- function(obj, k, pca_dims, method, resolution, data_path, result_path, path_to_snaptools) {
+  UseMethod("runCluster", obj);
 }
 
 #' @export
 runCluster.default <- function(
-	object, 
+	obj, 
 	k=15, 
 	pca_dims=NULL, 
-	method=c("louvain", "jaccard_louvain"), 
 	resolution=1, 
 	data_path=NULL, 
+	method="louvain",
 	result_path=NULL,
 	path_to_snaptools=NULL
-){		
+	){		
+		
 	if (is.null(data_path)) {
 		data_path <- tempfile(pattern='community_data_', fileext='.dat')
 	}
+	
 	if (is.null(result_path)) {
 		result_path <- tempfile(pattern='community_result_', fileext='.dat')
 	}
 	
-	method = match.arg(method);
-	if(method %in% c("jaccard_louvain", "louvain")){
-		if (is.null(path_to_snaptools)) {
-			path_to_snaptools <- system2('which', 'snaptools', stdout=TRUE)
-		}
+	if(!is.null(path_to_snaptools)){
 		path_to_snaptools <- normalizePath(path_to_snaptools);
 		if (!file_test('-x', path_to_snaptools)) {
-			stop(path_to_snaptools, " does not exist or is not executable; check your path_to_snaptools parameter")
+			warning(path_to_snaptools, " does not exist or is not executable; switch to igraph cluster_louvain function, but resolution is not supported")
+			method = "R-igraph";			
 		}		
+		method = "pyhton-louvain";
+	}else{
+		method = "R-igraph";
+		warning("Using igraph cluster_louvain function, resolution is not supported");
 	}
 	
-	# 1. check if object is a snap object
-	if(class(object) != "snap"){
-		stop("'object' is not a snap object");
+	# 1. check if obj is a snap obj
+	if(class(obj) != "snap"){
+		stop("'obj' is not a snap obj");
 	}
 
 	# 2. check if smat exists
-	if(nrow(object@smat) == 0){
-		stop("smat does not exist in object, run PCA first");
+	if(nrow(obj@smat) == 0){
+		stop("dimentionality reduction does not exist in obj, run runDimReduct first");
 	}
 	
-	ncell = nrow(object@smat);
-	nvar = ncol(object@smat);
+	ncell = nrow(obj@smat);
+	nvar = ncol(obj@smat);
 	
 	# 3. check pc.sel exceed the smat dimetions 
 	if(is.null(pca_dims)){
 		pca_dims=1:nvar;	
 	}else{
 		if(any(pca_dims > nvar) ){
-			stop("'pca_dims' exceeds smat's variables number");
+			stop("'pca_dims' exceeds reduced dimentions variables number");
 		}		
 	}
 
-	dx = nn2(object@smat[,pca_dims], k = k+1)$nn.idx
+	dx = nn2(obj@smat[,pca_dims], k = k+1)$nn.idx
 	dx = dx[,2:(k+1)]
 	edges <- matrix(unlist(sapply(1:nrow(dx),function(i) { rbind(rep(i,k),dx[i,])})),nrow=2);
 	edges = as.data.frame(t(edges));	
-	edges$weight = 1;
-	write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
-	if(method == "jaccard_louvain"){
-		#flag = system2(command=path_to_snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution, "--jaccard=True"));		
+	if(method == "R-igraph"){
+		ajm = Matrix(0, ncell, ncell, sparse=TRUE);
+		ajm[as.matrix(edges[,1:2])] = 1;
+		g = graph_from_adjacency_matrix(ajm, mode="undirected", weighted=NULL);		
+		rm(ajm);
+		cl = cluster_louvain(g);
+		obj@cluster = factor(cl$membership);	
+	}else if(method == "python-louvain"){
+		edges$weight = 1;
+		write.table(edges, file = data_path, append = FALSE, quote = FALSE, sep = "\t", row.names = FALSE, col.names = FALSE);
 		flag = system2(command=path_to_snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));		
-	}else if(method == "louvain"){		
-		flag = system2(command=path_to_snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));		
+		if (flag != 0) {
+		   	stop("'runCluster' call failed");
+		}	
+		cluster = read.table(result_path);		
+		file.remove(data_path)
+		file.remove(result_path)
+		obj@cluster = factor(cluster[order(cluster[,1]),2]);	
 	}
-
-	if (flag != 0) {
-	   	stop("'runCluster' call failed");
-	}	
-	
-	cluster = read.table(result_path);
-	object@cluster = factor(cluster[order(cluster[,1]),2]);	
-	file.remove(data_path)
-	file.remove(result_path)
-	
-	return(object);
+	return(obj);
 }
-
-
-
-
 

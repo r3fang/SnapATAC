@@ -1,4 +1,4 @@
-## SnapATAC (internal testing)
+## SnapATAC (under development)
 Single Nuclesus Analysis Package for ATAC-seq. 
 
 ## Introduction
@@ -8,6 +8,8 @@ SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) an
 
 * Snaptools is a module for working with [snap](https://github.com/r3fang/SnapATAC/wiki/FAQs) file in Python. 
 * SnapATAC is a R package for the downstream analysis. 
+
+**NOTE: YOU ARE WELCOME TO USE SNAPATAC, BUT PLEASE NOTE THAT SNAPATAC IS STILL UNDER DEVELOPMENT AND MAY NEED FURTHER TESTING**
 
 ## Requirements  
 * Python (2.7)
