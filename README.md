@@ -41,7 +41,7 @@ $ R
 > data(mos);
 > mos = calJaccard(mos);
 > mos = runPCA(mos, pc.num=20);
-> mos = runCluster(mos, k=15, resolution=0.5);
+> mos = runCluster(mos, k=15);
 > mos = runViz(mos, dims=2, method="Rtsne");
 ```
 
