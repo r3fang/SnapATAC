@@ -1,49 +1,90 @@
 #' Motif Analysis Using Homer
+#' 
+#' Program will find de novo and known motifs in regions in the genome using HOMER
+#' 
+#' @param obj A snap object.
+#' @param mat matrix to use c("pmat", "bmat").
+#' @param path.to.homer Directory path to "findMotifsGenome.pl" excutable file.
+#' @param result.dir Directory to store the results.
+#' @param genome Genome hg19 for human and mm10 for mouse.
+#' @param num.cores Number of cores to use [10].
+#' @param motif.length Motif length (default=8,10,12). NOTE: values greater 12 may cause the program to run out of memory.
+#' @param scan.size fragment size to use for motif finding [200].
+#' @param optimize.count global optimization: searches for strings with # mismatches [2].
+#' @param background Genomic positions to be used as background. Removes background positions overlapping with target positions [automatic]
+#' @param local.background Wehther to use local background [FALSE]
+#' @param only.known Only to search for known motifs [TRUE]
+#' @param only.denovo Only to search for de novo motifs [FALSE].
+#' @param fdr.num Calculate empirical FDR for de novo discovery #=number of randomizations [5].
+#' @param cache Size in MB for statistics cache [500].
+#' @param overwrite Overwirite if the result.dir already exists [TRUE].
+#' @param keep.minimal Keep minimal version of output [FALSE].
+#' @param ... Arguments passed to "findMotifsGenome.pl".
+#' @importFrom utils file_test write.table read.csv 
 #' @export
-runHomer<- function(object, ...) {
-  UseMethod("runHomer", object);
+runHomer<- function(
+	obj,
+	mat,
+	path.to.homer,
+	result.dir,
+	genome,
+	num.cores,
+	motif.length,
+	scan.size,
+	optimize.count,
+	background,
+	local.background,
+	only.known,
+	only.denovo,
+	fdr.num,
+	cache,
+	overwrite,
+	keep.minimal,
+	...
+	) {
+  UseMethod("runHomer", obj);
 }
 
 #' @export
 runHomer.default <- function(
-	object,
+	obj,
 	mat=c("pmat", "bmat"),
-	path_to_homer=NULL,
-	result_dir=NULL,
+	path.to.homer=NULL,
+	result.dir=NULL,
 	genome = 'mm10',
-	cores = 10,
-	motif_length = 10,
-	scan_size = 300,
-	optimize_count = 2,
+	num.cores = 10,
+	motif.length = 10,
+	scan.size = 200,
+	optimize.count = 2,
 	background = 'automatic',
-	local_background = FALSE,
-	only_known = FALSE,
-	only_denovo = FALSE,
-	fdr_num = 5,
+	local.background = FALSE,
+	only.known = TRUE,
+	only.denovo = FALSE,
+	fdr.num = 5,
 	cache = 100,
 	overwrite = TRUE,
-	keep_minimal = FALSE,
+	keep.minimal = FALSE,
 	...
 	){
-		path_to_homer <- normalizePath(path_to_homer);
-		if (!file_test('-x', path_to_homer)) {
-			stop(path_to_homer, " does not exist or is not executable; check your path_to_homer parameter")
+		path.to.homer <- normalizePath(path.to.homer);
+		if (!file_test('-x', path.to.homer)) {
+			stop(path.to.homer, " does not exist or is not executable; check your path.to.homer parameter")
 		}		
 		
-		if (is.null(result_dir)) {
-			result_dir <- tempfile(pattern='homer')
+		if (is.null(result.dir)) {
+			result.dir <- tempfile(pattern='homer')
 		}
 		
 		# check input
-		if(class(object) != "snap"){
-			stop("'object' is not a snap object")
+		if(class(obj) != "snap"){
+			stop("'obj' is not a snap obj")
 		}
 		
 		mat = match.arg(mat);
 		if(mat == "pmat"){
-			x <- as.data.frame(object@peak)[,c(1:3)];
+			x <- as.data.frame(obj@peak)[,c(1:3)];
 		}else if(mat == "bmat"){
-			x <- as.data.frame(object@feature)[,c(1:3)];
+			x <- as.data.frame(obj@feature)[,c(1:3)];
 		}
 		
 		if(nrow(x) == 0){
@@ -51,28 +92,28 @@ runHomer.default <- function(
 		}
 		
 	    ## Error checking -----------------------------------------------------
-	    if (overwrite == FALSE & dir.exists(result_dir)) {
+	    if (overwrite == FALSE & dir.exists(result.dir)) {
 	        stop("Output directory exists (set `overwrite = TRUE` to bypass)")
 	    }
 
-	    if (background != "automatic" && local_background != FALSE) {
-	        stop("`background` and `local_background` are mutually exclusive; use only one")
+	    if (background != "automatic" && local.background != FALSE) {
+	        stop("`background` and `local.background` are mutually exclusive; use only one")
 	    }
 		
-	    if (only_known != FALSE & only_denovo != FALSE) {
-	        stop("Both `only_known` and `only_denovo` set to `TRUE`; pick one")
+	    if (only.known != FALSE & only.denovo != FALSE) {
+	        stop("Both `only.known` and `only.denovo` set to `TRUE`; pick one")
 	    }
         
 		
-		path_to_homer <- normalizePath(path_to_homer);
-		if (!file_test('-x', path_to_homer)) {
-			stop(path_to_homer, " does not exist or is not executable; check your path_to_homer parameter")
+		path.to.homer <- normalizePath(path.to.homer);
+		if (!file_test('-x', path.to.homer)) {
+			stop(path.to.homer, " does not exist or is not executable; check your path.to.homer parameter")
 		}		
 		
 		
 	    if ("data.frame" %in% class(x)) {
 	        target_bed <- tempfile("target_")
-			write.table(x, file=target_bed, row.name=FALSE, col.name=FALSE, sep="\t", quote = FALSE)
+			write.table(x, file=target_bed, row.names=FALSE, col.names=FALSE, sep="\t", quote = FALSE)
 	    } else {
 	        if (file.exists(x) != TRUE) {
 	            stop("Check that your bed file for `x` exists")
@@ -84,7 +125,7 @@ runHomer.default <- function(
 	        if ("data.frame" %in% class(background)) {
 	            background_bed <- tempfile("background_")
 	            #.write_bed(background, path = background_bed)
-				write.table(target_bed, file=background_bed, row.name=FALSE, col.name=FALSE, sep="\t", quote = FALSE)
+				write.table(target_bed, file=background_bed, row.names=FALSE, col.names=FALSE, sep="\t", quote = FALSE)
 	        } else {
 	            if (file.exists(background) != TRUE) {
 	                stop("Check that your bed file for `background` exists")
@@ -94,39 +135,39 @@ runHomer.default <- function(
 	    }
 
 	    ## Make HOMER results output dir
-	    system(paste("mkdir -p", result_dir))
+	    system(paste("mkdir -p", result.dir))
         
 	    cmd <- paste(
-	        path_to_homer,
-	        target_bed, genome, result_dir,
-	        "-len", paste0(motif_length, collapse = ","),
-	        "-size", scan_size,
-	        "-S", optimize_count,
-	        "-p", cores,
+	        path.to.homer,
+	        target_bed, genome, result.dir,
+	        "-len", paste0(motif.length, collapse = ","),
+	        "-size", scan.size,
+	        "-S", optimize.count,
+	        "-p", num.cores,
 	        "-cache", cache,
-	        "-fdr", fdr_num
+	        "-fdr", fdr.num
 	    )
 		
 	    if (!("automatic" %in% background)) {
 	        cmd <- paste(cmd, "-bg", background_bed)
 	    }
-	    if (local_background != FALSE) {
-	        cmd <- paste(cmd, "-local", local_background)
+	    if (local.background != FALSE) {
+	        cmd <- paste(cmd, "-local", local.background)
 	    }
-	    if (only_known == TRUE) {
+	    if (only.known == TRUE) {
 	        cmd <- paste(cmd, "-nomotif")
 	    }
-	    if (only_denovo == TRUE) {
+	    if (only.denovo == TRUE) {
 	        cmd <- paste(cmd, "-noknown")
 	    }
-	    if (scan_size == "given") {
+	    if (scan.size == "given") {
 	        cmd <- paste(cmd, "-chopify")
 	    }
 		
 		system(cmd);
 		
 	    ## Remove extraneous files if desired
-	    if (keep_minimal == TRUE) {
+	    if (keep.minimal == TRUE) {
 	        extra_files <- c("homerResults.html",
 	                         "knownResults.html",
 	                         "homerMotifs.motifs*",
@@ -136,12 +177,12 @@ runHomer.default <- function(
 	        extra_dirs <- c("homerResults",
 	                        "knownResults",
 	                        "randomizations")
-	        remove_extra <- paste(c(paste0("rm -f ", result_dir, "/", extra_files),
-	                                paste0("rm -Rf ", result_dir, "/", extra_dirs)),
+	        remove_extra <- paste(c(paste0("rm -f ", result.dir, "/", extra_files),
+	                                paste0("rm -Rf ", result.dir, "/", extra_dirs)),
 	                              collapse = "; ")
 	        system(remove_extra)
 	    }
-		x = read.csv(paste0(result_dir, "/knownResults.txt"), sep="\t", head=TRUE);
+		x = read.csv(paste0(result.dir, "/knownResults.txt"), sep="\t", header=TRUE);
 	    system("rm -f *.tmp");
 		return(x)
 }

@@ -1,6 +1,8 @@
+#' @include utilities.R
+globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' Normalize Jaccard Index Matrix
 #'
-#' This function takes a Snap object as input with jmat attributes and normalize 
+#' This function takes a Snap obj as input with jmat slot and normalize 
 #' for read depth effect.
 #' 
 #' In theory, the entry in the jaccard index calculated by calJaccard() should 
@@ -32,140 +34,151 @@
 #' correlated with OVN (r>0.99), therefore, we can estimate a scale factor alpha to scale 
 #' OVE to similar level with OVN. The scale factor is estimated from the data.
 #'
-#' @param object A snap object
-#' @param method A character class that indicates the normalization method to be used. This must be one of "OVN", "OVE"
-#' @param k A numeric class - number of neibouring cells to use for OVN (used only if method="OVN") (default k = 15) 
-#' @param max.cell A numeric class that indicates the max number of cells to calculate per core
-#' @param cores A numeric class that indicates the number of cores to use for calculation
-#' @param outlier.filter A numeric class that indicates the top outlier.filter of values as outliers to be capped (0.01)
-#' @param row.norm a logical value indicating whether rows of the normalized jaccard index matrix should be centered to 0.
+#' @param obj A snap obj
+#' @param ncell.chunk A numeric class that indicates number of cells to process per CPU node
+#' @param method A character class that indicates the normalization method to be used. This must be one of c("normOVN", "normOVE")
+#' @param k A numeric class that indicate number of neibouring cells to use for OVN (used only if method="OVN") (default k = 15) 
+#' @param row.center A logical value indicating whether rows of the normalized jaccard inex matrix should be centered by subtracting the layer means (omitting 'NA's)
+#' @param row.scale A logical value indicating whether rows of the normalized jaccard index matrix should be scaled by dividing the (centered) layers of 'x' by their standard deviations if 'center' is 'TRUE'.
+#' @param high.threshold A numeric class that indicates the max value for normalized jaccard index [5].
+#' @param low.threshold A numeric class that indicates the min value for normalized jaccard index [-5].
+#' @param num.cores A numeric class that indicates the number of cores to use for calculation [1].
+#' @param seed.use A numeric class that indicates random seeding number [10].
 #'
+#' @importFrom doParallel registerDoParallel
+#' @importFrom parallel makeCluster stopCluster detectCores
+#' @importFrom foreach foreach %dopar%
+#' @importFrom stats lm
+#' @importFrom bigmemory as.big.matrix attach.big.matrix
 #' @export
 #'
-#normJaccard <- function(object, ...) {
-#  UseMethod("normJaccard");
-#}
+runNormJaccard <- function(obj, ncell.chunk, method, k, row.center, row.scale, low.threshold, high.threshold, num.cores, seed.use){
+  UseMethod("runNormJaccard");
+}
 
-normJaccard.default <- function(object, k=15, outlier.filter=1e-3, eps=1e-6, cell.pcore=1000, ncore=5, method=c("normOVE", "normOVN"), row.center=TRUE, row.scale=TRUE){	
-	is.wholenumber <- function(x, tol = .Machine$double.eps^0.5)  abs(x - round(x)) < tol
-	if (!is.wholenumber(k) || k<=0) { stop("Incorrect k (OVN).")}
-	if (!is.numeric(outlier.filter) || outlier.filter<=0 || outlier.filter > 1) { stop("Incorrect outlier.filter.")}
-	
-	method <- match.arg(method);	
-	
-	# 1. check if object is a snap;
-	if(class(object) != "snap"){
-		stop("Not a snap object")
-	}
+#' @export
+runNormJaccard.default <- function(
+	obj, 
+	ncell.chunk=1000, 
+	method=c("normOVE", "normOVN"), 
+	k=15,
+	row.center=TRUE,
+	row.scale=TRUE, 
+	low.threshold=-5, 
+	high.threshold=5, 
+	num.cores = 1,
+	seed.use=10
+	){
 		
-	# 2. check of jmat exists;
-	if(nrow(object@jmat) == 0){
-		stop("@jmat is empty")		
-	}	
-
-	# 3. check of emat exists;
-	if(nrow(object@nmat) != 0){
-		message("Warning: @nmat already exists")		
-	}	
-	
-	# 3. make sure k is odd number
-	if((k %% 2) == 0) {
-		k = k + 1
-	}
-	
-	# 4. check idx
-	if(length(object@idx) == 0){
-		stop("@idx is empty");		
+	if(missing(obj)){
+		stop("obj is missing")
 	}else{
-		if(any(!object@idx %in% 1:nrow(object))){			
-			stop("@idx exceeds cell number");		
+		if(class(obj) != "snap"){
+			stop("'obj' is not a snap obj")
 		}
 	}
 	
-	row.means = Matrix::rowMeans(object@bmat);
-	ncell = length(row.means);
-	
-	# number of cells
-	if(ncell <= cell.pcore){
-		x = object@jmat;
-		x[x == 1] = mean(x);		
-		b1 = row.means;
-		b2 = row.means[object@idx];
-		emat = eval(parse( text = paste(".", method, "(x, b1, b2, k)", sep="")));	
-		x[x == 1] = mean(x)
-		data = data.frame(x=c(emat), y=c(x))
-		model = lm(y ~ x, data)
-		nmat = matrix(model$residuals, nrow(emat), ncol(emat));
+	if(!isJaccardComplete(obj@jmat)){
+		stop("jaccard object is not complete, run 'runJaccard' first")
 	}else{
-		# first cut the entire binary matrix into small pieces
-		id = 1:ncell;
-		id.ls = split(id, ceiling(seq_along(id)/cell.pcore));
-		
-		# always combine the last one with 2nd last one
-		# just to prevent from having a chunk with less 
-		# than 2 cells
-		if(length(id.ls) > 1){
-			id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
-			# remove the last item of the list
-			id.ls = id.ls[-length(id.ls)];
-		}
-		
-		jmat = object@jmat
-		# conquar each small problem sperately and combine them together
-		nmat.chunk <- mclapply(id.ls, function(id_i){	
-			id_j = object@idx;
-			x = jmat[id_i,];
-			x[x == 1] = mean(x);		
-			b1 = row.means[id_i];
-			b2 = row.means[id_j];
-			emat = eval(parse( text = paste(".", method, "(x, b1, b2, k)", sep="")));	
-			x[x == 1] = mean(x)
-			data = data.frame(x=c(emat), y=c(x))
-			model = lm(y ~ x, data)
-			nmat = matrix(model$residuals, nrow(emat), ncol(emat));
-		}, mc.cores=ncore);		
-		nmat = do.call(rbind, nmat.chunk);
+		if(isJaccardNorm(obj@jmat)){
+			stop("jaccard index matrix has been normalized")
+		}		
 	}
 	
-	# scale emat to the same level with jaccard index
-	#y = object@jmat
-	#y[y == 1] = mean(y)
-	#data = data.frame(x=c(emat), y=c(y))
-	#model = lm(y ~ x, data)
-	#nmat = matrix(model$residuals, nrow(emat), ncol(emat));
+	if(!is.logical(row.center)){
+		stop("row.center is not a logical")
+	}
 
-	# if row.norm is true
+	if(!is.logical(row.scale)){
+		stop("row.scale is not a logical")
+	}
+	
+	if(ncell.chunk < 1000){
+		stop("ncell.chunk must be larger than 1000")
+	}
+
+	if(k < 10 || k > 50){
+		stop("k must be in the range between 5 and 50")
+	}
+
+	if(low.threshold > high.threshold){
+		stop("low.threshold must be smaller than high.threshold");
+	}
+
+	if(low.threshold > 0 || high.threshold < 0){
+		stop("low.threshold must be smaller than 0 and high.threshold must be greater than 0");
+	}
+		
+    # input checking for parallel options
+	if(num.cores > 1){
+        if (num.cores == 1) {
+          num.cores = 1
+        } else if (num.cores > detectCores()) {
+          num.cores <- detectCores() - 1
+          warning(paste0("num.cores set greater than number of available cores(", parallel::detectCores(), "). Setting num.cores to ", num.cores, "."))
+        }
+      } else if (num.cores != 1) {
+        num.cores <- 1
+	}
+	
+	method = match.arg(method);
+	
+	message("Epoch: splitting obj into chunks ...");
+	# step 2) slice the orginal obj into list
+	id = seq(nrow(obj));
+	id.ls = split(id, ceiling(seq_along(id)/ncell.chunk ));
+	
+	if(length(id.ls) > 1){
+		id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
+		# remove the last item of the list
+		id.ls = id.ls[-length(id.ls)];
+	}	
+	
+	prefix_tmp = tempfile(pattern = "file", tmpdir = ".")
+	backingfile_tmp <- paste(basename(prefix_tmp), ".bin", sep="");
+	descriptorfile_tmp <- paste(basename(prefix_tmp), ".desc", sep="");
+	
+	x <- as.big.matrix(x = obj@jmat@jmat, type = "double", 
+	                 separated = FALSE, 
+	                 backingfile = backingfile_tmp, 
+	                 descriptorfile = descriptorfile_tmp)
+					 
+	b1 <- obj@jmat@p1;
+	b2 <- obj@jmat@p2;
+	
+	message("Epoch: scheduling CPUs ...");
+	cl <- makeCluster(num.cores);
+	registerDoParallel(cl);	
+
+	message("Epoch: normalizing jaccard index for each chunk ...");
+	nmat <- foreach(i=1:length(id.ls), .verbose=FALSE, .export="normJaccard", .packages="bigmemory", .combine = "rbind") %dopar% {
+	    t <- attach.big.matrix(descriptorfile_tmp);
+		return(normJaccard(jmat=t[id.ls[[i]],], b1=b1[id.ls[[i]]], b2=b2, method, k));
+	}
+	stopCluster(cl);
+	closeAllConnections();
+	
+	message("Epoch: scaling normalized jaccard index ...");
 	if(row.center || row.scale){
 		nmat = t(scale(t(nmat), center=row.center, scale=row.scale));
 	}
 	
-	# check if nmat is complete 
-	if(nrow(nmat) != nrow(object@bmat)){
-		stop("@nmat error detected, nmat is incomplete, try to use fewer cores!")		
-	}
-	object@nmat = nmat;
-	return(object);
+	message("Epoch: removing values beyond low.threshold and high.threshold ...");
+	nmat[nmat >= high.threshold] = high.threshold;
+	nmat[nmat <= low.threshold]  = low.threshold;
+
+	message("Epoch: updating jaccard object ...");
+	obj@jmat@jmat = nmat;
+	obj@jmat@method = method;
+	obj@jmat@norm = TRUE;	
+
+	message("Epoch: cleaning up ...");
+	rm(x);
+	file.remove(backingfile_tmp);
+	file.remove(descriptorfile_tmp);
+	gc();
+	return(obj);
 }
 
-# estimate the expected jaccard index using OVN
-.normOVN <- function(o, p1, p2, k){
-	# sort the jaccard index matrix based on the coverage
-	ind1 = order(p1);
-	ind2 = order(p2);
-	
-	o_srt <- as.matrix(o[ind1, ind2, drop=FALSE]);
-    
-	# calculate expected jaccard index
-	mask_mat <- matrix(1, k, k);
-	exp = focal(raster(as.matrix(o_srt)), mask_mat, mean, na.rm=TRUE, pad = T);
-	ee = raster::as.matrix(exp)[order(ind1),order(ind2),drop=FALSE];
-	return(ee)
-}
 
-# estimate the expected jaccard index using OVE
-.normOVE <- function(o, p1, p2, k){
-    pp = tcrossprod(p1, p2);
-	ss = matrix(rep(p1,each=length(p2)), ncol=length(p2), byrow=TRUE) +  matrix(rep(p2, each=length(p1)), ncol=length(p2), byrow=FALSE)
-	ee = pp/(ss - pp)
-	return(ee)	
-}

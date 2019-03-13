@@ -1,0 +1,98 @@
+#' Add cell-by-peak matrix to a snap file
+#'
+#' This function takes a peak list and a snap file and add cell-by-peak matrix 
+#' into the existing snap file.
+#' 
+#' @param file A snap file.
+#' @param peak A GenomicRanges object that contains peak coordinates.
+#' @param path.to.snaptools Path to snaptools excutable file.
+#' @param buffer.size Buffer size for incrementally increasing internal array size to store reads alignment information. In
+#' most cases, you don't have to change this parameter. However, if there are very high coverage dataset that each barcode has
+#' more than 10000 fragments, it's recommended to specify a smaller buffer size in order to decrease memory usage (but it will take longer time to read snap files) [1000].
+#' @param tmp.folder Directory to store temporary files. If not given, snaptools will automatically generate a temporary location to store temporary files. 
+#' 
+#' @export
+runSnapAddPmat <- function(file, peak, path.to.snaptools, buffer.size, tmp.folder) {
+  UseMethod("runSnapAddPmat", file);
+}
+
+#' @export
+runSnapAddPmat.default <- function(
+	file,
+	peak, 
+	path.to.snaptools,
+	buffer.size=500,
+	tmp.folder=NULL
+){
+	cat("Epoch: checking input parameters ... \n", file = stderr())
+	if(missing(file)){
+		stop("file is missing");
+	}else{
+		if(!file.exists(file)){
+			stop("file does not exist");
+		}
+		if(!isSnapFile(file)){
+			stop("file is not a snap file");
+		}
+	}
+	
+	if(class(peak) != "GRanges"){
+		stop("peak is not a GRanges object");
+	}else{
+		if((x = length(peak)) == 0L){
+			stop("peak is empty")
+		}
+	}
+	
+	
+	if(missing(path.to.snaptools)){
+		stop("path.to.snaptools is missing");
+	}else{
+		if(!file.exists(path.to.snaptools)){
+			stop("path.to.snaptools does not exist");
+		}
+		
+		flag = tryCatch({
+			file_test('-x', path.to.snaptools);	
+		},
+		error=function(cond){
+			return(FALSE)
+		})
+		if(flag == FALSE){
+			stop("path.to.snaptools is not an excutable file");
+		}
+		
+	}
+
+	if(is.null(tmp.folder)){
+		tmp.folder =  tempdir();
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist")
+		}
+	}
+	
+	# write down the barcode info
+	tmp.file.peak = tempfile(pattern = "run_snap_add_pmat", tmpdir = tmp.folder, fileext = ".txt")
+	write.table(as.data.frame(peak)[,1:3], file = tmp.file.peak, append = FALSE, quote = FALSE, sep = "\t",
+	                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+	                 col.names = FALSE, qmethod = c("escape", "double"),
+	                 fileEncoding = "")
+	
+	cat("Epoch: adding cell-by-peak matrix into snap file ...\n", file = stderr())
+	flag = system2(command=path.to.snaptools, 
+		args=c("snap-add-pmat", 
+			   "--snap-file", file, 
+			   "--peak-file", tmp.file.peak, 
+			   "--buffer-size", buffer.size,
+			   "--tmp-folder", tmp.folder
+			   )		
+		);		
+
+	if (flag != 0) {
+	   	stop("'runSnapAddPmat' call failed");
+	}
+}
+
+
+

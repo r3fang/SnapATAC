@@ -2,22 +2,26 @@
 % Please edit documentation in R/filterBins.R
 \name{filterBins}
 \alias{filterBins}
-\title{Feature Filteration}
+\title{Feature filtration}
 \usage{
-filterBins(object, ...)
+filterBins(obj, low.threshold, high.threshold, mat)
 }
 \arguments{
-\item{object}{snap object}
+\item{obj}{A snap obj}
 
 \item{low.threshold}{Low cutoffs for the parameters (default is -2)}
 
 \item{high.threshold}{High cutoffs for the parameters (default is 2)}
 
-\item{mat}{input matrix}
+\item{mat}{Matrix to filter c("bmat", "pmat")}
 }
 \value{
-Returns a snap object containing only the relevant subset of bins
+Returns a snap obj
 }
 \description{
-This function takes a snap object as input and filter feature based on given cutoff.
+This function takes a snap obj as input and perform feature selection in the following manner:
+1) calculate coverage of each genomic bin/feature;
+2) log scale the coverage log10(count + 1);
+3) the log-scaled coverage obey approximately a gaussian distribution which is then converted into zscore; 
+4) bins with zscore beyond [low.threshold, high.threshold] were filtered;
 }

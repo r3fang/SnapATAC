@@ -7,10 +7,6 @@
 #'
 #' @return integer vector. A vector of integers indicating the bin sizes
 #'
-#' @examples
-#' fname <- system.file("extdata", "Schep.snap", package = "nucleus")
-#' showBinSizes(fname)
-#'
 #' @export
 #'
 showBinSizes <- function(file) {

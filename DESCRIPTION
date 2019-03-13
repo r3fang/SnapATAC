@@ -1,26 +1,57 @@
 Package: SnapATAC
-Title: Single Nucleus Analysis Package for ATAC-seq
 Version: 1.0
+Date: 2019-02-28
+Title: Single Nucleus Analysis Package for ATAC-seq
 Authors@R: person("Rongxin", "Fang", email = "r4fang@gmail.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-biocViews:
+Description: A fast, accurate and unbiased toolkit for analyzing single cell ATAC-seq datasets.
+biocViews: Bioinformatics, Single Cell, Epigenetics, ATAC-seq
 Depends:
 	R (>= 3.4.0),
-	limma (>= 3.3.0),
+	Matrix (>= 1.2.14),
+Imports:
 	GenomicRanges,
-	Matrix,
-	rhdf5,
+	IRanges,
+	methods,
+	stats,
+	Rcpp (>= 0.12.6),
 	raster,
 	irlba,
-	parallel,
 	Rtsne,
+	rhdf5 (>= 2.20.0),
 	edgeR,
 	RANN,
 	scales,
+	RColorBrewer,
+	parallel,
+	foreach,
+	doParallel,
 	doSNOW,
 	igraph,
-	RColorBrewer
-License: MIT
+	plyr,
+	bigmemory
+License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
+Collate: 
+    'dimReduct-class.R'
+    'filterBins.R'
+    'findDARs.R'
+    'jaccard-class.R'
+    'makeBinary.R'
+    'utilities.R'
+    'normJaccard.R'
+    'plottings-utilities.R'
+    'plottings.R'
+    'runClusters.R'
+    'runDimReduct.R'
+    'runHomer.R'
+    'runJaccard.R'
+    'snap-class.R'
+    'runKNN.R'
+    'runMACS.R'
+    'runSnapAddPmat.R'
+    'runViz.R'
+    'scaleCountMatrix.R'
+    'showBinSizes.R'
+    'snap-utilities.R'

@@ -10,30 +10,32 @@ Class snap defines a snap object.
 \section{Slots}{
 
 \describe{
-\item{\code{barcode}}{A character vector contains cell barcodes as rows}
+\item{\code{des}}{A character object describes the details of the experiment.}
 
-\item{\code{metaData}}{A data.frame object contains meta data for barcodes}
+\item{\code{barcode}}{A character vector contains cell barcodes as rows.}
 
-\item{\code{feature}}{A GRanges object contains genomic features (bins)}
+\item{\code{metaData}}{A data.frame object contains meta data for barcodes.}
 
-\item{\code{peak}}{A GRanges object contains genomic features (peaks)}
+\item{\code{feature}}{A GRanges object contains genomic features (bins).}
 
-\item{\code{bmat}}{A Matrix object contains cellxbin count matrix}
+\item{\code{peak}}{A GRanges object contains genomic features (peaks).}
 
-\item{\code{pmat}}{A Matrix object contains cellxpeak count matrix}
+\item{\code{bmat}}{A Matrix object contains cellxbin count matrix.}
 
-\item{\code{gmat}}{A matrix object contains cellxgene count matrix}
+\item{\code{pmat}}{A Matrix object contains cellxpeak count matrix.}
 
-\item{\code{jmat}}{A matrix object contains jaccard matrix}
+\item{\code{gmat}}{A matrix object contains cellxgene count matrix.}
 
-\item{\code{nmat}}{A matrix object contains normalized jaccard matrix}
+\item{\code{jmat}}{A jaccard object that contains jaccard index matrix.}
 
-\item{\code{smat}}{A matrix object contains SVD projection matrix}
+\item{\code{smat}}{A list object contains the linear dimentionality reduction result.}
 
-\item{\code{tsne}}{A matrix object contains tsne coordinate}
+\item{\code{kmat}}{A spare matrix object representation of the KNN graph.}
 
-\item{\code{umap}}{A matrix object contains umap coordinate}
+\item{\code{tsne}}{A matrix object contains tsne coordinate.}
 
-\item{\code{cluster}}{A factor object contains cluster label}
+\item{\code{umap}}{A matrix object contains umap coordinate.}
+
+\item{\code{cluster}}{A factor object contains cluster label.}
 }}
 

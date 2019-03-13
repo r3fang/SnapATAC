@@ -4,26 +4,23 @@
 \alias{makeBinary}
 \title{Convert the count matrix to binary matrix}
 \usage{
-makeBinary(object, ...)
+makeBinary(obj, mat, outlier.filter)
 }
 \arguments{
-\item{object}{A snap object.}
+\item{obj}{A snap obj.}
+
+\item{mat}{A character class indicates what matrix slot to use c("bmat", "pmat", "gmat").}
 
 \item{outlier.filter}{A numeric class within the range between 0 and 1. The non-zero elememnts in the count matrix are identified annd filtered as outliers (default 1e-3)}
 }
 \value{
-Returns a Snap object with the binary matrix stored in object@bmat
+Returns a Snap obj with the binary matrix stored in obj@bmat
 }
 \description{
-This function takes a snap object as input, then convert count matrix to a binary matrix.
+This function takes a snap obj as input, then convert count matrix to a binary matrix.
 }
 \details{
 It has been observed that some entries in the count matrix have exceedingly high value, which we suspect 
 are due to alingnment or other type of errors. This function first identifies the top outlier.filter (%) 
 non-zero values in the count matrix as cutoff and then remove any values above this cutoff as outliers.
-}
-\examples{
-schep.sp
-schep.sp = cmat2bmat(schep.sp, outlier.filter=1e-3);
-
 }

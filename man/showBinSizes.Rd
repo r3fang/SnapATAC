@@ -16,8 +16,3 @@ integer vector. A vector of integers indicating the bin sizes
 This function takes a snap-format file name as input and check the bin 
 sizes or resolutions have been generated for count matrix
 }
-\examples{
-fname <- system.file("extdata", "Schep.snap", package = "nucleus")
-showBinSizes(fname)
-
-}

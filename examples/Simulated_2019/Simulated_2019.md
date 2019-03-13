@@ -1,21 +1,21 @@
-## Analysis of simulated scATAC-seq
+## Supplementary Note 2 (Simulated scATAC-seq)
 
 **Step 1. Download Snap files of simulated scATAC-seq datasets**. 
 
 ```
-$ wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/500.snap
-$ wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/1000.snap
-$ wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/2500.snap
-$ wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/5000.snap
-$ wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/10000.snap
-$ wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/10000.offpeak.snap
+> wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/500.snap
+> wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/1000.snap
+> wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/2500.snap
+> wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/5000.snap
+> wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/10000.snap
+> wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/simulated_scATAC/10000.offpeak.snap
 ```
 
 **Step 2. Create a snap object**
 
 ```R
-$ R
-> library(SnapATAC);
+> R
+> library(snapATAC);
 > x.sp = createSnap("10000.offpeak.snap");
 > x.sp = addBmat(x.sp, "10000.offpeak.snap", binSize=5000);
 > x.sp
@@ -110,7 +110,8 @@ umap:                (umap)    :  FALSE
 
 ```
 
-<img src="./Viz_tsne.png" width="300" height="300" /> <img src="./Viz_umap.png" width="300" height="300" />
+<img src="Viz_tsne.PNG" width="300" height="300" />
+<img src="Viz_umap.PNG" width="300" height="300" />
 
 
 **Step 8. Comparision with cell label**

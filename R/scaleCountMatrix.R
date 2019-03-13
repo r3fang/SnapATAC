@@ -1,13 +1,22 @@
 #' Normlaize Count Matrix
 #'
+#' @param obj A snap object
+#' @param mat Matrix to be normalized c("gmat", "bmat", "pmat")
+#' @param cov A numeric array as cell coverage to normalize the count matrix
+#' @param method Method to normalize the matrix c("logRPM", "RPM", "log")
+#' importFrom methods as slot
 #' @export
-
-scaleCountMatrix <- function(obj, ...) {
+scaleCountMatrix <- function(obj, mat, cov, method) {
   UseMethod("scaleCountMatrix", obj);
 }
 
 #' @export
-scaleCountMatrix.default <- function(obj, mat=c("gmat", "bmat", "pmat"), cov, method=c("RPM", "log")){	
+scaleCountMatrix.default <- function(
+	obj, 
+	mat=c("gmat", "bmat", "pmat"), 
+	cov, 
+	method=c("logRPM", "RPM", "log")
+){	
 	
 	if(class(obj) != "snap"){
 		stop("object is not a snap object");
@@ -17,50 +26,29 @@ scaleCountMatrix.default <- function(obj, mat=c("gmat", "bmat", "pmat"), cov, me
 		stop("'cov' is not a snap object");
 	}
 	
-	if(length(cov) != length(obj@barcode)){
+	ncell = length(obj@barcode);
+	
+	if((x = length(cov)) != ncell){
 		stop("'cov' has different length from cell number");
 	}
 
-	method = match.arg(method);
 	mat = match.arg(mat);
-	if(mat == "bmat"){
-		if(nrow(obj@bmat) == 0){
-			stop("cell-by-bin matrix is empty")			
-		}
+	data.use = methods::slot(obj, mat);
+	if((x = nrow(data.use)) == 0){
+		stop("selected matrix is empty");
 	}
-
-	if(mat == "pmat"){
-		if(nrow(obj@pmat) == 0){
-			stop("cell-by-peak matrix is empty")			
-		}
-	}
-
-	if(mat == "gmat"){
-		if(nrow(obj@gmat) == 0){
-			stop("cell-by-gene matrix is empty")			
-		}
-	}
-
 	
-	if(mat == "gmat"){
-		if(method == "RPM"){
-			obj@gmat = (obj@gmat / cov) * 1000000;
-		}else{
-			obj@gmat = log10(obj@gmat + 1);			
-		}
-	}else if(mat == "bmat"){
-		if(method == "RPM"){
-			obj@bmat = (obj@bmat / cov) * 1000000;
-		}else{
-			obj@bmat = log10(obj@bmat + 1);			
-		}
-	}else{
-		if(method == "RPM"){
-			obj@pmat = (obj@pmat / cov) * 1000000;			
-		}else{
-			obj@pmat = log10(obj@pmat + 1);			
-		}		
+	method = match.arg(method);
+	if(method == "logRPM"){
+		data.use = log((data.use / cov) * 1000000 + 1, 10);
+	}else if(method == "RPM"){
+		data.use = (data.use) / (cov) * 1000000;		
+	}else if(method == "log"){
+		data.use = log(data.use+1, 10);		
 	}
-	return(obj)
+	
+	 methods::slot(obj, mat) = data.use;
+	return(obj);
 }
+
 
