@@ -850,8 +850,8 @@ snapRbind <- function(obj1, obj2){
 
 #' @export
 snapRbind.default <- function(obj1, obj2){
-	if(!is.snap(obj1)){stop(paste("Error @rBind: obj1 is not a snap object!", sep=""))};
-	if(!is.snap(obj2)){stop(paste("Error @rBind: obj2 is not a snap object!", sep=""))};
+	if(!is.snap(obj1)){stop(paste("Error @snapRbind: obj1 is not a snap object!", sep=""))};
+	if(!is.snap(obj2)){stop(paste("Error @snapRbind: obj2 is not a snap object!", sep=""))};
 
 	# barcode from obj1 and obj2
 	barcode1 = obj1@barcode;
@@ -859,7 +859,7 @@ snapRbind.default <- function(obj1, obj2){
 	
 	# check barcode name, if there exists duplicate barcode raise error and exist
 	if(length(unique(c(barcode1, barcode2))) < length(barcode1) + length(barcode2)){
-		stop("Error: @rBind: identifcal barcodes found in obj1 and obj2!")
+		stop("Error: @snapRbind: identifcal barcodes found in obj1 and obj2!")
 	}
 	barcode = c(barcode1, barcode2);
 	
@@ -878,7 +878,7 @@ snapRbind.default <- function(obj1, obj2){
 	}else{
 		if(length(feature1) > 0){
 			if(FALSE %in% (feature1$name == feature2$name)){
-				stop("Error: @rBind: different feature found in obj1 and obj2!")
+				stop("Error: @snapRbind: different feature found in obj1 and obj2!")
 			}
 			feature = feature1;					
 		}else{
@@ -894,7 +894,7 @@ snapRbind.default <- function(obj1, obj2){
 	}else{
 		if(length(peak1) > 0){
 			if(FALSE %in% (peak1$name == peak2$name)){
-				stop("Error: @rBind: different feature found in obj1 and obj2!")
+				stop("Error: @snapRbind: different feature found in obj1 and obj2!")
 			}
 			peak = peak1;					
 		}else{
