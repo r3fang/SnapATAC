@@ -836,22 +836,20 @@ calBmatCor.default <- function(obj1, obj2=NULL){
 }
 
 
-##### Combine snap objects
-#####
-##### Takes two snap objects and combines them.
-#####
-##### @param obj1 a snap object
-##### @param obj2 a snap object
-##### @return a combined snap object
-rBind <- function(obj1, obj2){
-  UseMethod("rBind", obj1);
+#' Combine snap objects
+#'
+#' Takes two snap objects and combines them.
+#'
+#' @param obj1 a snap object
+#' @param obj2 a snap object
+#' @return a combined snap object
+#' @export
+snapRbind <- function(obj1, obj2){
+  UseMethod("snapRbind", obj1);
 }
 
-rBind.default <- function(obj1, obj2){
-	# only the following slots can be combined
-	# barcode, feature, metaData, cmat, bmat
-	# among these slots, barcode, feature, cmat are enforced, the others are optional
-	# the rest slots must be set to be empty
+#' @export
+snapRbind.default <- function(obj1, obj2){
 	if(!is.snap(obj1)){stop(paste("Error @rBind: obj1 is not a snap object!", sep=""))};
 	if(!is.snap(obj2)){stop(paste("Error @rBind: obj2 is not a snap object!", sep=""))};
 
