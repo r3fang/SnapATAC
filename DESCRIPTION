@@ -28,6 +28,7 @@ Imports:
 	doSNOW,
 	igraph,
 	plyr,
+	Rhdf5lib (>= 1.4.2),
 	bigmemory
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
