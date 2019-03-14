@@ -209,6 +209,7 @@ plotViz.default <- function(obj,
 	data.use = data.use[idx.ds,,drop=FALSE]
 	if(length(obj@cluster) == 0L){
 		warning("cluster does not exist, text.add is ignored")
+		text.add = FALSE;
 	}
 									
 	if(length(obj@cluster) != 0L){	

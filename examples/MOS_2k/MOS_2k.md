@@ -163,7 +163,7 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	);
 ```
 
-<img src="./Viz_tsne.png" width="500" height="480" /> 
+<img src="./Viz_tsne.png" width="400" height="350" /> <img src="./Viz_umap.png" width="400" height="350" /> 
 
 
 **Step 10. Gene-body accessibility based gene annotation (SnapATAC).**.     
