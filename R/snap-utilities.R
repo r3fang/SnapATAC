@@ -2,6 +2,7 @@
 newSnap <- function () {
 	metaData=data.frame();
 	des = character()
+	file = character()
 	barcode = as.character(c());
 	feature = GRanges();
 	peak = GRanges();		
@@ -17,6 +18,7 @@ newSnap <- function () {
 	cluster=factor();
 	res = new("snap", 
 			  des=des,
+			  file=file,
 			  barcode=barcode, 
 			  feature=feature, 
 			  peak=peak, 
@@ -336,6 +338,7 @@ createSnap.default <- function(file, metaData=TRUE, description=NULL){
 	}
 	res@barcode = barcode;
 	res@des = description;
+	res@file = file;
 	H5close();
 	gc();
 	return(res);	

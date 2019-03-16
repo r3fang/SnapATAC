@@ -25,6 +25,7 @@ setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
 setClass("snap",
 	slots=list(
 	des="character",
+	file="character",
 	barcode="character",
 	metaData="data.frame",
 	feature="GRanges",
@@ -76,7 +77,7 @@ setValidity("snap", .valid.snap)
 setMethod("show", signature = "snap",
 	definition = function(object) {
 		if((x=length(object@des)) > 0L){
-			cat(object@des, "\n");
+			cat("description: ", object@des, "\n");
 			cat("===================", "\n");			
 		}
 		cat("number of barcodes: ", ifelse(is.null(length(object@barcode)), 0, length(object@barcode)), "\n", sep="");

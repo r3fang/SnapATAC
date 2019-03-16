@@ -17,7 +17,7 @@ Imports:
 	raster,
 	irlba,
 	Rtsne,
-	rhdf5 (>= 2.26.0),
+	rhdf5 (>= 2.20.0),
 	edgeR,
 	RANN,
 	scales,
