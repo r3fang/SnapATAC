@@ -73,7 +73,7 @@ runSnapAddPmat.default <- function(
 	}
 	
 	# write down the barcode info
-	tmp.file.peak = tempfile(pattern = "run_snap_add_pmat", tmpdir = tmp.folder, fileext = ".txt")
+	tmp.file.peak = tempfile(pattern = "run_snap_add_pmat", tmpdir = tmp.folder, fileext = ".bed")
 	write.table(as.data.frame(peak)[,1:3], file = tmp.file.peak, append = FALSE, quote = FALSE, sep = "\t",
 	                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
 	                 col.names = FALSE, qmethod = c("escape", "double"),
