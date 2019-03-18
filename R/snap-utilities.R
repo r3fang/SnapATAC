@@ -2,7 +2,7 @@
 newSnap <- function () {
 	metaData=data.frame();
 	des = character()
-	file = character()
+	file = as.character(c());
 	barcode = as.character(c());
 	feature = GRanges();
 	peak = GRanges();		
@@ -181,6 +181,7 @@ setMethod("is.snap", "snap", function(obj) return(class(obj) == "snap"));
 setMethod("[", "snap",
 	function(x,i,j,mat=c("bmat", "pmat"), drop="missing"){
 		.barcode = x@barcode;
+		.file = x@file;
 		.feature = x@feature;
 		.peak = x@peak;
 		.bmat = x@bmat;
@@ -209,6 +210,7 @@ setMethod("[", "snap",
 		   if(nrow(.metaData) > 0){.metaData <- .metaData[i,,drop=FALSE]}
 		   if(length(.cluster) > 0){.cluster <- .cluster[i,drop=FALSE]}
 		   if(length(.barcode) > 0){.barcode <- .barcode[i,drop=FALSE]}
+		   if(length(.file) > 0){.file <- .file[i,drop=FALSE]}
 	   }
 	   if(!missing(j)){
    			mat = match.arg(mat);
@@ -224,6 +226,7 @@ setMethod("[", "snap",
 	   x@pmat = .pmat;
 	   x@gmat = .gmat;
 	   x@barcode = .barcode;
+	   x@file = .file;
 	   x@peak = .peak;
 	   x@feature = .feature;
 	   x@metaData = .metaData;
@@ -338,7 +341,7 @@ createSnap.default <- function(file, metaData=TRUE, description=NULL){
 	}
 	res@barcode = barcode;
 	res@des = description;
-	res@file = file;
+	res@file = rep(file, length(res@barcode));
 	H5close();
 	gc();
 	return(res);	
