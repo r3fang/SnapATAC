@@ -38,6 +38,7 @@ Collate:
     'filterBins.R'
     'findDARs.R'
     'jaccard-class.R'
+    'kgraph-class.R'
     'makeBinary.R'
     'utilities.R'
     'normJaccard.R'

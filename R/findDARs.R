@@ -72,7 +72,7 @@ findDAR.default <- function(
 		}
 		
 		if(is.null(cluster.neg)){
-			if((x=nrow(obj@kmat)) == 0L){
+			if(isKgraphEmpty(obj@kgraph)){
 				stop("knn graph is empty, run runKNN first or reset cluster.neg")
 			}
 			idx.neg = findNegCells(obj, idx.pos, method="knn");
@@ -83,7 +83,6 @@ findDAR.default <- function(
 			idx.neg = which(obj@cluster == cluster.neg);
 		}
 		
-
 		ncell.pos = length(idx.pos);
 		ncell.neg = length(idx.neg);
 		

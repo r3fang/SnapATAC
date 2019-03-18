@@ -11,8 +11,6 @@
 #' multiple resolutions, but requires "snaptools" to be pre-installed.
 #' @param resolution A numeric class that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.
 #' @param path.to.snaptools Path to snaptools excutable file [NULL]. Install snaptools by 'pip install snaptools'.
-#' @param load.knn.from.file Whether to load knn grph from a file [FALSE].
-#' @param edge.file Directory path to the file that contains knn graphs [NULL]. 
 #' @param seed.use Random seed [10]. 
 #' 
 #' @return Returns a snap obj with the cluster stored in obj@cluster
@@ -22,7 +20,7 @@
 #' @importFrom methods as
 #' @export
 
-runCluster <- function(obj, louvain.lib, resolution, path.to.snaptools, load.knn.from.file, edge.file, seed.use) {
+runCluster <- function(obj, louvain.lib, resolution, path.to.snaptools, seed.use) {
   UseMethod("runCluster", obj);
 }
 
@@ -32,8 +30,6 @@ runCluster.default <- function(
 	louvain.lib=c("R-igraph", "python-louvain"),
 	resolution=1.0,
 	path.to.snaptools=NULL,
-	load.knn.from.file=FALSE, 
-	edge.file=NULL,
 	seed.use=10
 ){
 	cat("Epoch: checking input parameters\n", file = stderr())
@@ -76,53 +72,32 @@ runCluster.default <- function(
 		}
 	}
 	
-	if(nrow(obj@kmat) == 0 && load.knn.from.file==FALSE){
-		stop("knn graph is empty, run 'runKNN' first")
+	if(isKgraphEmpty(obj@graph)){
+		stop("knn graph is empty, run 'runKNN' first")		
 	}
-	
-	if(nrow(obj@kmat) != 0 && load.knn.from.file==TRUE){
-		warning("knn already exists in obj, will not read from edge.file")
-		load.knn.from.file = FALSE;
-	}
-
-	if(load.knn.from.file==TRUE && is.null(edge.file)){
-		stop("edge.file does not exist")
-	}
-			
+				
 	if(is.na(as.numeric(resolution))){
 		stop("resolution must be numeric class!")
 	}
 	
 	if(louvain.lib == "R-igraph"){
-		if(load.knn.from.file){
-			cat("Epoch: loading KNN graph from file\n", file = stderr())					
-			if(!file.exists(edge.file)){
-				stop("edge.file does not exist!")
-			}
-			edgeList = readEdgeListFromFile(edge.file);
-			g = igraph::graph_from_edgelist(as.matrix(edgeList[,c(1,2)]), directed=FALSE);
-			igraph::E(g)$weight = edgeList[,3]			
-		}else{
-			g = graph_from_adjacency_matrix(obj@kmat, weighted=TRUE, mode="undirected");
-		}
+		data.use = getGraph(obj@graph);
+		g = graph_from_adjacency_matrix(data.use, weighted=TRUE, mode="undirected");
 		cat("Epoch: finding clusters using R-igraph\n", file = stderr())		
 		set.seed(seed.use);
 		cl = cluster_louvain(g);
 		obj@cluster = factor(cl$membership);		
 	}else if(louvain.lib == "python-louvain"){
-		if(load.knn.from.file){
-			if(!file.exists(edge.file)){
-				stop("edge.file does not exist!")
-			}
-			data_path = edge.file;
-		}else{
+		if((x=nrow(obj@graph@mat)) > 0L){
 			data_path <- tempfile(pattern='community_data_', fileext='.dat');
-			adj = obj@kmat;
+			adj = obj@graph@mat;
 			i = adj@i + 1;
 			j = findInterval(seq(adj@x)-1,adj@p[-1])+1; 
 			w = adj@x;
 			edgeList = data.frame(v1=i, v2=j, w=w);
-			writeEdgeListToFile(edgeList, data_path);			
+			writeEdgeListToFile(edgeList, data_path);						
+		}else{
+			data_path = obj@graph@file;
 		}
 		cat("Epoch: finding clusters using python-louvain\n", file = stderr())		
 		result_path <- tempfile(pattern='community_result_', fileext='.dat')

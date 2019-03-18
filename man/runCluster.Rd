@@ -4,8 +4,7 @@
 \alias{runCluster}
 \title{Find Clusters Using Louvain Algorithm}
 \usage{
-runCluster(obj, louvain.lib, resolution, path.to.snaptools, load.knn.from.file,
-  edge.file, seed.use)
+runCluster(obj, louvain.lib, resolution, path.to.snaptools, seed.use)
 }
 \arguments{
 \item{obj}{A snap object}
@@ -18,10 +17,6 @@ multiple resolutions, but requires "snaptools" to be pre-installed.}
 \item{resolution}{A numeric class that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.}
 
 \item{path.to.snaptools}{Path to snaptools excutable file [NULL]. Install snaptools by 'pip install snaptools'.}
-
-\item{load.knn.from.file}{Whether to load knn grph from a file [FALSE].}
-
-\item{edge.file}{Directory path to the file that contains knn graphs [NULL].}
 
 \item{seed.use}{Random seed [10].}
 }

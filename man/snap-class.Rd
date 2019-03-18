@@ -30,7 +30,7 @@ Class snap defines a snap object.
 
 \item{\code{smat}}{A list object contains the linear dimentionality reduction result.}
 
-\item{\code{kmat}}{A spare matrix object representation of the KNN graph.}
+\item{\code{graph}}{A kgraph object that contains the knn graph.}
 
 \item{\code{tsne}}{A matrix object contains tsne coordinate.}
 

@@ -13,7 +13,7 @@
 #' @slot gmat A matrix object contains cellxgene count matrix.
 #' @slot jmat A jaccard object that contains jaccard index matrix.
 #' @slot smat A list object contains the linear dimentionality reduction result.
-#' @slot kmat A spare matrix object representation of the KNN graph.
+#' @slot graph A kgraph object that contains the knn graph.
 #' @slot tsne A matrix object contains tsne coordinate.
 #' @slot umap A matrix object contains umap coordinate.
 #' @slot cluster A factor object contains cluster label.
@@ -35,7 +35,7 @@ setClass("snap",
 	gmat = "Matrix",
 	jmat = "jaccard",
 	smat = "dim.reduct",
-	kmat = "MatrixOrmatrix",
+	graph = "kgraph",
 	tsne = "MatrixOrmatrix",
 	umap = "MatrixOrmatrix",
 	cluster = "factor"

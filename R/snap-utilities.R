@@ -12,7 +12,7 @@ newSnap <- function () {
 	gmat=Matrix(nrow=0, ncol=0, sparse=TRUE);
 	jmat=newJaccard();
 	smat=newDimReduct();	
-	kmat=Matrix(nrow=0, ncol=0, sparse=TRUE);
+	graph=newKgraph();
 	tsne=matrix(nrow=0, ncol=0);	
 	umap=matrix(nrow=0, ncol=0);	
 	cluster=factor();
@@ -28,7 +28,7 @@ newSnap <- function () {
 			  gmat=gmat, 
 			  jmat=jmat, 
 			  smat=smat, 
-			  kmat=kmat, 
+			  graph=graph, 
 			  tsne=tsne, 
 			  umap=umap, 
 			  cluster=cluster
@@ -188,7 +188,7 @@ setMethod("[", "snap",
 		.gmat = x@gmat;
 		.jmat = x@jmat;
 		.smat = x@smat;
-		.kmat = x@kmat;
+		.graph = x@graph;
 		.cluster = x@cluster;
 		.tsne = x@tsne;
 		.umap = x@umap;
@@ -205,7 +205,7 @@ setMethod("[", "snap",
 		   if(nrow(.smat@dmat) > 0){.smat <- .smat[i,,drop=FALSE]}
 		   if(nrow(.tsne) > 0){.tsne <- .tsne[i,,drop=FALSE]}
 		   if(nrow(.umap) > 0){.umap <- .umap[i,,drop=FALSE]}
-		   if(nrow(.kmat) > 0){.kmat <- .kmat[i,i,drop=FALSE]}
+		   if(nrow(.graph@mat) > 0){.graph <- .graph[i,,drop=FALSE]}
 		   if(nrow(.metaData) > 0){.metaData <- .metaData[i,,drop=FALSE]}
 		   if(length(.cluster) > 0){.cluster <- .cluster[i,drop=FALSE]}
 		   if(length(.barcode) > 0){.barcode <- .barcode[i,drop=FALSE]}
@@ -231,7 +231,7 @@ setMethod("[", "snap",
 	   x@feature = .feature;
 	   x@jmat = .jmat;
 	   x@smat = .smat;
-	   x@kmat = .kmat;
+	   x@graph = .graph;
 	   x@cluster = .cluster;
 	   x@tsne = .tsne;
 	   return(x);

@@ -5,7 +5,7 @@
 \title{K Nearest Neighbour Graph Construction}
 \usage{
 runKNN(obj, pca.dims, weight.by.sd, k, nn.eps, save.knn, filename, snn,
-  prune.snn)
+  snn.prune)
 }
 \arguments{
 \item{obj}{A snap object}
@@ -28,7 +28,7 @@ compatible with runCluster.}
 
 \item{snn}{Setting to TRUE can convert KNN graph into a SNN graph.}
 
-\item{prune.snn}{Sets the cutoff for acceptable Jaccard index when
+\item{snn.prune}{Sets the cutoff for acceptable Jaccard index when
 computing the neighborhood overlap. Any edges with values less than or 
 equal to this will be set to 0 and removed from the SNN graph. Essentially 
 sets the strigency of pruning (0 --- no pruning, 1 --- prune everything).}

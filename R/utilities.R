@@ -1,31 +1,3 @@
-# Write edge list to a file
-# @param edges A data.frame obj contains edges and edge weight
-# @param file Output file name
-# @param ... Arguments passed to write.table
-#' @importFrom utils write.table
-writeEdgeListToFile <- function(edges, file, ...
-){
-	if(missing(edges) || missing(file)){
-		stop("missing edges or file inputs")
-	}
-	
-	if(!file.create(file)){
-		stop("fail to create file")
-	}			
-	
-    write.table(edges, file = file, append = FALSE, quote = FALSE, sep = "\t",
-                eol = "\n", na = "NA", dec = ".", row.names = FALSE,
-                col.names = FALSE)
-}
-
-# Read edge list from a file
-# @param file File name that contains edges
-readEdgeListFromFile <- function(file)
-{
-	edgeList = read.table(file, header=FALSE, row.names=FALSE, col.names=FALSE);
-	return(edgeList);
-}
-
 
 # Find centroid of each cluster
 # @param x coordinates
@@ -95,7 +67,7 @@ normJaccard <- function(jmat, b1, b2, method, k=15){
 
 findNegCells <- function(obj, idx.pos, method=c("knn", "random", "other")){
 	method=match.arg(method);
-	mat.use = obj@kmat;
+	mat.use = getGraph(obj@graph);
 	ncell = nrow(obj);
 	ncell.pos = length(idx.pos);
 	ncell.neg = min(length(idx.pos), ncell - ncell.pos);

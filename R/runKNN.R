@@ -24,7 +24,7 @@ NULL
 #' @param filename Write KNN directly to file named here as an edge list
 #' compatible with runCluster.
 #' @param snn Setting to TRUE can convert KNN graph into a SNN graph.
-#' @param prune.snn Sets the cutoff for acceptable Jaccard index when
+#' @param snn.prune Sets the cutoff for acceptable Jaccard index when
 #' computing the neighborhood overlap. Any edges with values less than or 
 #' equal to this will be set to 0 and removed from the SNN graph. Essentially 
 #' sets the strigency of pruning (0 --- no pruning, 1 --- prune everything).
@@ -37,7 +37,7 @@ NULL
 #' @return Returns the object with object@kmat filled
 #' @export
 
-runKNN <- function(obj, pca.dims, weight.by.sd, k, nn.eps, save.knn, filename, snn, prune.snn) {
+runKNN <- function(obj, pca.dims, weight.by.sd, k, nn.eps, save.knn, filename, snn, snn.prune) {
   UseMethod("runKNN", obj);
 }
 
@@ -51,7 +51,7 @@ runKNN.default <- function(
   save.knn = FALSE,
   filename = NULL,
   snn = FALSE,
-  prune.snn = 1/15
+  snn.prune = 1/15
 ){
 	cat("Epoch: checking input parameters\n", file = stderr())
 	if(missing(obj)){
@@ -136,17 +136,19 @@ runKNN.default <- function(
 		i = adj@i+1;
 		j = findInterval(seq(adj@x)-1,adj@p[-1])+1;
 		w = adj@x;
-		idx = which(w >= prune.snn);
+		idx = which(w >= snn.prune);
 		edgeList = data.frame(i[idx], j[idx], w[idx]);
 	}
 	
 	if(save.knn){
 		cat("Epoch: writing resulting graph into a file\n", file = stderr())
 		writeEdgeListToFile(edgeList, filename);
+		obj@graph = newKgraph(file=filename, k=k, snn=snn, snn.prune=snn.prune);
 	}else{
-		obj@kmat = Matrix(0, ncell, ncell, sparse=TRUE);
-		obj@kmat[cbind(edgeList[,1], edgeList[,2])] = edgeList[,3]
-		obj@kmat[cbind(edgeList[,2], edgeList[,1])] = edgeList[,3]
+		kmat = Matrix(0, ncell, ncell, sparse=TRUE);
+		kmat[cbind(edgeList[,1], edgeList[,2])] = edgeList[,3]
+		kmat[cbind(edgeList[,2], edgeList[,1])] = edgeList[,3]
+		obj@graph = newKgraph(mat=kmat, k=k, snn=snn, snn.prune=snn.prune);
 	}
 	gc();
 	return(obj);

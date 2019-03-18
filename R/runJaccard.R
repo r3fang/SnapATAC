@@ -92,9 +92,7 @@ runJaccard.default <- function(
 		id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
 		# remove the last item of the list
 		id.ls = id.ls[-length(id.ls)];
-	}	
-	
-	message("Epoch: calculating jaccard index for each chunk ...");	
+	}		
 	## Save the split data in an environment
 	my.env <- new.env();	
 	for(i in seq(id.ls)){
