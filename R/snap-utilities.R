@@ -291,7 +291,6 @@ barcodeInSnapFile.default <- function(barcode, file){
 #' a snap object.
 #'
 #' @param file A snap-format file name.
-#' @param metaData A logical value indicates whether read the meta data [TRUE].
 #' @param description Description of the experiment [NULL].
 #' @return A snap object
 #' @importFrom rhdf5 h5read H5close
@@ -299,20 +298,17 @@ barcodeInSnapFile.default <- function(barcode, file){
 #' @importFrom IRanges IRanges
 #' @import Matrix
 #' @export
-createSnap <- function(file, metaData, description) {
+createSnap <- function(file, description) {
   UseMethod("createSnap", file);
 }
 
-#' @export
-createSnap.default <- function(file, metaData=TRUE, description=NULL){	
+createSnap.default <- function(file, description=NULL){
 	
-	# close the previously opened H5 file
-	H5close();
-	# check the input
-	if(!file.exists(file)){stop(paste(file, " does not exist!", sep=""))};
-	if(!isSnapFile(file)){stop(paste(file, " is not a snap-format file!", sep=""))};
-	if(!(is.logical(metaData))){stop(paste("metaData is not a logical variable!", sep=""))};
-		
+	if(missing(file)){
+		stop("file is missing");
+	}
+	
+	fileList = as.list(file);
 	
 	if(!(is.null(description))){
 		if(class(description) != "character"){
@@ -322,31 +318,33 @@ createSnap.default <- function(file, metaData=TRUE, description=NULL){
 		description=character()
 	}
 	
-	# create an empty snap object
-	res = newSnap();
-	############################################################################
+	# check if snap files exist
+	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+		print("error: these files does not exist")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if files are all snap files
+	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+		print("error: these files are not snap file")
+		print(fileList[idx])
+		stop()
+	}
+	
 	message("Epoch: reading the barcode session ...");
-	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @readSnap: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
-	if(metaData){
-		metaData = readMetaData(file);
-		if(any((metaData$barcode == barcode) == FALSE)){stop(paste("Error @readSnap: meta data does not match with barcode name!", sep=""))};
-		res@metaData = metaData;
-	}else{
-		metaData = data.frame(barcode=barcode, TN=0, UM=0, PP=0, UQ=0, CM=0);
-		res@metaData = metaData;
-	}
-	nBarcode = length(barcode);
-	if((x=nBarcode) == 0L){
-		stop("barcode is empty! Does not support reading an empty snap file")
-	}
-	res@barcode = barcode;
-	res@des = description;
-	res@file = rep(file, length(res@barcode));
-	H5close();
+	obj.ls = lapply(fileList, function(x){
+		createSnapSingle(x)	
+	})
+	
+	obj = Reduce(snapRbind, obj.ls);
+	rm(obj.ls);
 	gc();
-	return(res);	
+	obj@des = description;
+	return(obj);
 }
-
 
 #' Add cell-by-bin matrix
 #' 
@@ -354,7 +352,6 @@ createSnap.default <- function(file, metaData=TRUE, description=NULL){
 #' matrix to the existing snap object.
 #' 
 #' @param obj A snap object to add cell-by-bin matrix.
-#' @param file A snap file.
 #' @param bin.size Cell-by-bin matrix with bin size of bin.size will be added to snap object [5000].
 #' @return Return a snap object
 #' @importFrom rhdf5 h5read H5close
@@ -362,61 +359,81 @@ createSnap.default <- function(file, metaData=TRUE, description=NULL){
 #' @importFrom IRanges IRanges
 #' @import Matrix
 #' @export
-addBmatToSnap <- function(obj, file, bin.size){
+addBmatToSnap <- function(obj, bin.size){
   UseMethod("addBmatToSnap", obj);
 }
 
 #' @export
-addBmatToSnap.default <- function(obj, file, bin.size=5000){	
+addBmatToSnap.default <- function(obj, bin.size=5000){	
 	# close the previously opened H5 file
 	H5close();
-	# check the input
-	if(class(obj) != "snap"){stop(paste("Error @addBmat: ", file, " does not exist!", sep=""))}
-	if(!file.exists(file)){stop(paste("Error @addBmat: ", file, " does not exist!", sep=""))};
-	if(!isSnapFile(file)){stop(paste("Error @addBmat: ", file, " is not a snap-format file!", sep=""))};
-	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmat: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
-	obj@bmat = Matrix(0,0,0);
+	if(missing(obj)){
+		stop("obj is missing")
+	}else{
+		if(class(obj) != "snap"){
+			stop("obj is not a snap object")
+		}
+	}
+	
+	fileList = as.list(unique(obj@file));
+
+	# check if snap files exist
+	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+		print("error: these files does not exist")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if files are all snap files
+	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+		print("error: these files are not snap file")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if BM session exist
+	if(any(do.call(c, lapply(fileList, function(x){ "AM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){ "AM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
+		print("error: the following nsap files do not contain AM session")
+		print(fileList[idx])
+		stop()
+	}
+	
+	if(any(do.call(c, lapply(fileList, function(x){(bin.size %in% showBinSizes(x))})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){(bin.size %in% showBinSizes(x))})) == FALSE)
+		print("error: chosen bin size does not exist in the following snap files")
+		print(fileList[idx])
+		stop()
+	}
+
+	# check if bins match
+	bin.list = lapply(fileList, function(x){
+		readBins(x)
+	})
+	
+	if(!all(sapply(bin.list, FUN = identical, bin.list[[1]]))){
+		stop("bins does not match between snap files, please regenerate the cell-by-bin matrix by snaptools")
+	}
+	
+	# read the snap object
 	message("Epoch: reading cell-bin count matrix session ...");
-	############################################################################
-	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
-
-	bin.sizeList = showBinSizes(file);
-	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
-	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
+	obj.ls = lapply(fileList, function(file){
+		idx = which(obj@file == file)
+		addBmatToSnapSingle(obj[idx,], file);
+	})
 	
-	options(scipen=999);
-	binChrom = tryCatch(binChrom <- h5read(file, paste("AM", bin.size, "binChrom", sep="/")), error = function(e) {stop(paste("Warning @readaddBmatSnap: 'AM/bin.size/binChrom' not found in ",file))})
-	binStart = tryCatch(binStart <- h5read(file, paste("AM", bin.size, "binStart", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/binStart' not found in ",file))})
-	if(bin.size == 0){
-		binEnd = tryCatch(binEnd <- h5read(file, paste("AM", bin.size, "binEnd", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/binStart' not found in ",file))})		
+	# combine
+	if((x=length(obj.ls)) == 1L){
+		res = obj.ls[[1]]
 	}else{
-		binEnd = binStart + as.numeric(bin.size) -1
+		res = do.call(snapRbind, obj.ls);		
 	}
-	if((length(binChrom) == 0) || (length(binStart) == 0)){stop("Error @addBmat: bin is empty! Does not support empty snap file")}
-	if(length(binChrom) != length(binStart)){
-		stop(paste("Error @addBmat: ", "binChrom and binStart has different length!", sep=""))
-	}else{
-		nBin = length(binChrom);
-	}
-	bins = GRanges(binChrom, IRanges(as.numeric(binStart),binEnd), name=paste(paste(binChrom, binStart, sep=":"), binEnd, sep="-"));				
-	rm(binChrom, binStart);
-	obj@feature = bins;
-	idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
-	idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
-	count = as.numeric(tryCatch(count <- h5read(file, paste("AM", bin.size, "count", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/count' not found in ",file))}));	
-
-	if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}	
-	
-	ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-	idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-	idy = idy[ind.sel];
-	count = count[ind.sel];
-	nBarcode = length(obj@barcode);
-	nBin = length(obj@feature);
-	obj@bmat = 	sparseMatrix(i=idx, j =idy, x=count, dims = c(nBarcode, nBin));
-	rm(idx, idy, count);
-	H5close();
-	gc();
+	obj@feature = res@feature;
+	obj@bmat = res@bmat;
+	rm(res, obj.ls);
+	gc()
 	return(obj);
 }
 
@@ -500,41 +517,62 @@ addGmatToSnap <- function(obj, file) {
 }
 
 #' @export
-addGmatToSnap.default <- function(obj, file){
-        # close the previously opened H5 file
-        H5close();
-        # check the input
-        if(class(obj) != "snap"){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))}
-        if(!file.exists(file)){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))};
-        if(!isSnapFile(file)){stop(paste("Error @addGmat: ", file, " is not a snap-format file!", sep=""))};
-
-        message("Epoch: reading cell-gene count matrix session ...");
-        ############################################################################
-		barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
-        options(scipen=999);
-        geneName = tryCatch(geneName <- h5read(file, "GM/name"), error = function(e) {stop(paste("Warning @addGmat: 'GM/name' not found in ",file))})
-        if(length(geneName) == 0){
-			stop("Error @addGmat: GM is empty")
+addGmatToSnap.default <- function(obj){	
+	# close the previously opened H5 file
+	H5close();
+	if(missing(obj)){
+		stop("obj is missing")
+	}else{
+		if(class(obj) != "snap"){
+			stop("obj is not a snap object")
 		}
+	}
+	
+	fileList = as.list(unique(obj@file));
 
-        idx = as.numeric(tryCatch(idx <- h5read(file, "GM/idx"), error = function(e) {stop(paste("Warning @addGmat: 'GM/idx' not found in ",file))}))
-        idy = as.numeric(tryCatch(idy <- h5read(file, "GM/idy"), error = function(e) {stop(paste("Warning @addGmat: 'GM/idy' not found in ",file))}))
-        count = as.numeric(tryCatch(count <- h5read(file, "GM/count"), error = function(e) {stop(paste("Warning @addGmat: 'GM/count' not found in ",file))}))
+	# check if snap files exist
+	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+		print("error: these files does not exist")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if files are all snap files
+	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+		print("error: these files are not snap file")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if GM session exist
+	if(any(do.call(c, lapply(fileList, function(x){ "GM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){ "GM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
+		print("error: the following nsap files do not contain GM session")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# read the snap object
+	message("Epoch: reading cell-gene count matrix session ...");
+	obj.ls = lapply(fileList, function(file){
+		idx = which(obj@file == file)
+		addGmatToSnapSingle(obj[idx,], file);
+	})
 
-        if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap GM session")}		
-		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-		idy = idy[ind.sel];
-		count = count[ind.sel];
-		nBarcode = nrow(obj);
-		nGene = length(geneName);
-		obj@gmat = 	sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nGene));
-		colnames(obj@gmat) = geneName;
-		rm(idx, idy, count);
-		H5close();
-		gc();
-		return(obj);
+	# combine
+	if((x=length(obj.ls)) == 1L){
+		res = obj.ls[[1]]
+	}else{
+		res = do.call(snapRbind, obj.ls);		
+	}
+	obj@gmat = res@gmat;
+	rm(obj.ls, res);
+	gc();
+	return(obj);
 }
+
 
 #' Create a snap object from cell-by-bin matrix
 #' 
@@ -860,14 +898,15 @@ snapRbind.default <- function(obj1, obj2){
 	if(!is.snap(obj2)){stop(paste("Error @snapRbind: obj2 is not a snap object!", sep=""))};
 
 	# barcode from obj1 and obj2
-	barcode1 = obj1@barcode;
-	barcode2 = obj2@barcode;	
+	barcode1 = paste(obj1@file, obj1@barcode, sep=".");
+	barcode2 = paste(obj2@file, obj2@barcode, sep=".");	
 	
 	# check barcode name, if there exists duplicate barcode raise error and exist
 	if(length(unique(c(barcode1, barcode2))) < length(barcode1) + length(barcode2)){
 		stop("Error: @snapRbind: identifcal barcodes found in obj1 and obj2!")
 	}
-	barcode = c(barcode1, barcode2);
+	rm(barcode1, barcode2)
+	gc()
 	
 	# check meta data
 	if(nrow(obj1@metaData) > 0 && nrow(obj2@metaData) > 0){
@@ -891,6 +930,7 @@ snapRbind.default <- function(obj1, obj2){
 			feature = feature1;								
 		}
 	}
+	gc()
 	
 	# check peak
 	peak1 = obj1@peak;
@@ -907,6 +947,8 @@ snapRbind.default <- function(obj1, obj2){
 			peak = peak1;								
 		}
 	}
+	rm(peak1, peak2)
+	gc()
 	
 	# check bmat	
 	bmat1 = obj1@bmat;
@@ -916,7 +958,9 @@ snapRbind.default <- function(obj1, obj2){
 	}else{
 		bmat = Matrix::rBind(bmat1, bmat2);
 	}
-
+	rm(bmat1, bmat2)
+	gc()
+	
 	# check gmat	
 	gmat1 = obj1@gmat;
 	gmat2 = obj2@gmat;
@@ -925,6 +969,8 @@ snapRbind.default <- function(obj1, obj2){
 	}else{
 		gmat = Matrix::rBind(gmat1, gmat2);
 	}
+	rm(gmat1, gmat2)
+	gc()
 
 	# check pmat	
 	pmat1 = obj1@pmat;
@@ -934,18 +980,20 @@ snapRbind.default <- function(obj1, obj2){
 	}else{
 		pmat = Matrix::rBind(pmat1, pmat2);
 	}
-	gc();
+	rm(pmat1, pmat2)
+	gc()
+
 	res = newSnap();
-	res@barcode = barcode;
+	res@feature = feature;
+	res@barcode = c(obj1@barcode, obj2@barcode);
+	res@file = c(obj1@file, obj2@file);
 	res@metaData = metaData;
 	res@bmat = bmat;
 	res@pmat = pmat;
-	res@feature = feature;
 	res@peak = peak;
 	res@gmat = gmat;
 	return(res)
 }
-
 
 #' Cell filtration
 #'
@@ -1163,5 +1211,150 @@ calCellGeneTable.default <- function(
 	obj@gmat = count_table;
 	colnames(obj@gmat) = gene$gene_name;
 	return(obj);
+}
+
+readBins <- function(file, bin.size=5000){	
+	H5close();
+	if(!file.exists(file)){stop(paste("Error @addBmat: ", file, " does not exist!", sep=""))};
+	if(!isSnapFile(file)){stop(paste("Error @addBmat: ", file, " is not a snap-format file!", sep=""))};
+	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmat: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
+	options(scipen=999);
+	binChrom = tryCatch(binChrom <- h5read(file, paste("AM", bin.size, "binChrom", sep="/")), error = function(e) {stop(paste("Warning @readaddBmatSnap: 'AM/bin.size/binChrom' not found in ",file))})
+	binStart = tryCatch(binStart <- h5read(file, paste("AM", bin.size, "binStart", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/binStart' not found in ",file))})
+	if(bin.size == 0){
+		binEnd = tryCatch(binEnd <- h5read(file, paste("AM", bin.size, "binEnd", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/binStart' not found in ",file))})		
+	}else{
+		binEnd = binStart + as.numeric(bin.size) -1;
+	}
+	if((length(binChrom) == 0) || (length(binStart) == 0)){stop("Error @addBmat: bin is empty! Does not support empty snap file")}
+	if(length(binChrom) != length(binStart)){
+		stop(paste("Error @addBmat: ", "binChrom and binStart has different length!", sep=""))
+	}else{
+		nBin = length(binChrom);
+	}
+	bins = GRanges(binChrom, IRanges(as.numeric(binStart),binEnd), name=paste(paste(binChrom, binStart, sep=":"), binEnd, sep="-"));				
+	rm(binChrom, binStart);
+	return(bins)
+}
+
+
+addBmatToSnapSingle <- function(obj, file, bin.size=5000){	
+	# close the previously opened H5 file
+	H5close();
+	if(missing(obj)){
+		stop("obj is missing")
+	}else{
+		if(class(obj) != "snap"){
+			stop("obj is not a snap object")
+		}
+	}
+	if(!file.exists(file)){stop(paste("Error @addBmat: ", file, " does not exist!", sep=""))};
+	if(!isSnapFile(file)){stop(paste("Error @addBmat: ", file, " is not a snap-format file!", sep=""))};
+	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmat: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
+	obj@bmat = Matrix(0,0,0);
+	############################################################################
+	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
+
+	bin.sizeList = showBinSizes(file);
+	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
+	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
+	
+	bins = readBins(file, bin.size);
+	obj@feature = bins;
+	idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
+	idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
+	count = as.numeric(tryCatch(count <- h5read(file, paste("AM", bin.size, "count", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/count' not found in ",file))}));	
+
+	if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}	
+	
+	ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
+	idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
+	idy = idy[ind.sel];
+	count = count[ind.sel];
+	nBarcode = length(obj@barcode);
+	nBin = length(obj@feature);
+	obj@bmat = 	sparseMatrix(i=idx, j =idy, x=count, dims = c(nBarcode, nBin));
+	rm(idx, idy, count);
+	H5close();
+	gc();
+	return(obj);
+}
+
+
+addGmatToSnapSingle <- function(obj, file){
+        # close the previously opened H5 file
+        H5close();
+        # check the input
+        if(class(obj) != "snap"){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))}
+        if(!file.exists(file)){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))};
+        if(!isSnapFile(file)){stop(paste("Error @addGmat: ", file, " is not a snap-format file!", sep=""))};
+
+        message("Epoch: reading cell-gene count matrix session ...");
+        ############################################################################
+		barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
+        options(scipen=999);
+        geneName = tryCatch(geneName <- h5read(file, "GM/name"), error = function(e) {stop(paste("Warning @addGmat: 'GM/name' not found in ",file))})
+        if(length(geneName) == 0){
+			stop("Error @addGmat: GM is empty")
+		}
+
+        idx = as.numeric(tryCatch(idx <- h5read(file, "GM/idx"), error = function(e) {stop(paste("Warning @addGmat: 'GM/idx' not found in ",file))}))
+        idy = as.numeric(tryCatch(idy <- h5read(file, "GM/idy"), error = function(e) {stop(paste("Warning @addGmat: 'GM/idy' not found in ",file))}))
+        count = as.numeric(tryCatch(count <- h5read(file, "GM/count"), error = function(e) {stop(paste("Warning @addGmat: 'GM/count' not found in ",file))}))
+
+        if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap GM session")}		
+		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
+		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
+		idy = idy[ind.sel];
+		count = count[ind.sel];
+		nBarcode = nrow(obj);
+		nGene = length(geneName);
+		obj@gmat = 	sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nGene));
+		colnames(obj@gmat) = geneName;
+		rm(idx, idy, count);
+		H5close();
+		gc();
+		return(obj);
+}
+
+createSnapSingle <- function(file, metaData=TRUE, description=NULL){	
+	# close the previously opened H5 file
+	H5close();
+	# check the input
+	if(!file.exists(file)){stop(paste(file, " does not exist!", sep=""))};
+	if(!isSnapFile(file)){stop(paste(file, " is not a snap-format file!", sep=""))};
+	if(!(is.logical(metaData))){stop(paste("metaData is not a logical variable!", sep=""))};
+		
+	
+	if(!(is.null(description))){
+		if(class(description) != "character"){
+			stop("description must be character object")
+		}
+	}else{
+		description=character()
+	}
+	
+	# create an empty snap object
+	res = newSnap();
+	############################################################################
+	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @readSnap: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
+	if(metaData){
+		metaData = readMetaData(file);
+		if(any((metaData$barcode == barcode) == FALSE)){stop(paste("Error @readSnap: meta data does not match with barcode name!", sep=""))};
+		res@metaData = metaData;
+	}else{
+		metaData = data.frame(barcode=barcode, TN=0, UM=0, PP=0, UQ=0, CM=0);
+		res@metaData = metaData;
+	}
+	nBarcode = length(barcode);
+	if((x=nBarcode) == 0L){
+		stop("barcode is empty! Does not support reading an empty snap file")
+	}
+	res@barcode = barcode;
+	res@des = description;
+	res@file = rep(normalizePath(file), length(res@barcode));
+	H5close();
+	gc();
+	return(res);	
 }
 

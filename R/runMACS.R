@@ -1,33 +1,36 @@
 #' Call Peaks Using MACS2
 #'
-#' Identify peaks using selected cells. Fragments belonging to subset of cells 
+#' Identify peaks using selected cells. Fragments belonging to a subset of cells 
 #' are extracted and used to identify peaks using MACS2. This function requires
 #' "MACS2" and "snaptools" preinstalled and excutable. 
 #' 
 #' @param obj A snap object.
-#' @param file A snap file.
 #' @param output.prefix Prefix of output file which will be used to generate output file names.
 #' @param path.to.snaptools Path to snaptools excutable file.
 #' @param path.to.macs Path to macs2 excutable file.
 #' @param gsize effective genome size. 'hs' for human, 'mm' for mouse, 'ce' for C. elegans, 'dm' for fruitfly (default: None)
 #' @param buffer.size Buffer size for incrementally increasing internal array size to store reads alignment information. In
 #' most cases, you don't have to change this parameter. However, if there are very high coverage dataset that each barcode has
-#' more than 10000 fragments, it's recommended to specify a smaller buffer size in order to decrease memory usage (but it will take longer time to read snap files) [1000].
-#' @param macs.options String indicate options you would like passed to macs2. strongly do not recommand to change unless you know what you are doing. the default is '--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits'.
-#' @param tmp.folder Directory to store temporary files. If not given, snaptools will automatically generate a temporary location to store temporary files. 
+#' more than 10000 fragments, it's recommended to specify a smaller buffer size in order to decrease memory usage (but it will 
+#' take longer time to read snap files) [1000].
+#' @param macs.options String indicate options you would like passed to macs2. strongly do not recommand to change unless you 
+#' know what you are doing. the default is '--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits'.
+#' @param tmp.folder Directory to store temporary files. If not given, snaptools will automatically generate a temporary location
+#' to store temporary files. 
+#' @param num.cores Number of cores to use for omputing [1].
 #' @param keep.minimal Keep minimal version of output [TRUE].
 #' @return Return a data.frame object that contains the peak information
 #'
 #' @export
 runMACS <- function(
 	obj, 
-	file,
 	output.prefix,
 	path.to.snaptools,
 	path.to.macs,
 	gsize,
 	buffer.size=500,
 	macs.options="--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits",
+	num.cores=1,
 	tmp.folder=NULL,
 	keep.minimal=TRUE
 ){
@@ -44,28 +47,37 @@ runMACS <- function(
 		if((x=length(obj@barcode))==0L){
 			stop("obj@barcode is empty");			
 		}
-		barcode.use = obj@barcode;
-	}
-
-	if(missing(file)){
-		stop("file is missing");
-	}else{
-		if(!file.exists(file)){
-			stop("file does not exist");
-		}
-		if(!isSnapFile(file)){
-			stop("file is not a snap file");
+		if((x=length(obj@file))==0L){
+			stop("obj@file is empty");			
 		}
 	}
 	
-	cat("Epoch: checking selected barcodes exist in snap file ... \n", file = stderr())
-	barcode.flag = barcodeInSnapFile(barcode.use, file);
-	if(any(barcode.flag == FALSE)){
-		cat("the following barcode does not exist in snap file\n")
-		cat(paste(barcode.use, "\n"));
+	fileList = as.list(unique(obj@file));
+	
+	# check if snap files exist
+	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+		print("error: these files does not exist")
+		print(fileList[idx])
 		stop()
 	}
-
+	
+	# check if files are all snap files
+	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+		print("error: these files are not snap file")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if FM session exist
+	if(any(do.call(c, lapply(fileList, function(x){ "FM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){ "FM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
+		print("error: the following nsap files do not contain FM session")
+		print(fileList[idx])
+		stop()
+	}
+	
 	if(missing(output.prefix)){
 		stop("output.prefix is missing");
 	}
@@ -86,7 +98,6 @@ runMACS <- function(
 		if(flag == FALSE){
 			stop("path.to.snaptools is not an excutable file");
 		}
-		
 	}
 
 	if(missing(path.to.macs)){
@@ -105,7 +116,6 @@ runMACS <- function(
 		if(flag == FALSE){
 			stop("path.to.macs is not an excutable file");
 		}
-		
 	}
 	
 	if(missing(gsize)){
@@ -120,39 +130,70 @@ runMACS <- function(
 		}
 	}
 	
-	# write down the barcode info
-	tmp.file = tempfile(pattern = "run_macs_barcode", tmpdir = tmp.folder, fileext = ".txt")
-	write.table(barcode.use, file = tmp.file, append = FALSE, quote = FALSE, sep = "\t",
-	                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
-	                 col.names = FALSE, qmethod = c("escape", "double"),
-	                 fileEncoding = "")
-	
-	cat("Epoch: running macs2 for peak calling ...\n", file = stderr())
-	flag = system2(command=path.to.snaptools, 
-		args=c("call-peak", 
-			   "--snap-file", file, 
-			   "--barcode-file", tmp.file, 
-			   "--output-prefix", output.prefix,
-			   "--path-to-macs", dirname(path.to.macs),
-			   "--gsize", gsize,
-			   "--buffer-size", buffer.size,
-			   "--macs-options", shQuote(macs.options),
-			   "--tmp-folder", tmp.folder
-			   )		
-		);		
+	# write the following barcodes down
+	barcode.files = lapply(fileList, function(file){
+		tempfile(tmpdir = tmp.folder, fileext = ".barcode.txt");
+	})
 
-	if (flag != 0) {
-	   	stop("'rumMACS' call failed");
-	}				
+	bed.files = lapply(fileList, function(file){
+		tempfile(tmpdir = tmp.folder, fileext = ".bed.gz");
+	})
 	
+	# write down the barcodes
+	cat("Epoch: extracting fragments from each snap files ...\n", file = stderr())
+	flag.list = lapply(seq(fileList), function(i){
+		file.name = fileList[[i]];
+		idx = which(obj@file == file.name);
+		barcode.use = obj@barcode[idx]
+		write.table(barcode.use, file = barcode.files[[i]], append = FALSE, quote = FALSE, sep = "\t",
+		                 eol = "\n", na = "NA", dec = ".", row.names = FALSE,
+		                 col.names = FALSE, qmethod = c("escape", "double"),
+		                 fileEncoding = "")
+		
+	})
+	
+	# extract the fragments belong to the barcodes	
+	flag.list = mclapply(seq(fileList), function(i){
+		flag = system2(command=path.to.snaptools, 
+			args=c("dump-fragment", 
+				   "--snap-file", fileList[[i]], 
+				   "--output-file", bed.files[[i]], 
+				   "--barcode-file", barcode.files[[i]],
+				   "--buffer-size", buffer.size
+				   )		
+			)				
+	}, mc.cores=num.cores);
+	
+	# combine these two bed files
+	combined.bed = tempfile(tmpdir = tmp.folder, fileext = ".bed.gz");
+	flag = system2(command="cat", 
+		args=c(paste(bed.files, collapse = ' '),
+			   ">", combined.bed
+			   )		
+		)				
+	
+	# call peaks using MACS2	
+	flag = system2(command=path.to.macs, 
+		args=c("callpeak", 
+			   "-t", combined.bed, 
+			   "-f", "BED",
+			   "-g", gsize,
+			   macs.options,
+			   "-n", output.prefix
+			   )		
+		)				
+	if (flag != 0) {
+	   	stop("'MACS' call failed");
+	}	
+
 	if(keep.minimal){
 		system(paste("rm ", output.prefix, "_control_lambda.bdg", sep=""));
 		system(paste("rm ", output.prefix, "_peaks.xls", sep=""));
 		system(paste("rm ", output.prefix, "_summits.bed", sep=""));
 	}
+
 	return(read.table(paste(output.prefix, "_peaks.narrowPeak", sep="")));
 }
-
 
 
 #' Call Peaks Using MACS2 For All Clusters

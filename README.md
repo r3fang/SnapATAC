@@ -8,7 +8,7 @@ For 10X PBMC 10K single cell ATAC-seq dataset, from loading the cell count matri
 When applied to snATAC-seq dataset from mouse secondary motor cortex, SnapATAC is able to identify nearly 50 cell types including rare population (Sst-Chodl) which accounts for less than 0.1% of the total population.
 
 ## Requirements  
-* Python (2.7)
+* Python (>=2.7)
 * R (>= 3.4.0)
 
 ## Installation

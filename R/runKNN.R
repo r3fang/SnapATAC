@@ -129,7 +129,7 @@ runKNN.default <- function(
 	edgeList = count(edgeList, vars = c("v1", "v2"));
 	
 	if(snn){
-		cat("Epoch: convering knn graph into snn graph\n", file = stderr())		
+		cat("Epoch: converting knn graph into snn graph\n", file = stderr())		
 		g = graph_from_edgelist(as.matrix(edgeList[,c(1,2)]), directed=FALSE);
 		igraph::E(g)$weight = edgeList[,3];
 		adj = as(similarity(g), "sparseMatrix");
