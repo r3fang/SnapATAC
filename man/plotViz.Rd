@@ -4,9 +4,10 @@
 \alias{plotViz}
 \title{Visulization}
 \usage{
-plotViz(obj, method, point.size, point.shape, point.alpha, text.add, text.size,
-  text.color, text.halo.add, text.halo.color, text.halo.width, down.sample,
-  pdf.file.name, pdf.width, pdf.height, ...)
+plotViz(obj, method, point.size, point.shape, point.alpha, point.color,
+  text.add, text.size, text.color, text.halo.add, text.halo.color,
+  text.halo.width, legend.add, legend.pos, legend.text.size, legend.text.color,
+  down.sample, pdf.file.name, pdf.width, pdf.height, ...)
 }
 \arguments{
 \item{obj}{A snap object.}

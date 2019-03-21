@@ -4,14 +4,14 @@
 \alias{addBmatToSnap}
 \title{Add cell-by-bin matrix}
 \usage{
-addBmatToSnap(obj, file, bin.size)
+addBmatToSnap(obj, bin.size, num.cores)
 }
 \arguments{
 \item{obj}{A snap object to add cell-by-bin matrix.}
 
-\item{file}{A snap file.}
-
 \item{bin.size}{Cell-by-bin matrix with bin size of bin.size will be added to snap object [5000].}
+
+\item{num.cores}{Number of processors to use.}
 }
 \value{
 Return a snap object

@@ -99,6 +99,7 @@ runViz.default <- function(
 			);	
 		colnames(obj@tsne) = c("tsne-1", "tsne-2")				
 	}else if(method=="Rtsne"){
+		set.seed(seed.use);
 		obj@tsne = Rtsne(
 			data.use, 
 			dims=dims, 

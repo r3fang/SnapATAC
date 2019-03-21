@@ -4,14 +4,16 @@
 \alias{createSnap}
 \title{Create a snap object from a snap file}
 \usage{
-createSnap(file, metaData, description)
+createSnap(file, sample, description, num.cores)
 }
 \arguments{
-\item{file}{A snap-format file name.}
+\item{file}{Name of a snap-format file.}
 
-\item{metaData}{A logical value indicates whether read the meta data [TRUE].}
+\item{sample}{A short sample name (i.g. "MOS.rep1").}
 
 \item{description}{Description of the experiment [NULL].}
+
+\item{num.cores}{Number of processers to use.}
 }
 \value{
 A snap object

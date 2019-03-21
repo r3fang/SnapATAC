@@ -5,6 +5,8 @@
 #'
 #' @slot des A character object describes the details of the experiment.
 #' @slot barcode A character vector contains cell barcodes as rows.
+#' @slot file A character vector contains the snap file that barcodes belong to.
+#' @slot sample A character vector contains sample name.
 #' @slot metaData A data.frame object contains meta data for barcodes.
 #' @slot feature A GRanges object contains genomic features (bins).
 #' @slot peak A GRanges object contains genomic features (peaks).
@@ -20,13 +22,14 @@
 #' @name snap-class
 #' @rdname snap-class
 #' @exportClass snap
-
-setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
+#' @importFrom methods setClassUnion
+methods::setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
 setClass("snap",
 	slots=list(
 	des="character",
-	file="character",
 	barcode="character",
+	file="character",
+	sample="character",
 	metaData="data.frame",
 	feature="GRanges",
 	peak = "GRanges",
@@ -71,7 +74,7 @@ setClass("snap",
     #c(.valid.snap.barcode(object), .valid.snap.feature(object))
     c(.valid.snap.barcode(object), .valid.snap.peak(object), .valid.snap.feature(object));
 }
-setValidity("snap", .valid.snap)
+methods::setValidity("snap", .valid.snap)
 
 
 setMethod("show", signature = "snap",
@@ -82,8 +85,8 @@ setMethod("show", signature = "snap",
 		}
 		cat("number of barcodes: ", ifelse(is.null(length(object@barcode)), 0, length(object@barcode)), "\n", sep="");
 		cat("number of bins: ", ncol(object@bmat), "\n", sep="");
-		cat("number of peaks: ", ncol(object@pmat), "\n", sep="");
 		cat("number of genes: ", ncol(object@gmat), "\n", sep="");
+		cat("number of peaks: ", ncol(object@pmat), "\n", sep="");
 	}                              
 )
 

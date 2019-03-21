@@ -11,7 +11,8 @@ NULL
 #' @slot method normalization method used to normalize jaccard index matrix
 #' @name jaccard-class
 #' @rdname jaccard-class
-setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
+#' @importFrom methods setClassUnion
+methods::setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
 jaccard <- setClass(
   Class = "jaccard",
   slots = list(

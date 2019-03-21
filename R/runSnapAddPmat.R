@@ -3,21 +3,88 @@
 #' This function takes a peak list and a snap file and add cell-by-peak matrix 
 #' into the existing snap file.
 #' 
-#' @param file A snap file.
+#' @param obj A snap obj.
 #' @param peak A GenomicRanges object that contains peak coordinates.
 #' @param path.to.snaptools Path to snaptools excutable file.
+#' @param num.cores Number of CPUs to use.
 #' @param buffer.size Buffer size for incrementally increasing internal array size to store reads alignment information. In
 #' most cases, you don't have to change this parameter. However, if there are very high coverage dataset that each barcode has
 #' more than 10000 fragments, it's recommended to specify a smaller buffer size in order to decrease memory usage (but it will take longer time to read snap files) [1000].
 #' @param tmp.folder Directory to store temporary files. If not given, snaptools will automatically generate a temporary location to store temporary files. 
 #' 
+#' @importFrom parallel mclapply
 #' @export
-runSnapAddPmat <- function(file, peak, path.to.snaptools, buffer.size, tmp.folder) {
-  UseMethod("runSnapAddPmat", file);
+runSnapAddPmat <- function(obj, peak, path.to.snaptools, num.cores, buffer.size, tmp.folder) {
+  UseMethod("runSnapAddPmat", obj);
 }
 
 #' @export
 runSnapAddPmat.default <- function(
+	obj,
+	peak, 
+	path.to.snaptools,
+	num.cores=1,
+	buffer.size=500,
+	tmp.folder=NULL
+){
+	cat("Epoch: checking input parameters ... \n", file = stderr())
+	if(missing(obj)){
+		stop("obj is missing");
+	}else{
+		if(class(obj) != "snap"){
+			stop("obj is not a snap object");
+		}
+	}
+	
+	if(class(peak) != "GRanges"){
+		stop("peak is not a GRanges object");
+	}else{
+		if((x = length(peak)) == 0L){
+			stop("peak is empty")
+		}
+	}
+	
+	if(missing(path.to.snaptools)){
+		stop("path.to.snaptools is missing");
+	}else{
+		if(!file.exists(path.to.snaptools)){
+			stop("path.to.snaptools does not exist");
+		}
+		
+		flag = tryCatch({
+			file_test('-x', path.to.snaptools);	
+		},
+		error=function(cond){
+			return(FALSE)
+		})
+		if(flag == FALSE){
+			stop("path.to.snaptools is not an excutable file");
+		}
+		
+	}
+
+	if(is.null(tmp.folder)){
+		tmp.folder =  tempdir();
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist")
+		}
+	}
+	
+	fileList = as.list(unique(obj@file));
+	flag = mclapply(fileList, function(file){
+		runSnapAddPmatSingle(
+			file,
+			peak=peak, 
+			path.to.snaptools=path.to.snaptools,
+			buffer.size=buffer.size,
+			tmp.folder=tmp.folder
+		)
+	}, mc.cores=num.cores);
+	
+}
+
+runSnapAddPmatSingle <- function(
 	file,
 	peak, 
 	path.to.snaptools,
@@ -92,6 +159,7 @@ runSnapAddPmat.default <- function(
 	if (flag != 0) {
 	   	stop("'runSnapAddPmat' call failed");
 	}
+	return(flag);
 }
 
 

@@ -4,12 +4,12 @@
 \alias{addGmatToSnap}
 \title{Add cell-by-gene matrix}
 \usage{
-addGmatToSnap(obj, file)
+addGmatToSnap(obj, num.cores)
 }
 \arguments{
 \item{obj}{A snap object to add cell-by-bin matrix.}
 
-\item{file}{A snap file.}
+\item{num.cores}{Number of processors to use.}
 }
 \value{
 Return a snap object

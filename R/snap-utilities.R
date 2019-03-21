@@ -3,6 +3,7 @@ newSnap <- function () {
 	metaData=data.frame();
 	des = character()
 	file = as.character(c());
+	sample = as.character(c());
 	barcode = as.character(c());
 	feature = GRanges();
 	peak = GRanges();		
@@ -19,6 +20,7 @@ newSnap <- function () {
 	res = new("snap", 
 			  des=des,
 			  file=file,
+			  sample=sample,
 			  barcode=barcode, 
 			  feature=feature, 
 			  peak=peak, 
@@ -182,6 +184,7 @@ setMethod("[", "snap",
 	function(x,i,j,mat=c("bmat", "pmat"), drop="missing"){
 		.barcode = x@barcode;
 		.file = x@file;
+		.sample = x@sample;
 		.feature = x@feature;
 		.peak = x@peak;
 		.bmat = x@bmat;
@@ -211,6 +214,7 @@ setMethod("[", "snap",
 		   if(length(.cluster) > 0){.cluster <- .cluster[i,drop=FALSE]}
 		   if(length(.barcode) > 0){.barcode <- .barcode[i,drop=FALSE]}
 		   if(length(.file) > 0){.file <- .file[i,drop=FALSE]}
+		   if(length(.sample) > 0){.sample <- .sample[i,drop=FALSE]}
 	   }
 	   if(!missing(j)){
    			mat = match.arg(mat);
@@ -227,6 +231,7 @@ setMethod("[", "snap",
 	   x@gmat = .gmat;
 	   x@barcode = .barcode;
 	   x@file = .file;
+	   x@sample = .sample;
 	   x@peak = .peak;
 	   x@feature = .feature;
 	   x@metaData = .metaData;
@@ -290,25 +295,50 @@ barcodeInSnapFile.default <- function(barcode, file){
 #' This function takes a snap-format file as input and create
 #' a snap object.
 #'
-#' @param file A snap-format file name.
+#' @param file Name of a snap-format file.
+#' @param sample A short sample name (i.g. "MOS.rep1").
 #' @param description Description of the experiment [NULL].
+#' @param num.cores Number of processers to use.
 #' @return A snap object
 #' @importFrom rhdf5 h5read H5close
-#' @importFrom GenomicRanges GRanges findOverlaps
-#' @importFrom IRanges IRanges
-#' @import Matrix
+#' @importFrom parallel mclapply
 #' @export
-createSnap <- function(file, description) {
+createSnap <- function(file, sample, description, num.cores) {
   UseMethod("createSnap", file);
 }
 
-createSnap.default <- function(file, description=NULL){
+#' @export
+createSnap.default <- function(file, sample, description=NULL, num.cores=1){
 	
 	if(missing(file)){
 		stop("file is missing");
+	}else{
+		if(class(file) != "character"){
+			stop("file is not character")
+		}
+		if(any(duplicated(file))){
+			stop("file has duplicate name");
+		}		
 	}
 	
 	fileList = as.list(file);
+	
+	if(missing(sample)){
+		stop("sample is missing");
+	}else{
+		if(class(sample) != "character"){
+			stop("sample is not character")
+		}
+		if(any(duplicated(sample))){
+			stop("sample has duplicate name");
+		}
+	}
+	
+	if(length(sample) != length(file)){
+		stop("sample has different length with file");
+	}
+	
+	sampleList = as.list(sample);
 	
 	if(!(is.null(description))){
 		if(class(description) != "character"){
@@ -335,9 +365,9 @@ createSnap.default <- function(file, description=NULL){
 	}
 	
 	message("Epoch: reading the barcode session ...");
-	obj.ls = lapply(fileList, function(x){
-		createSnapSingle(x)	
-	})
+	obj.ls = mclapply(as.list(seq(fileList)), function(i){
+		createSnapSingle(file=fileList[[i]], sample=sampleList[[i]]);
+	}, mc.cores=num.cores);
 	
 	obj = Reduce(snapRbind, obj.ls);
 	rm(obj.ls);
@@ -353,18 +383,19 @@ createSnap.default <- function(file, description=NULL){
 #' 
 #' @param obj A snap object to add cell-by-bin matrix.
 #' @param bin.size Cell-by-bin matrix with bin size of bin.size will be added to snap object [5000].
+#' @param num.cores Number of processors to use.
 #' @return Return a snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
-#' @import Matrix
+#' @importFrom parallel mclapply
 #' @export
-addBmatToSnap <- function(obj, bin.size){
+addBmatToSnap <- function(obj, bin.size, num.cores){
   UseMethod("addBmatToSnap", obj);
 }
 
 #' @export
-addBmatToSnap.default <- function(obj, bin.size=5000){	
+addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=1){	
 	# close the previously opened H5 file
 	H5close();
 	if(missing(obj)){
@@ -419,16 +450,16 @@ addBmatToSnap.default <- function(obj, bin.size=5000){
 	
 	# read the snap object
 	message("Epoch: reading cell-bin count matrix session ...");
-	obj.ls = lapply(fileList, function(file){
+	obj.ls = mclapply(fileList, function(file){
 		idx = which(obj@file == file)
 		addBmatToSnapSingle(obj[idx,], file);
-	})
+	}, mc.cores=num.cores);
 	
 	# combine
 	if((x=length(obj.ls)) == 1L){
 		res = obj.ls[[1]]
 	}else{
-		res = do.call(snapRbind, obj.ls);		
+		res = Reduce(snapRbind, obj.ls);		
 	}
 	obj@feature = res@feature;
 	obj@bmat = res@bmat;
@@ -505,19 +536,18 @@ addPmatToSnap.default <- function(obj, file){
 #' matrix to the existing snap object.
 #' 
 #' @param obj A snap object to add cell-by-bin matrix.
-#' @param file A snap file.
+#' @param num.cores Number of processors to use.
 #' @return Return a snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
-#' @importFrom IRanges IRanges
-#' @import Matrix
+#' @importFrom parallel mclapply
 #' @export
-addGmatToSnap <- function(obj, file) {
+addGmatToSnap <- function(obj, num.cores) {
   UseMethod("addGmatToSnap", obj);
 }
 
 #' @export
-addGmatToSnap.default <- function(obj){	
+addGmatToSnap.default <- function(obj, num.cores=1){	
 	# close the previously opened H5 file
 	H5close();
 	if(missing(obj)){
@@ -556,16 +586,16 @@ addGmatToSnap.default <- function(obj){
 	
 	# read the snap object
 	message("Epoch: reading cell-gene count matrix session ...");
-	obj.ls = lapply(fileList, function(file){
+	obj.ls = mclapply(fileList, function(file){
 		idx = which(obj@file == file)
 		addGmatToSnapSingle(obj[idx,], file);
-	})
+	}, mc.cores=num.cores);
 
 	# combine
 	if((x=length(obj.ls)) == 1L){
 		res = obj.ls[[1]]
 	}else{
-		res = do.call(snapRbind, obj.ls);		
+		res = Reduce(snapRbind, obj.ls);		
 	}
 	obj@gmat = res@gmat;
 	rm(obj.ls, res);
@@ -987,6 +1017,7 @@ snapRbind.default <- function(obj1, obj2){
 	res@feature = feature;
 	res@barcode = c(obj1@barcode, obj2@barcode);
 	res@file = c(obj1@file, obj2@file);
+	res@sample = c(obj1@sample, obj2@sample);
 	res@metaData = metaData;
 	res@bmat = bmat;
 	res@pmat = pmat;
@@ -1289,7 +1320,6 @@ addGmatToSnapSingle <- function(obj, file){
         if(!file.exists(file)){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))};
         if(!isSnapFile(file)){stop(paste("Error @addGmat: ", file, " is not a snap-format file!", sep=""))};
 
-        message("Epoch: reading cell-gene count matrix session ...");
         ############################################################################
 		barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
         options(scipen=999);
@@ -1317,14 +1347,13 @@ addGmatToSnapSingle <- function(obj, file){
 		return(obj);
 }
 
-createSnapSingle <- function(file, metaData=TRUE, description=NULL){	
+createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){	
 	# close the previously opened H5 file
 	H5close();
 	# check the input
 	if(!file.exists(file)){stop(paste(file, " does not exist!", sep=""))};
 	if(!isSnapFile(file)){stop(paste(file, " is not a snap-format file!", sep=""))};
 	if(!(is.logical(metaData))){stop(paste("metaData is not a logical variable!", sep=""))};
-		
 	
 	if(!(is.null(description))){
 		if(class(description) != "character"){
@@ -1352,6 +1381,7 @@ createSnapSingle <- function(file, metaData=TRUE, description=NULL){
 	}
 	res@barcode = barcode;
 	res@des = description;
+	res@sample = rep(sample, length(barcode));
 	res@file = rep(normalizePath(file), length(res@barcode));
 	H5close();
 	gc();

@@ -4,15 +4,13 @@
 \alias{runMACSForAll}
 \title{Call Peaks Using MACS2 For All Clusters}
 \usage{
-runMACSForAll(obj, file, output.prefix, path.to.snaptools, path.to.macs, gsize,
+runMACSForAll(obj, output.prefix, path.to.snaptools, path.to.macs, gsize,
   num.cores = 1, min.cells = 100, buffer.size = 500,
   macs.options = "--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits",
   tmp.folder = NULL, keep.minimal = TRUE)
 }
 \arguments{
 \item{obj}{A snap object.}
-
-\item{file}{A snap file.}
 
 \item{output.prefix}{Prefix of output file which will be used to generate output file names.}
 

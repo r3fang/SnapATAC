@@ -10,7 +10,8 @@ NULL
 #' @slot snn.prune snn prunning. edges with weight less than snn.prune will be removed
 #' @name kgraph-class
 #' @rdname kgraph-class
-setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
+#' @importFrom methods setClassUnion
+methods::setClassUnion("MatrixOrmatrix", c("Matrix", "matrix"))
 kgraph <- setClass(
   Class = "kgraph",
   slots = list(

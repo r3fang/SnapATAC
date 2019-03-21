@@ -148,7 +148,28 @@ plotBinCoverage.default <- function(
 #' @importFrom scales alpha
 #' @importFrom graphics plot text title
 #' @export
-plotViz <- function(obj, method, point.size, point.shape, point.alpha, text.add, text.size, text.color, text.halo.add, text.halo.color, text.halo.width, down.sample, pdf.file.name, pdf.width, pdf.height, ...) {
+plotViz <- function(obj, 
+	method, 
+	point.size, 
+	point.shape, 
+	point.alpha, 
+	point.color, 
+	text.add, 
+	text.size, 
+	text.color, 
+	text.halo.add, 
+	text.halo.color, 
+	text.halo.width, 
+	legend.add, 
+	legend.pos, 
+	legend.text.size,
+	legend.text.color,
+	down.sample, 
+	pdf.file.name, 
+	pdf.width, 
+	pdf.height, 
+	...
+){
   UseMethod("plotViz", obj);
 }
 
@@ -158,12 +179,17 @@ plotViz.default <- function(obj,
 		point.size=1, 
 		point.shape=19, 
 		point.alpha=0.8, 
+		point.color=c("cluster", "sample"),
 		text.add=TRUE,
 		text.size=1, 
 		text.color="black",
 		text.halo.add=TRUE,
 		text.halo.color="white",
 		text.halo.width=0.2,
+		legend.add=FALSE,
+		legend.pos=c("bottomleft", "bottom", "left", "topleft", "top", "topright", "right", "center"),
+		legend.text.size=1,
+		legend.text.color="black",
 		down.sample=10000,
 		pdf.file.name=NULL,
 		pdf.width=7, 
@@ -184,10 +210,21 @@ plotViz.default <- function(obj,
 	}
 	
 	method = match.arg(method);
-	data.use = slot(obj, method);
-	
+	data.use = as.data.frame(slot(obj, method));
 	if((x=nrow(data.use)) == 0L){
 		stop("visulization method does not exist, run runViz first!")
+	}
+
+	cluster = slot(obj, point.color);
+	if(length(cluster) == 0L){
+		warning("cluster does not exist, text.add is ignored")
+		text.add = FALSE;
+	}
+	point.color = match.arg(point.color);
+	if(length(cluster) != 0L){	
+		data.use$col = factor(cluster);
+	}else{
+		data.use$col = factor(1);
 	}
 	
 	if(!is.null(pdf.file.name)){
@@ -202,58 +239,47 @@ plotViz.default <- function(obj,
 		}	
 		pdf(pdf.file.name,width=pdf.width,height=pdf.height); 
 	}
-		
+	
+	legend.pos = match.arg(legend.pos);
 	down.sample = min(down.sample, ncell);
 	idx.ds = sort(sample(seq(ncell), down.sample));
-	obj = obj[idx.ds,,drop=FALSE];
 	data.use = data.use[idx.ds,,drop=FALSE]
-	if(length(obj@cluster) == 0L){
-		warning("cluster does not exist, text.add is ignored")
-		text.add = FALSE;
-	}
-									
-	if(length(obj@cluster) != 0L){	
-		colPanel = createColorPanel(length(unique(obj@cluster)));
-	}else{
-		colPanel = "grey";
-	}
+										
+	colPanel = createColorPanel(length(unique(data.use$col)));
+	graphics::plot(x=data.use[,1],
+				   y=data.use[,2],
+		 		   cex=point.size, 
+		 		   pch=point.shape, 
+		 		   col=scales::alpha(colPanel[factor(data.use$col)], point.alpha),
+		 		   xlab="",
+		 		   ylab="",
+		 		   yaxt='n',
+		 		   xaxt='n',
+		 		   axes=FALSE,
+		 		   ...
+				   );
+	graphics::title(ylab="Dim-2", line=0.5, cex.lab=1.2, font.lab=2)
+	graphics::title(xlab="Dim-1", line=0.5, cex.lab=1.2, font.lab=2)
+	graphics::box(lwd=2);		
+  	
+	if(text.add){
+		xx = findCentrod(data.use[,c(1,2)], data.use$col);
+		textHalo(x=xx[,1], y=xx[,2], labels = xx[,3], col=text.color, bg=text.halo.color, r=text.halo.width, cex=text.size);
+  	}
 	
-	colnames(data.use) = c("x", "y");	
-	if(length(obj@cluster) != 0L){			
-		graphics::plot(data.use, 
-			 cex=point.size, 
-			 pch=point.shape, 
-			 col=scales::alpha(colPanel[obj@cluster], point.alpha),
-			 xlab="",
-			 ylab="",
-			 yaxt='n',
-			 xaxt='n',
-			 axes=FALSE,
-			 ...
-		);
-		graphics::title(ylab="Dim-2", line=0.5, cex.lab=1.2, font.lab=2)
-		graphics::title(xlab="Dim-1", line=0.5, cex.lab=1.2, font.lab=2)
-		graphics::box(lwd=2);		
-  		if(text.add){
-			xx = findCentrod(data.use, obj@cluster);
-			textHalo(x=xx[,1], y=xx[,2], labels = xx[,3], col=text.color, bg=text.halo.color, r=text.halo.width, cex=text.size);
-  		}
-	}else{
-		graphics::plot(data.use, 
-			 cex=point.size, 
-			 pch=point.shape, 
-			 col=scales::alpha(colPanel[obj@cluster], point.alpha),
-			 xlab="",
-			 ylab="",
-			 yaxt='n',
-			 xaxt='n',
-			 axes=FALSE,
-			 ...
-		);
-		graphics::title(ylab="Dim-2", line=0.5, cex.lab=1.2, font.lab=2)
-		graphics::title(xlab="Dim-1", line=0.5, cex.lab=1.2, font.lab=2)
-		graphics::box(lwd=2);			
+	if(legend.add){
+		legend(legend.pos, 
+		  legend = levels(factor(data.use$col)), 
+		  col = colPanel,
+		  pch = point.shape,
+		  pt.cex=1, 
+		  bty = "n", 
+		  cex = legend.text.size, 
+		  text.col = legend.text.color,
+		  horiz = F
+		  )		
 	}
+
 	if(!is.null(pdf.file.name)){
 		dev.off()		
 	}

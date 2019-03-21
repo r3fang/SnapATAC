@@ -4,15 +4,13 @@
 \alias{runMACS}
 \title{Call Peaks Using MACS2}
 \usage{
-runMACS(obj, file, output.prefix, path.to.snaptools, path.to.macs, gsize,
+runMACS(obj, output.prefix, path.to.snaptools, path.to.macs, gsize,
   buffer.size = 500,
   macs.options = "--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits",
-  tmp.folder = NULL, keep.minimal = TRUE)
+  num.cores = 1, tmp.folder = NULL, keep.minimal = TRUE)
 }
 \arguments{
 \item{obj}{A snap object.}
-
-\item{file}{A snap file.}
 
 \item{output.prefix}{Prefix of output file which will be used to generate output file names.}
 
@@ -24,11 +22,16 @@ runMACS(obj, file, output.prefix, path.to.snaptools, path.to.macs, gsize,
 
 \item{buffer.size}{Buffer size for incrementally increasing internal array size to store reads alignment information. In
 most cases, you don't have to change this parameter. However, if there are very high coverage dataset that each barcode has
-more than 10000 fragments, it's recommended to specify a smaller buffer size in order to decrease memory usage (but it will take longer time to read snap files) [1000].}
+more than 10000 fragments, it's recommended to specify a smaller buffer size in order to decrease memory usage (but it will 
+take longer time to read snap files) [1000].}
 
-\item{macs.options}{String indicate options you would like passed to macs2. strongly do not recommand to change unless you know what you are doing. the default is '--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits'.}
+\item{macs.options}{String indicate options you would like passed to macs2. strongly do not recommand to change unless you 
+know what you are doing. the default is '--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits'.}
 
-\item{tmp.folder}{Directory to store temporary files. If not given, snaptools will automatically generate a temporary location to store temporary files.}
+\item{num.cores}{Number of cores to use for omputing [1].}
+
+\item{tmp.folder}{Directory to store temporary files. If not given, snaptools will automatically generate a temporary location
+to store temporary files.}
 
 \item{keep.minimal}{Keep minimal version of output [TRUE].}
 }
@@ -36,7 +39,7 @@ more than 10000 fragments, it's recommended to specify a smaller buffer size in 
 Return a data.frame object that contains the peak information
 }
 \description{
-Identify peaks using selected cells. Fragments belonging to subset of cells 
+Identify peaks using selected cells. Fragments belonging to a subset of cells 
 are extracted and used to identify peaks using MACS2. This function requires
 "MACS2" and "snaptools" preinstalled and excutable.
 }

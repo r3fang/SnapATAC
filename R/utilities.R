@@ -21,6 +21,12 @@ calJaccard <- function(X_i, X_j){
 	return(jmat);				
 }
 
+
+calJaccardSingle <- function(file.name, mat_j){
+	mat_i = readRDS(file.name);
+	calJaccard(mat_i, mat_j);
+}
+
 # Normlize jaccard index
 # @param jmat Jaccard index matrix
 # @param b1 Coverage probability for rows
@@ -95,4 +101,15 @@ pvalue2fdr <- function(p1, p2){
 	return(fdr.tab);
 }
 
+
+#' @importFrom parallel mclapply
+splitBmat <- function(mat, id.ls, num.cores=1){
+	fileList = lapply(id.ls, function(x){
+		tempfile(fileext=".rds")
+	})
+	mclapply(as.list(seq(id.ls)), function(i){
+		saveRDS(mat[id.ls[[i]],], file=fileList[[i]]);
+	}, mc.cores=num.cores);
+	return(fileList);
+}
 

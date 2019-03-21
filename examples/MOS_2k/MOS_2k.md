@@ -65,7 +65,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 ```R
 > plotDimReductElbow(
 	obj=x.sp, 
-	point.size=2,
+	point.size=1.3,
 	point.shape=19,
 	point.color="red",
 	point.alpha=1,
@@ -102,7 +102,7 @@ Using selected significant components, we next construct a K Nearest Neighbor (K
     k=15,
     nn.eps=0.0,
     snn=TRUE,
-    prune.snn=1/15,
+    snn.prune=1/15,
     save.knn=FALSE,
     filename=NULL
     );
@@ -117,8 +117,6 @@ Using KNN graph, we next apply community finding algorithm Louvain to identify t
 	louvain.lib="R-igraph",
 	resolution=1.0,
 	path.to.snaptools=NULL,
-	load.knn.from.file=FALSE,
-	edge.file=NULL,
 	seed.use=10
 	);
 ```
@@ -150,6 +148,7 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	point.size=1, 
 	point.shape=19, 
 	point.alpha=0.8, 
+	point.color="cluster",
 	text.add=TRUE,
 	text.size=1.4,
 	text.color="black",
@@ -173,7 +172,7 @@ We next uses gene-body accessibility level at known marker gene to help annotate
 > x.sp = scaleCountMatrix(
 	obj=x.sp, 
 	mat="gmat", 
-	cov=x.sp@metaData$UQ, 
+	cov=rowSums(x.sp, mat="bmat"), 
 	method="RPM"
 	);
 > marker.genes = c(

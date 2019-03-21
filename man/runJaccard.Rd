@@ -4,18 +4,20 @@
 \alias{runJaccard}
 \title{Calcualte Jaccard Index Matrix}
 \usage{
-runJaccard(obj, mat, max.var, ncell.chunk, seed.use)
+runJaccard(obj, mat, max.var, ncell.chunk, num.cores, seed.use)
 }
 \arguments{
 \item{obj}{A Snap obj}
 
 \item{mat}{A character class that indicates what matrix slot is used to calculate jaccard index c("bmat", "pmat", "gmat")}
 
-\item{max.var}{A numeric variable indicates the how many dimentions for jaccard index to be calcualted [2000]}
+\item{max.var}{A numeric variable indicates the how many dimentions for jaccard index to be calcualted}
 
-\item{ncell.chunk}{A numeric class that indicates the number of cells to calculate per processing core [1000]}
+\item{ncell.chunk}{A numeric class that indicates the number of cells to calculate per processing core}
 
-\item{seed.use}{A numeric variable indicates the random seed to use [10]}
+\item{num.cores}{Number of processors to use.}
+
+\item{seed.use}{A numeric variable indicates the random seed to use [10].}
 }
 \value{
 Returns a Snap obj with the jaccard index matrix stored in obj@jmat

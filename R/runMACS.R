@@ -203,7 +203,6 @@ runMACS <- function(
 #' "MACS2" and "snaptools" preinstalled and excutable. 
 #' 
 #' @param obj A snap object.
-#' @param file A snap file.
 #' @param output.prefix Prefix of output file which will be used to generate output file names.
 #' @param path.to.snaptools Path to snaptools excutable file.
 #' @param path.to.macs Path to macs2 excutable file.
@@ -223,7 +222,6 @@ runMACS <- function(
 #' @export
 runMACSForAll <- function(
 	obj, 
-	file,
 	output.prefix,
 	path.to.snaptools,
 	path.to.macs,
@@ -248,31 +246,40 @@ runMACSForAll <- function(
 		if((x=length(obj@barcode))==0L){
 			stop("obj@barcode is empty");			
 		}
-		barcode.use = obj@barcode;
-		nclusters = length(levels(obj@cluster));
+		if((x=length(obj@file))==0L){
+			stop("obj@file is empty");			
+		}
+		nclusters = length(levels(x.sp@cluster));
+	}
+
+	fileList = as.list(unique(obj@file));
+	
+	# check if snap files exist
+	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+		print("error: these files does not exist")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if files are all snap files
+	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+		print("error: these files are not snap file")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if FM session exist
+	if(any(do.call(c, lapply(fileList, function(x){ "FM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){ "FM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
+		print("error: the following nsap files do not contain FM session")
+		print(fileList[idx])
+		stop()
 	}
 	
 	if(nclusters == 0L){
 		stop("obj does not have cluster, runCluster first")
-	}
-
-	if(missing(file)){
-		stop("file is missing");
-	}else{
-		if(!file.exists(file)){
-			stop("file does not exist");
-		}
-		if(!isSnapFile(file)){
-			stop("file is not a snap file");
-		}
-	}
-	
-	cat("Epoch: checking selected barcodes exist in snap file ... \n", file = stderr())
-	barcode.flag = barcodeInSnapFile(barcode.use, file);
-	if(any(barcode.flag == FALSE)){
-		cat("the following barcode does not exist in snap file\n")
-		cat(paste(barcode.use, "\n"));
-		stop()
 	}
 
 	if(missing(output.prefix)){
@@ -334,23 +341,23 @@ runMACSForAll <- function(
        if(num.cells < min.cells){
            return(GenomicRanges::GRanges())
        }
-       peaks.df = runMACS(
-       obj=obj[which(obj@cluster==x),], 
-       file=file, 
-       output.prefix=paste(output.prefix, x, sep="."),
-       path.to.snaptools=path.to.snaptools,
-       path.to.macs=path.to.macs,
-       gsize=gsize, 
-       buffer.size=buffer.size, 
-       macs.options=macs.options,
-       tmp.folder=tmp.folder
-       );
-       peaks.gr = GenomicRanges::GRanges(peaks.df[,1], IRanges(peaks.df[,2], peaks.df[,3]))
-       peaks.gr
+	   peaks.df <- runMACS(
+		   obj=obj[which(obj@cluster==x),], 
+		   output.prefix=paste(output.prefix, x, sep="."),
+		   path.to.snaptools=path.to.snaptools,
+		   path.to.macs=path.to.macs,
+		   gsize=gsize,
+		   buffer.size=buffer.size, 
+		   macs.options=macs.options,
+		   tmp.folder=tmp.folder,
+		   keep.minimal=keep.minimal,
+		   num.cores=1
+		   );
+       peaks.gr = GenomicRanges::GRanges(peaks.df[,1], IRanges(peaks.df[,2], peaks.df[,3]));
+       peaks.gr;
      }, mc.cores=num.cores)
 	
 	peaks.gr = GenomicRanges::reduce(do.call(c, peak.ls));
 	return(peaks.gr);
 }
-
 

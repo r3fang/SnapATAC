@@ -4,14 +4,16 @@
 \alias{runSnapAddPmat}
 \title{Add cell-by-peak matrix to a snap file}
 \usage{
-runSnapAddPmat(file, peak, path.to.snaptools, buffer.size, tmp.folder)
+runSnapAddPmat(obj, peak, path.to.snaptools, num.cores, buffer.size, tmp.folder)
 }
 \arguments{
-\item{file}{A snap file.}
+\item{obj}{A snap obj.}
 
 \item{peak}{A GenomicRanges object that contains peak coordinates.}
 
 \item{path.to.snaptools}{Path to snaptools excutable file.}
+
+\item{num.cores}{Number of CPUs to use.}
 
 \item{buffer.size}{Buffer size for incrementally increasing internal array size to store reads alignment information. In
 most cases, you don't have to change this parameter. However, if there are very high coverage dataset that each barcode has
