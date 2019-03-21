@@ -4,7 +4,7 @@
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
-#' @param ... Arguments passed to hist function.
+#' @param ... Arguments passed to hist method.
 #' @importFrom graphics par hist 
 #' @importFrom grDevices pdf dev.off
 #' @export
@@ -62,11 +62,11 @@ plotBarcode.default <- function(
 #' Plot Bin Coverage Distribution
 #'
 #' @param obj a snap object
-#' @param rm.zeros Remove bins of zero coverage
+#' @param rm.zeros Remove bins of zero coverage when ploting the coverage distribution [TRUE].
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
-#' @param ... Arguments passed to hist function.
+#' @param ... Arguments passed to hist method.
 #' @importFrom stats sd
 #' @importFrom grDevices pdf dev.off
 #' @importFrom graphics hist
@@ -128,7 +128,7 @@ plotBinCoverage.default <- function(
 #' Visulization
 #'
 #' @param obj A snap object.
-#' @param method Method used to plot c("tsne", "umap").
+#' @param method Visulization method c("tsne", "umap").
 #' @param point.size Point size [1].
 #' @param point.shape Point shape type [19].
 #' @param point.alpha Point transparancy level [0.8].
@@ -302,7 +302,7 @@ plotViz.default <- function(obj,
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
-#' @param ... Arguments passed to 
+#' @param ... Arguments passed to plot function. 
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
@@ -370,13 +370,12 @@ plotDimReductElbow.default <- function(
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
-#' @param ... Arguments passed to plot / text method.
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
 #' @importFrom graphics plot text title mtext
 #' @export
-plotDimReductPW <- function(obj,  pca.dims, point.size, point.color, point.shape, point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width, ...){
+plotDimReductPW <- function(obj,  pca.dims, point.size, point.color, point.shape, point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width){
   UseMethod("plotDimReductPW", obj);
 }
 
@@ -391,8 +390,7 @@ plotDimReductPW.default <- function(
 	down.sample=3000,
 	pdf.file.name=NULL, 
 	pdf.height=7, 
-	pdf.width=7,
-	...
+	pdf.width=7
 ){
 	
 	if(missing(obj)){
@@ -461,11 +459,11 @@ plotDimReductPW.default <- function(
 }
 
 ##########################################################
-#' Project Gene-body Accessibility to T-SNE plot
+#' Plot gene-body accessibility level
 #'
 #' @param obj A snap object.
 #' @param gene.names Name of genes to plot.
-#' @param viz.method Project method c("tsne", "umap").
+#' @param viz.method Visulization method c("tsne", "umap").
 #' @param point.size Point size [0.5].
 #' @param point.shape Point shape type [19].
 #' @param point.color Point color ["blue"].
@@ -483,7 +481,7 @@ plotDimReductPW.default <- function(
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
-#' @param ... Arguments passed to ggplot.
+#' @param ... Arguments passed to plot method.
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot 
 #' @importFrom scales alpha
@@ -598,8 +596,7 @@ plotGene.default <- function(
 		 	points(viz.use, 
 		 		   col=alpha(point.color, y), 
 		 		   cex=point.size,
-		 		   pch=point.shape,
-		 		   ...
+		 		   pch=point.shape
 		 		 );	
 		}else{
 			plot(viz.use, 

@@ -245,25 +245,19 @@ setMethod("[", "snap",
 	   return(x);
 })
 
-#' Check barcode existance in snap file
-#'
-#' This function takes an array of barcodes and a snap-format file as input 
-#' and check whether selected barcodes exist in the snap file.
-#' 
-#' @param barcode An array of selected barcodes.
-#' @param file A snap format file.
-#' 
-#' @return Return an array of logical variable indicates whether the 
-#' barcode exists in snap file.
-#' 
+# Check barcode existance in snap file
+#
+# This function takes an array of barcodes and a snap-format file as input 
+# and check whether selected barcodes exist in the snap file.
+# 
+# @param barcode An array of selected barcodes.
+# @param file A snap format file.
+# 
+# @return Return an array of logical variable indicates whether the 
+# barcode exists in snap file.
+# 
 #' @importFrom rhdf5 h5read
-#' @export  
 barcodeInSnapFile <- function(barcode, file){
-	UseMethod("barcodeInSnapFile", barcode);
-}
-
-#' @export  
-barcodeInSnapFile.default <- function(barcode, file){
 	
 	if(missing(file)){
 		stop("file is missing");
@@ -287,8 +281,8 @@ barcodeInSnapFile.default <- function(barcode, file){
 	barcode.ref = as.character(tryCatch(barcode.ref <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
 	        options(scipen=999);
 	return(barcode %in% barcode.ref);
-}
 
+}
 
 #' Create a snap object from a snap file
 #'
@@ -298,7 +292,7 @@ barcodeInSnapFile.default <- function(barcode, file){
 #' @param file Name of a snap-format file.
 #' @param sample A short sample name (i.g. "MOS.rep1").
 #' @param description Description of the experiment [NULL].
-#' @param num.cores Number of processers to use.
+#' @param num.cores Number of processers to use [1].
 #' @return A snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom parallel mclapply
@@ -558,7 +552,7 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 
 #' Add cell-by-gene matrix
 #' 
-#' This function takes a snap object and snap-format file as input and add the cell-by-gene 
+#' This function takes a snap object as input and add the cell-by-gene 
 #' matrix to the existing snap object.
 #' 
 #' @param obj A snap object to add cell-by-bin matrix.
@@ -633,7 +627,7 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 #' Remove cell-by-bin matrix
 #' 
 #' This function takes a snap object as input and removes the cell-by-bin 
-#' matrix in the existing snap object.
+#' matrix in the existing snap object. Report error when cell-by-bin matrix is empty.
 #' 
 #' @param obj A snap object to remove cell-by-bin matrix.
 #' @return Return a snap object
@@ -668,7 +662,7 @@ rmBmatFromSnap.default <- function(obj){
 #' Remove cell-by-peak matrix
 #' 
 #' This function takes a snap object as input and removes the cell-by-peak 
-#' matrix in the existing snap object.
+#' matrix in the existing snap object. Report error when cell-by-peak matrix is empty.
 #' 
 #' @param obj A snap object to remove cell-by-peak matrix.
 #' @return Return a snap object
@@ -702,7 +696,8 @@ rmPmatFromSnap.default <- function(obj){
 #' Remove cell-by-gene matrix
 #' 
 #' This function takes a snap object as input and removes the cell-by-gene 
-#' matrix in the existing snap object.
+#' matrix in the existing snap object. Report error when cell-by-gene matrix 
+#' is empty.
 #' 
 #' @param obj A snap object to remove cell-by-gene matrix.
 #' @return Return a snap object
@@ -979,10 +974,10 @@ exportMetaData.default <- function(obj, file, slot.names=c('barcode', 'cluster',
 #'
 #' This function takes one or two snap object as input and calculate 
 #' the correlation between cell-by-bin matrix between replicates. If
-#' obj2 is NULL, obj1 will be split into two pseudo replicates evenly 
+#' obj2 is NULL, obj1 will be randomly split into two pseudo replicates  
 #' and the correlaion between these two pseudo-replicates will be 
-#' calcualted and returned. For obj1 and obj2, the cell-by-bin matrix
-#' must not be empty. This function helps check whether the current 
+#' calcualted and returned. For obj1, the cell-by-bin matrix
+#' cannot be empty. This function helps check whether the current 
 #' cell-by-bin matrix is sufficient for downstream analysis. If the 
 #' pearson correlation is less than 0.95 recommend to use a bigger bin.size. 
 #' 
@@ -1039,20 +1034,14 @@ calBmatCor.default <- function(obj1, obj2=NULL){
 }
 
 
-#' Combine snap objects
-#'
-#' Takes two snap objects and combines them.
-#'
-#' @param obj1 a snap object
-#' @param obj2 a snap object
-#' @return a combined snap object
-#' @export
+# Combine snap objects
+#
+# Takes two snap objects and combines them.
+#
+# @param obj1 a snap object
+# @param obj2 a snap object
+# @return a combined snap object
 snapRbind <- function(obj1, obj2){
-  UseMethod("snapRbind", obj1);
-}
-
-#' @export
-snapRbind.default <- function(obj1, obj2){
 	if(!is.snap(obj1)){stop(paste("Error @snapRbind: obj1 is not a snap object!", sep=""))};
 	if(!is.snap(obj2)){stop(paste("Error @snapRbind: obj2 is not a snap object!", sep=""))};
 
@@ -1245,6 +1234,57 @@ filterCells.default <- function(
 	return(obj);
 }
 
+#' Feature filtration
+#'
+#' This function takes a snap obj as input and perform feature selection in the following manner:
+#' 1) calculate coverage of each genomic bin/feature;
+#' 2) log scale the coverage by log10(count + 1);
+#' 3) the log-nromal distribution is then converted into zscore; 
+#' 4) bins with zscore beyond [low.threshold, high.threshold] are filtered;
+#' 
+#' @param obj A snap obj
+#' @param low.threshold Low cutoffs for the parameters (default is -2)
+#' @param high.threshold High cutoffs for the parameters (default is 2)
+#' @param mat Matrix to filter c("bmat", "pmat")
+#'
+#' @return Returns a snap obj
+#' @importFrom stats sd
+#' @importFrom methods slot
+#' @export
+
+filterBins <- function(obj, low.threshold, high.threshold, mat) {
+  UseMethod("filterBins", obj);
+}
+
+#' @export
+filterBins.default <- function(obj, low.threshold=-2, high.threshold=2, mat=c("bmat", "pmat")){
+
+	if(missing(obj)){
+		stop("obj is missing")
+	}else{
+		if(class(obj) != "snap"){
+			stop("'obj' is not a snap obj")
+		};		
+	}
+	
+	mat = match.arg(mat);
+	data.use = methods::slot(obj, mat);
+
+	if((x=nrow(data.use)) == 0L){		
+		stop("count matrix is empty")
+	}
+
+	idy = which(Matrix::colSums(data.use) > 0);
+	cov = log(Matrix::colSums(data.use)[idy] + 1, 10);
+	zcov = (cov - mean(cov)) / stats::sd(cov);	
+	idy2 = which(zcov >= low.threshold & zcov <= high.threshold);
+	idy = idy[idy2];
+	methods::slot(obj, mat) = data.use[,idy,drop=FALSE];
+	return(obj)
+}
+
+
+
 #' Check a snap-format file
 #' 
 #' This function takes a file name as input and check if the file is a snap-formated file 
@@ -1280,97 +1320,6 @@ isSnapFile.default <- function(file){
 		}
 	}
 	return(FALSE);
-}
-
-#' Calculate cell-by-gene count matrix
-#'
-#' This function takes a snap obj and converts the cell-by-bin 
-#' matrix into the cell-by-gene count matrix.
-#'
-#' @param obj A snap object.
-#' @param gene A GRanges object that contains the genomic intervals of genes.
-#' @param num.cores Number of CPU processers for computation [1].
-#' @param mat Matrix slot is used to calculatd the cell-by-gene matrix c("bmat", "pmat").
-#'
-#' @importFrom GenomicRanges GRanges findOverlaps
-#' @importFrom parallel mclapply
-#' @importFrom methods slot
-#' @return Returns a Snap obj with the cell-by-gene matrix stored in obj@gmat
-#' 
-#' @export
-calCellGeneTable <- function(obj, gene, num.cores, mat){
-  UseMethod("calCellGeneTable", obj);
-}
-
-#' @export
-calCellGeneTable.default <- function(
-	obj, 
-	gene, 
-	num.cores=1, 
-	mat=c("bmat", "pmat")
-){
-	if(missing(obj)){
-		stop("obj is missing")
-	}else{
-		if(class(obj) != "snap"){
-			stop("obj is not a snap obj")
-		}
-	}
-	mat = match.arg(mat);
-	data.use = methods::slot(obj, mat);
-	if((x=nrow(data.use)) == 0L){
-		stop("mat is empty")
-	}
-	
-	if(mat == "bmat"){
-		feature.use = obj@feature;
-	}else if(mat == "pmat"){
-		feature.use = obj@peak;
-	}
-	
-	if((x=length(feature.use)) == 0L){
-		stop("column feature for mat is empty")
-	}
-	
-	if(missing(gene)){
-		stop("gene is missing");
-	}else{
-		if(class(gene) != "GRanges"){
-			stop("'gene' is not a GenomicRanges obj");
-		}
-		if((x==length(gene)) == 0L){
-			stop("gene is empty");
-		}		
-	}
-		
-	if(any(duplicated(gene$gene_name))){
-		stop("'gene' contains duplicate gene names, remove duplicate first");
-	}
-
-	# find overlap between feature and genes
-	ov = data.frame(findOverlaps(feature.use, gene));
-	if(nrow(ov) > 0){
-		# calculate gene count vector per cell in parallel;
-		ov.ls <- split(ov, ov$subjectHits);
-		# generate the count vector per cell in parallel;
-		count.ls <- mclapply(ov.ls, function(x){
-			if(nrow(x) > 1){
-				return(Matrix::rowSums(mat[,x[,1]]))
-			}else{
-				return(mat[,x[,1]])
-			}
-		}, mc.cores=num.cores);
-		# combine vectors and create a count matrix;
-		count.mt = t(as.matrix(do.call(rbind, count.ls)));
-		count_table = Matrix(0, nrow=nrow(obj), ncol=length(gene), sparse=TRUE);
-		count_table[,as.numeric(names(ov.ls))] = count.mt;
-		count_table = count_table;		
-	}else{
-		count_table = Matrix(0, nrow(obj), ncol=length(gene), sparse=TRUE);
-	}
-	obj@gmat = count_table;
-	colnames(obj@gmat) = gene$gene_name;
-	return(obj);
 }
 
 readBins <- function(file, bin.size=5000){	
@@ -1506,7 +1455,6 @@ addPmatToSnapSingle <- function(obj, file){
         if(!file.exists(file)){stop(paste("Error @addPmat: ", file, " does not exist!", sep=""))};
         if(!isSnapFile(file)){stop(paste("Error @addPmat: ", file, " is not a snap-format file!", sep=""))};
 
-        message("Epoch: reading cell-peak count matrix session ...");
         ############################################################################
 		barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
         options(scipen=999);
@@ -1584,3 +1532,96 @@ createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){
 	return(res);	
 }
 
+
+
+### Calculate cell-by-gene count matrix
+###
+### This function takes a snap obj and converts the cell-by-bin 
+### matrix into the cell-by-gene count matrix.
+###
+### @param obj A snap object.
+### @param gene A GRanges object that contains the genomic intervals of genes.
+### @param num.cores Number of CPU processers for computation [1].
+### @param mat Matrix slot is used to calculatd the cell-by-gene matrix c("bmat", "pmat").
+###
+### @importFrom GenomicRanges GRanges findOverlaps
+### @importFrom parallel mclapply
+### @importFrom methods slot
+### @return Returns a Snap obj with the cell-by-gene matrix stored in obj@gmat
+### 
+### @export
+##calCellGeneTable <- function(obj, gene, num.cores, mat){
+##  UseMethod("calCellGeneTable", obj);
+##}
+##
+###' @export
+##calCellGeneTable.default <- function(
+##	obj, 
+##	gene, 
+##	num.cores=1, 
+##	mat=c("bmat", "pmat")
+##){
+##	if(missing(obj)){
+##		stop("obj is missing")
+##	}else{
+##		if(class(obj) != "snap"){
+##			stop("obj is not a snap obj")
+##		}
+##	}
+##	mat = match.arg(mat);
+##	data.use = methods::slot(obj, mat);
+##	if((x=nrow(data.use)) == 0L){
+##		stop("mat is empty")
+##	}
+##	
+##	if(mat == "bmat"){
+##		feature.use = obj@feature;
+##	}else if(mat == "pmat"){
+##		feature.use = obj@peak;
+##	}
+##	
+##	if((x=length(feature.use)) == 0L){
+##		stop("column feature for mat is empty")
+##	}
+##	
+##	if(missing(gene)){
+##		stop("gene is missing");
+##	}else{
+##		if(class(gene) != "GRanges"){
+##			stop("'gene' is not a GenomicRanges obj");
+##		}
+##		if((x==length(gene)) == 0L){
+##			stop("gene is empty");
+##		}		
+##	}
+##		
+##	if(any(duplicated(gene$gene_name))){
+##		stop("'gene' contains duplicate gene names, remove duplicate first");
+##	}
+##
+##	# find overlap between feature and genes
+##	ov = data.frame(findOverlaps(feature.use, gene));
+##	if(nrow(ov) > 0){
+##		# calculate gene count vector per cell in parallel;
+##		ov.ls <- split(ov, ov$subjectHits);
+##		# generate the count vector per cell in parallel;
+##		count.ls <- mclapply(ov.ls, function(x){
+##			if(nrow(x) > 1){
+##				return(Matrix::rowSums(mat[,x[,1]]))
+##			}else{
+##				return(mat[,x[,1]])
+##			}
+##		}, mc.cores=num.cores);
+##		# combine vectors and create a count matrix;
+##		count.mt = t(as.matrix(do.call(rbind, count.ls)));
+##		count_table = Matrix(0, nrow=nrow(obj), ncol=length(gene), sparse=TRUE);
+##		count_table[,as.numeric(names(ov.ls))] = count.mt;
+##		count_table = count_table;		
+##	}else{
+##		count_table = Matrix(0, nrow(obj), ncol=length(gene), sparse=TRUE);
+##	}
+##	obj@gmat = count_table;
+##	colnames(obj@gmat) = gene$gene_name;
+##	return(obj);
+##}
+##

@@ -24,7 +24,7 @@ plotDimReductElbow(obj, point.size, point.shape, point.color, point.alpha,
 
 \item{pdf.width}{the width of the graphics region in inches [7].}
 
-\item{...}{Arguments passed to}
+\item{...}{Arguments passed to plot function.}
 }
 \description{
 Elbow Plot for Dimentionality Reduction Result

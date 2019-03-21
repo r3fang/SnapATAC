@@ -13,6 +13,8 @@ Class kgraph defines a kgraph object.
 
 \item{\code{k}}{k used for constructing knn graph}
 
+\item{\code{file}}{file name that saves that knn graph}
+
 \item{\code{snn}}{knn is converted to snn graph if True}
 
 \item{\code{snn.prune}}{snn prunning. edges with weight less than snn.prune will be removed}

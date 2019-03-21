@@ -2,7 +2,7 @@
 % Please edit documentation in R/plottings.R
 \name{plotGene}
 \alias{plotGene}
-\title{Project Gene-body Accessibility to T-SNE plot}
+\title{Plot gene-body accessibility level}
 \usage{
 plotGene(obj, gene.names, viz.method, point.size, point.color, point.shape,
   background.point, background.point.color, background.point.alpha,
@@ -15,7 +15,7 @@ plotGene(obj, gene.names, viz.method, point.size, point.color, point.shape,
 
 \item{gene.names}{Name of genes to plot.}
 
-\item{viz.method}{Project method c("tsne", "umap").}
+\item{viz.method}{Visulization method c("tsne", "umap").}
 
 \item{point.size}{Point size [0.5].}
 
@@ -51,8 +51,8 @@ plotGene(obj, gene.names, viz.method, point.size, point.color, point.shape,
 
 \item{pdf.width}{the width of the graphics region in inches [7].}
 
-\item{...}{Arguments passed to ggplot.}
+\item{...}{Arguments passed to plot method.}
 }
 \description{
-Project Gene-body Accessibility to T-SNE plot
+Plot gene-body accessibility level
 }

@@ -1,15 +1,15 @@
 #' Find Clusters Using Louvain Algorithm
 #'
-#' Using the constructed knn graph, we next applied community finding algorithm Louvain 
+#' Using the constructed knn graph returned by function runKNN, we next applied community finding algorithm Louvain 
 #' to identify the ‘communities’ in the resulting graph which represents groups of
-#' cells sharing similar profiles, potentially originating from the same cell type.
+#' cells sharing similar accessibility profiles.
 #' 
 #' @param obj A snap object
 #' @param louvain.lib Louvain implementation method to use ["R-igraph", "python-louvain"].
-#' "R-igraph" uses "cluster_louvain" to identify cluster. "python-louvain" uses "python-louvain" package to identify
-#' clusters. "R-igraph" is signficantly faster but does not support different resolutions. "python-louvain" supports
-#' multiple resolutions, but requires "snaptools" to be pre-installed.
-#' @param resolution A numeric class that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.
+#' "R-igraph" uses "cluster_louvain" implemented by igraph package in R. "python-louvain" uses louvain method implemented in "python-louvain" package. 
+#' "R-igraph" is signficantly faster but does not support different resolutions. "python-louvain" supports
+#' multiple resolutions, but requires "snaptools" and runs significantly slower.
+#' @param resolution A numeric value that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.
 #' @param path.to.snaptools Path to snaptools excutable file [NULL]. Install snaptools by 'pip install snaptools'.
 #' @param seed.use Random seed [10]. 
 #' 

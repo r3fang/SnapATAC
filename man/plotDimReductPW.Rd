@@ -5,7 +5,7 @@
 \title{Pairwise plot for Dimentionality Reduction Result}
 \usage{
 plotDimReductPW(obj, pca.dims, point.size, point.color, point.shape,
-  point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width, ...)
+  point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width)
 }
 \arguments{
 \item{obj}{A snap object}
@@ -27,8 +27,6 @@ plotDimReductPW(obj, pca.dims, point.size, point.color, point.shape,
 \item{pdf.height}{the height of the graphics region in inches [7].}
 
 \item{pdf.width}{the width of the graphics region in inches [7].}
-
-\item{...}{Arguments passed to plot / text method.}
 }
 \description{
 Pairwise plot for Dimentionality Reduction Result

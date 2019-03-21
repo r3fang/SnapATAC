@@ -14,5 +14,5 @@ Return a snap object
 }
 \description{
 This function takes a snap object as input and removes the cell-by-bin 
-matrix in the existing snap object.
+matrix in the existing snap object. Report error when cell-by-bin matrix is empty.
 }

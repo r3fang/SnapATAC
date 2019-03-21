@@ -6,6 +6,7 @@ NULL
 #'
 #' @slot mat a parase matrix object that contains the knn adjacent matrix
 #' @slot k k used for constructing knn graph 
+#' @slot file file name that saves that knn graph
 #' @slot snn knn is converted to snn graph if True
 #' @slot snn.prune snn prunning. edges with weight less than snn.prune will be removed
 #' @name kgraph-class

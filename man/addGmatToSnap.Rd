@@ -15,6 +15,6 @@ addGmatToSnap(obj, num.cores)
 Return a snap object
 }
 \description{
-This function takes a snap object and snap-format file as input and add the cell-by-gene 
+This function takes a snap object as input and add the cell-by-gene 
 matrix to the existing snap object.
 }

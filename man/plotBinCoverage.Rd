@@ -9,7 +9,7 @@ plotBinCoverage(obj, rm.zeros, pdf.file.name, pdf.width, pdf.height, ...)
 \arguments{
 \item{obj}{a snap object}
 
-\item{rm.zeros}{Remove bins of zero coverage}
+\item{rm.zeros}{Remove bins of zero coverage when ploting the coverage distribution [TRUE].}
 
 \item{pdf.file.name}{pdf file name to save the plot [NULL].}
 
@@ -17,7 +17,7 @@ plotBinCoverage(obj, rm.zeros, pdf.file.name, pdf.width, pdf.height, ...)
 
 \item{pdf.height}{the height of the graphics region in inches [7].}
 
-\item{...}{Arguments passed to hist function.}
+\item{...}{Arguments passed to hist method.}
 }
 \description{
 Plot Bin Coverage Distribution

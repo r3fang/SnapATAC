@@ -1,7 +1,7 @@
 #' Add cell-by-peak matrix to a snap file
 #'
-#' This function takes a peak list and a snap file and add cell-by-peak matrix 
-#' into the existing snap file.
+#' This function takes a peak list and a snap object as input 
+#' and add cell-by-peak matrix into the existing snap file.
 #' 
 #' @param obj A snap obj.
 #' @param peak A GenomicRanges object that contains peak coordinates.

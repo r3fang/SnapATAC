@@ -12,7 +12,7 @@ plotViz(obj, method, point.size, point.shape, point.alpha, point.color,
 \arguments{
 \item{obj}{A snap object.}
 
-\item{method}{Method used to plot c("tsne", "umap").}
+\item{method}{Visulization method c("tsne", "umap").}
 
 \item{point.size}{Point size [1].}
 

@@ -3,7 +3,7 @@ Version: 1.0
 Date: 2019-02-28
 Title: Single Nucleus Analysis Package for ATAC-seq
 Authors@R: person("Rongxin", "Fang", email = "r4fang@gmail.com", role = c("aut", "cre"))
-Description: A fast, accurate and unbiased toolkit for analyzing single cell ATAC-seq datasets.
+Description: A fast and accurate analysis toolkit for single nucleus ATAC-seq.
 biocViews: Bioinformatics, Single Cell, Epigenetics, ATAC-seq
 Depends:
 	R (>= 3.4.0),
@@ -13,7 +13,6 @@ Imports:
 	IRanges,
 	methods,
 	stats,
-	Rcpp (>= 0.12.6),
 	raster,
 	irlba,
 	Rtsne,
@@ -25,17 +24,17 @@ Imports:
 	parallel,
 	foreach,
 	doParallel,
-	doSNOW,
 	igraph,
 	plyr,
 	bigmemory
+Suggests:
+	umap
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 Collate: 
     'dimReduct-class.R'
-    'filterBins.R'
     'findDARs.R'
     'jaccard-class.R'
     'kgraph-class.R'

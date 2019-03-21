@@ -22,6 +22,6 @@ more than 10000 fragments, it's recommended to specify a smaller buffer size in 
 \item{tmp.folder}{Directory to store temporary files. If not given, snaptools will automatically generate a temporary location to store temporary files.}
 }
 \description{
-This function takes a peak list and a snap file and add cell-by-peak matrix 
-into the existing snap file.
+This function takes a peak list and a snap object as input 
+and add cell-by-peak matrix into the existing snap file.
 }

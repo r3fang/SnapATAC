@@ -13,7 +13,7 @@ createSnap(file, sample, description, num.cores)
 
 \item{description}{Description of the experiment [NULL].}
 
-\item{num.cores}{Number of processers to use.}
+\item{num.cores}{Number of processers to use [1].}
 }
 \value{
 A snap object

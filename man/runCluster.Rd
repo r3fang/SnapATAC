@@ -10,11 +10,11 @@ runCluster(obj, louvain.lib, resolution, path.to.snaptools, seed.use)
 \item{obj}{A snap object}
 
 \item{louvain.lib}{Louvain implementation method to use ["R-igraph", "python-louvain"].
-"R-igraph" uses "cluster_louvain" to identify cluster. "python-louvain" uses "python-louvain" package to identify
-clusters. "R-igraph" is signficantly faster but does not support different resolutions. "python-louvain" supports
-multiple resolutions, but requires "snaptools" to be pre-installed.}
+"R-igraph" uses "cluster_louvain" implemented by igraph package in R. "python-louvain" uses louvain method implemented in "python-louvain" package. 
+"R-igraph" is signficantly faster but does not support different resolutions. "python-louvain" supports
+multiple resolutions, but requires "snaptools" and runs significantly slower.}
 
-\item{resolution}{A numeric class that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.}
+\item{resolution}{A numeric value that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.}
 
 \item{path.to.snaptools}{Path to snaptools excutable file [NULL]. Install snaptools by 'pip install snaptools'.}
 
@@ -24,7 +24,7 @@ multiple resolutions, but requires "snaptools" to be pre-installed.}
 Returns a snap obj with the cluster stored in obj@cluster
 }
 \description{
-Using the constructed knn graph, we next applied community finding algorithm Louvain 
+Using the constructed knn graph returned by function runKNN, we next applied community finding algorithm Louvain 
 to identify the ‘communities’ in the resulting graph which represents groups of
-cells sharing similar profiles, potentially originating from the same cell type.
+cells sharing similar accessibility profiles.
 }

@@ -15,7 +15,7 @@ plotBarcode(obj, pdf.file.name, pdf.width, pdf.height, ...)
 
 \item{pdf.height}{the height of the graphics region in inches [7].}
 
-\item{...}{Arguments passed to hist function.}
+\item{...}{Arguments passed to hist method.}
 }
 \description{
 Plot Barocde Quality Control Distribution

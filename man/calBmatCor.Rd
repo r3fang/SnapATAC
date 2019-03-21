@@ -17,10 +17,10 @@ Return pearson correlation between replicates.
 \description{
 This function takes one or two snap object as input and calculate 
 the correlation between cell-by-bin matrix between replicates. If
-obj2 is NULL, obj1 will be split into two pseudo replicates evenly 
+obj2 is NULL, obj1 will be randomly split into two pseudo replicates  
 and the correlaion between these two pseudo-replicates will be 
-calcualted and returned. For obj1 and obj2, the cell-by-bin matrix
-must not be empty. This function helps check whether the current 
+calcualted and returned. For obj1, the cell-by-bin matrix
+cannot be empty. This function helps check whether the current 
 cell-by-bin matrix is sufficient for downstream analysis. If the 
 pearson correlation is less than 0.95 recommend to use a bigger bin.size.
 }
