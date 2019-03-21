@@ -9,7 +9,8 @@ addBmatToSnap(obj, bin.size, num.cores)
 \arguments{
 \item{obj}{A snap object to add cell-by-bin matrix.}
 
-\item{bin.size}{Cell-by-bin matrix with bin size of bin.size will be added to snap object [5000].}
+\item{bin.size}{Cell-by-bin matrix with bin size of bin.size 
+will be added to snap object.}
 
 \item{num.cores}{Number of processors to use.}
 }
@@ -17,6 +18,6 @@ addBmatToSnap(obj, bin.size, num.cores)
 Return a snap object
 }
 \description{
-This function takes a snap object and snap-format file as input and add the cell-by-bin 
+This function takes a snap object as input and add the cell-by-bin 
 matrix to the existing snap object.
 }
