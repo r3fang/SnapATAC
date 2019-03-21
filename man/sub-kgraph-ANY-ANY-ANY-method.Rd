@@ -12,6 +12,8 @@
 
 \item{i}{selected rows}
 
+\item{j}{selected columns}
+
 \item{drop}{drop unused levels}
 }
 \description{

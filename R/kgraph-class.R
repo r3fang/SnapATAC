@@ -42,6 +42,7 @@ setMethod(
 #' This function takes a kgraph object and returns the subset of kgraph object.
 #' @param x A kgraph object
 #' @param i selected rows
+#' @param j selected columns
 #' @param drop drop unused levels
 #' @export
 setMethod(

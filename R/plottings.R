@@ -132,12 +132,18 @@ plotBinCoverage.default <- function(
 #' @param point.size Point size [1].
 #' @param point.shape Point shape type [19].
 #' @param point.alpha Point transparancy level [0.8].
+#' @param point.color Color of point. Two options, points color by 
+#' cell cluster label or sample ID c("cluster", "sample"). 
 #' @param text.add Whether to add cluster label text at the centroid of each cluster [TRUE].
 #' @param text.size Cluster label text size [5].
 #' @param text.color Cluster label text color ["black"].
 #' @param text.halo.add Add halo to cluster label text [TRUE].
 #' @param text.halo.color Halo color ["white"].
 #' @param text.halo.width Halo width [0.5].
+#' @param legend.add Add a legend to the plot [FALSE].
+#' @param legend.pos Position of the legend c("bottomleft", "bottom", "left", "topleft", "top", "topright", "right", "center").
+#' @param legend.text.size Size of the text in the legend [1].
+#' @param legend.text.color Color of the text in the legend ["black"].
 #' @param down.sample Downsample the original cells to down.sample cells to ovoid large dataset [10,000].
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
@@ -146,7 +152,7 @@ plotBinCoverage.default <- function(
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
-#' @importFrom graphics plot text title
+#' @importFrom graphics plot text title legend
 #' @export
 plotViz <- function(obj, 
 	method, 

@@ -20,6 +20,9 @@ plotViz(obj, method, point.size, point.shape, point.alpha, point.color,
 
 \item{point.alpha}{Point transparancy level [0.8].}
 
+\item{point.color}{Color of point. Two options, points color by 
+cell cluster label or sample ID c("cluster", "sample").}
+
 \item{text.add}{Whether to add cluster label text at the centroid of each cluster [TRUE].}
 
 \item{text.size}{Cluster label text size [5].}
@@ -31,6 +34,14 @@ plotViz(obj, method, point.size, point.shape, point.alpha, point.color,
 \item{text.halo.color}{Halo color ["white"].}
 
 \item{text.halo.width}{Halo width [0.5].}
+
+\item{legend.add}{Add a legend to the plot [FALSE].}
+
+\item{legend.pos}{Position of the legend c("bottomleft", "bottom", "left", "topleft", "top", "topright", "right", "center").}
+
+\item{legend.text.size}{Size of the text in the legend [1].}
+
+\item{legend.text.color}{Color of the text in the legend ["black"].}
 
 \item{down.sample}{Downsample the original cells to down.sample cells to ovoid large dataset [10,000].}
 

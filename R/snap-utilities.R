@@ -614,7 +614,7 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 	message("Epoch: reading cell-gene count matrix session ...");
 	num.cores = max(2, num.cores);
 	obj.ls = mclapply(fileList, function(file){
-		idx = which(obj@file == file)
+		idx = which(obj@file == file);
 		addGmatToSnapSingle(obj[idx,], file);
 	}, mc.cores=num.cores);
 
