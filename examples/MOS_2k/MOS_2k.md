@@ -1,25 +1,24 @@
 ## Analysis of Mouse Secondary Motor Cortex (MOs) 2k Cells
 
 **Step 1. Download MOs 2k dataset**.             
-We will be analyzing a subset of Secondary Motor Cortex (MOs) from Fang 2019. There are 2,000 single cells that were randomly sampled from the original 65,000 cells in Fang 2019. We will download a snap object which has been designed to efficiently work with multiple sparse matrices for single cell ATAC-seq datasets. A snap object contains at least a barcode meta data, a cell-by-bin matrix for clustering, cell-by-gene matrix for cluster annotation, a cell-by-peak matrix for identification of cell-type specific regulatory elements.
+We will be analyzing a subset of Secondary Motor Cortex (MOs) from Fang 2019. There are 2,000 single cells that were randomly sampled from the original 65,000 cells in Fang 2019. We will start with a snap object `mos` which has been designed to efficiently work with multiple sparse matrices for single cell ATAC-seq datasets. 
 
 ```R
 $ R
-> system("wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/published_scATAC/MOs_2k/MOs_2k.rda");
-> load("MOs_2k.rda");
-> x.sp
+> data(mos);
+> mos
 number of barcodes: 2000
 number of bins: 476589
-number of peaks: 316257
-number of genes: 53278
+number of genes: 9
+number of peaks: 0
 ```
 
 **Step 2. Jaccard Index Matrix (SnapATAC).**.        
 Next using the genome-wide cell-by-bin matrix (`bmat`), we calculated the cell-by-cell jaccard similarity matrix by estimating the overlaps between two single cell profiles. 
   
 ```R
-> x.sp = runJaccard(
-    obj= x.sp,
+> mos = runJaccard(
+    obj= mos,
     mat="bmat",
     max.var=2000,
     ncell.chunk=2000,
@@ -31,8 +30,8 @@ Next using the genome-wide cell-by-bin matrix (`bmat`), we calculated the cell-b
 Due to the high dropout rate, we find that the jaccard index is highly affected by the differing read depth between cells. To eliminate such confounding factor, we have developed two methods for normalizing jaccard index `normOVE` and `normOVN`. In the below example, we will use `normOVE` to normalize the read depth effect. 
 
 ```R
-> x.sp = runNormJaccard(
-    obj=x.sp,
+> mos = runNormJaccard(
+    obj=mos,
     ncell.chunk=2000,
     method="normOVE",
     row.center=TRUE,
@@ -48,8 +47,8 @@ Due to the high dropout rate, we find that the jaccard index is highly affected 
 Like other single-cell analysis, scATAC-seq also contains extensive technical noise due to the high drop-out rate and random noise. To overcome this challenge, linear dimentionality reduction method such as PCA or SVD is often applied to combine information across a correlated feature set hereby creating a mega-feature and exclude the variance potential resulting from technical noise. Here, we perform SVD against the normalized matrix. 
 
 ```R
-> x.sp = runDimReduct(
-    obj=x.sp,
+> mos = runDimReduct(
+    obj=mos,
     pc.num=50,
     input.mat="jmat",
     method="svd",
@@ -64,7 +63,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 
 ```R
 > plotDimReductElbow(
-	obj=x.sp, 
+	obj=mos, 
 	point.size=1.3,
 	point.shape=19,
 	point.color="red",
@@ -76,7 +75,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 	labs.subtitle=NULL,
 	);
 > plotDimReductPW(
-	obj=x.sp, 
+	obj=mos, 
 	pca.dims=1:50,
 	point.size=0.3,
 	point.color="grey",
@@ -85,7 +84,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 	down.sample=3000,
 	pdf.file.name=NULL, 
 	pdf.height=7, 
-	pdf.width=7,
+	pdf.width=7
 	);
 ```
 
@@ -95,8 +94,8 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 Using selected significant components, we next construct a K Nearest Neighbor (KNN) Graph. Using euclidean distance, the k-nearest neighbors of each cell are identified accoriding and used to create a KNN graph. KNN graph can be further refined to SNN (Shared Nearest Neighbor) graph by adding edge weight between cells as shared overlap in their local neighborhoods using Jaccard similarity. **This function is inspired and modified from Seurat package.**
 
 ```R
-> x.sp = runKNN(
-    obj=x.sp,
+> mos = runKNN(
+    obj=mos,
     pca.dims=1:20,
     weight.by.sd=TRUE,
     k=15,
@@ -112,8 +111,8 @@ Using selected significant components, we next construct a K Nearest Neighbor (K
 Using KNN graph, we next apply community finding algorithm Louvain to identify the clusters in the resulting graph which represent groups of cells sharing similar ATAC-seq profiles, potentially originating from the same cell type.
 
 ```R
->  x.sp = runCluster(
-	obj=x.sp,
+> mos = runCluster(
+	obj=mos,
 	louvain.lib="R-igraph",
 	resolution=1.0,
 	path.to.snaptools=NULL,
@@ -125,8 +124,8 @@ Using KNN graph, we next apply community finding algorithm Louvain to identify t
 SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these datasets. In the following example, data is visulized by tsne implemented by R package (Rtsne).
 
 ```R
-> x.sp = runViz(
-	obj=x.sp, 
+> mos = runViz(
+	obj=mos, 
 	dims=2,
 	pca.dims=1:20, 
 	weight.by.sd=TRUE,
@@ -143,7 +142,7 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 
 ```R
 > plotViz(
-	obj=x.sp, 
+	obj=mos, 
 	method="tsne", 
 	point.size=1, 
 	point.shape=19, 
@@ -169,10 +168,10 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 We next uses gene-body accessibility level at known marker gene to help annotate identified cell clusters.
 
 ```R
-> x.sp = scaleCountMatrix(
-	obj=x.sp, 
+> mos = scaleCountMatrix(
+	obj=mos, 
 	mat="gmat", 
-	cov=rowSums(x.sp, mat="bmat"), 
+	cov=SnapATAC::rowSums(mos, mat="bmat"), 
 	method="RPM"
 	);
 > marker.genes = c(
@@ -181,7 +180,7 @@ We next uses gene-body accessibility level at known marker gene to help annotate
 	"Sst", "Lamp5", "Slc17a7" 
 	);
 > plotGene(
-	obj=x.sp, 
+	obj=mos, 
 	gene.names=marker.genes,
 	viz.method="tsne",
 	point.size=0.5,
