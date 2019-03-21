@@ -249,7 +249,7 @@ runMACSForAll <- function(
 		if((x=length(obj@file))==0L){
 			stop("obj@file is empty");			
 		}
-		nclusters = length(levels(x.sp@cluster));
+		nclusters = length(levels(obj@cluster));
 	}
 
 	fileList = as.list(unique(obj@file));
