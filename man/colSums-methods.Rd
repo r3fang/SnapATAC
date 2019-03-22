@@ -18,3 +18,10 @@
 \description{
 This function takes a snap object and returns the column sums of its count matrix.
 }
+\examples{
+library(SnapATAC);
+data(demo);
+binCov = colSums(demo, mat="bmat");
+peakCov = colSums(demo, mat="pmat");
+geneCov = colSums(demo, mat="gmat");
+}

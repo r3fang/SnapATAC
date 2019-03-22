@@ -16,3 +16,8 @@ is.snap(obj)
 \description{
 This function takes any object as input and check if it is a snap object
 }
+\examples{
+library(SnapATAC);
+data(demo);
+is.snap(demo);
+}

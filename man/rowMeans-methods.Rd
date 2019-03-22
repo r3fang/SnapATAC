@@ -18,3 +18,11 @@
 \description{
 This function takes a snap object and returns the row means of its count matrix.
 }
+\examples{
+library(SnapATAC);
+data(demo);
+bmatRMeans = rowMeans(demo, mat="bmat");
+pmatRMeans = rowMeans(demo, mat="pmat");
+gmatRMeans = rowMeans(demo, mat="gmat");
+
+}

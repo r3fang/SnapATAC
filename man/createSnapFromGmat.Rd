@@ -16,9 +16,3 @@ createSnapFromGmat(mat, barcodes, gene.names)
 \description{
 This function takes a cell-by-gene count matrix as input and returns a snap object.
 }
-\examples{
-gmat = Matrix(sample.int(100, 100), nrow=10, ncol=10, sparse=TRUE);
-barcodes = paste("barcode", 1:10, sep=".");
-genes = paste("gene", 1:10, sep=".");
-createSnapFromGmat(gmat, barcodes, gene.names=genes);
-}

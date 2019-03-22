@@ -68,6 +68,11 @@ setMethod("summarySnap", "snap", function(obj){
 #' This function takes a snap object and returns number of cells
 #' @name nrow
 #' @param x snap; a snap object
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' nrow(demo);
+#' 
 #' @rdname nrow-methods
 #' @aliases nrow,snap-method
 #' @exportMethod nrow
@@ -80,6 +85,12 @@ setMethod("nrow", "snap", function(x) length(x@barcode));
 #' @param x A snap object
 #' @param mat A charater object indicates what matrix slot to use c("bmat", "pmat", "gmat")
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' binCov = colSums(demo, mat="bmat");
+#' peakCov = colSums(demo, mat="pmat");
+#' geneCov = colSums(demo, mat="gmat");
 #' @rdname colSums-methods
 #' @aliases colSums,snap-method
 #' @exportMethod colSums
@@ -100,6 +111,14 @@ setMethod("colSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=TR
 #' @param x A snap object
 #' @param mat A charater object indicates what matrix slot to use
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
+#' 
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' bmatRcov = rowSums(demo, mat="bmat");
+#' pmatRcov = rowSums(demo, mat="pmat");
+#' gmatRcov = rowSums(demo, mat="gmat");
+#' 
 #' @rdname rowSums-methods
 #' @aliases rowSums,snap-method
 #' @exportMethod rowSums
@@ -122,6 +141,14 @@ setMethod("rowSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=TR
 #' @param x A snap object
 #' @param mat A charater object indicates what matrix slot to use for calculation
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
+#'
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' bmatRMeans = rowMeans(demo, mat="bmat");
+#' pmatRMeans = rowMeans(demo, mat="pmat");
+#' gmatRMeans = rowMeans(demo, mat="gmat");
+#' 
 #' @rdname rowMeans-methods
 #' @importFrom methods slot
 #' @aliases rowMeans,snap-method
@@ -145,6 +172,14 @@ setMethod("rowMeans", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=T
 #' @param x A snap object
 #' @param mat A charater object indicates what matrix slot to use c("bmat", "pmat", "gmat").
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix.
+#' 
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' bmatCMeans = colMeans(demo, mat="bmat");
+#' pmatCMeans = colMeans(demo, mat="pmat");
+#' gmatCMeans = colMeans(demo, mat="gmat");
+#' 
 #' @rdname colMeans-methods
 #' @importFrom methods slot
 #' @aliases colMeans,snap-method
@@ -163,12 +198,17 @@ setMethod("colMeans", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=T
 #'
 #' This function takes any object as input and check if it is a snap object
 #' @param obj A snap object
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' is.snap(demo);
 #' @rdname is.snap-methods
 #' @exportMethod is.snap
 setGeneric("is.snap", function(obj) standardGeneric("is.snap"))
 
 #' @rdname is.snap-methods
 #' @aliases is.snap,snap-method
+
 setMethod("is.snap", "snap", function(obj) return(class(obj) == "snap"));
 
 #' subsetting for snap objects
@@ -179,6 +219,10 @@ setMethod("is.snap", "snap", function(obj) return(class(obj) == "snap"));
 #' @param j integer; selected feature index
 #' @param mat character; indicates the slot to subsetting
 #' @param drop character; 
+#' @examples
+#' library(SnapATAC);
+#' data(demo);
+#' demo.sub = demo[1:10,];
 #' @export
 setMethod("[", "snap",
 	function(x,i,j,mat=c("bmat", "pmat"), drop="missing"){
@@ -864,12 +908,6 @@ createSnapFromPmat.default <- function(mat, barcodes, peaks){
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
-#' @import Matrix
-#' @examples
-#' gmat = Matrix(sample.int(100, 100), nrow=10, ncol=10, sparse=TRUE);
-#' barcodes = paste("barcode", 1:10, sep=".");
-#' genes = paste("gene", 1:10, sep=".");
-#' createSnapFromGmat(gmat, barcodes, gene.names=genes);
 #' @export
 createSnapFromGmat <- function(mat, barcodes, gene.names) {
   UseMethod("createSnapFromGmat");

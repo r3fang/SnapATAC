@@ -22,3 +22,8 @@
 \description{
 This function takes a snap object and returns the subset of snap object.
 }
+\examples{
+library(SnapATAC);
+data(demo);
+demo.sub = demo[1:10,];
+}
