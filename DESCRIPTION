@@ -1,8 +1,8 @@
 Package: SnapATAC
 Version: 0.0.1
 Date: 2019-03-22
-Title: Single Nucleus Analysis Package for ATAC-seq
-Authors@R: person("Rongxin", "Fang", email = "r4fang@gmail.com", role = c("aut", "cre"))
+Title: Single Nucleus Analysis Package for ATAC-Seq
+Authors@R: person(given = "Rongxin", family = "Fang", email = "r4fang@gmail.com", role = c("aut", "cre"))
 Description: A fast and accurate analysis toolkit for single nucleus ATAC-seq.
 biocViews: Software
 URL: https://github.com/r3fang/SnapATAC

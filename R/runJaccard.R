@@ -11,6 +11,7 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' to create the full jaccard index matrix.
 #' 
 #' @param obj A Snap obj
+#' @param tmp.folder A non-empty character vector giving the directory name that saves the temp files
 #' @param mat A character class that indicates what matrix slot is used to calculate jaccard index c("bmat", "pmat", "gmat")
 #' @param max.var A numeric variable indicates the how many dimentions for jaccard index to be calcualted
 #' @param ncell.chunk A numeric class that indicates the number of cells to calculate per processing core 
@@ -24,13 +25,14 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' @importFrom methods slot
 #' @export
 
-runJaccard <- function(obj, mat, max.var, ncell.chunk, num.cores, seed.use) {
+runJaccard <- function(obj, tmp.folder, mat, max.var, ncell.chunk, num.cores, seed.use) {
   UseMethod("runJaccard", obj);
 }
 
 #' @export
 runJaccard.default <- function(
 	obj, 
+	tmp.folder,
 	mat = c("bmat", "pmat", "gmat"),
 	max.var = 2000, 
 	ncell.chunk = 1000, 
@@ -46,7 +48,15 @@ runJaccard.default <- function(
 			stop("obj is not a snap obj")
 		}
 	}
-		
+	
+	if(missing(tmp.folder)){
+		stop("tmp.folder is missing")
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist");			
+		}
+	}
+	
 	# check if mat is binary;
 	mat = match.arg(mat);
 	mat.use = methods::slot(obj, mat);
@@ -92,7 +102,7 @@ runJaccard.default <- function(
 		id.ls = id.ls[-length(id.ls)];
 	}		
 	
-	mat.list = splitBmat(mat.use, id.ls, num.cores);
+	mat.list = splitBmat(mat.use, id.ls, num.cores, tmp.folder);
 	
 	message("Epoch: scheduling CPUs ...");
 	cl <- makeCluster(num.cores);

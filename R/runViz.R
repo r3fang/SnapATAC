@@ -13,6 +13,7 @@
 #' @param Y.init matrix; Initial locations of the objs. If NULL, random initialization will be used (default: NULL). Note that when using this, the initial stage with exaggerated perplexity values and a larger momentum term will be skipped.
 #' @param seed.use number; Random seeds to use.
 #' @param num.cores number; Number of CPU used for computing.
+#' @param tmp.folder Directory to store temporary files.
 #' @param ... Arguments passed to Rtsne, umap or FIt-tsne
 #' 
 #' @return Returns a snap obj with the visulization
@@ -20,7 +21,7 @@
 #' @importFrom utils installed.packages
 #' @export
 
-runViz<- function(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.init, seed.use, num.cores, ...) {
+runViz<- function(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.init, seed.use, num.cores, tmp.folder, ...) {
   UseMethod("runViz", obj);
 }
 
@@ -35,6 +36,7 @@ runViz.default <- function(
 	Y.init=NULL,
 	seed.use=10,
 	num.cores=1,
+	tmp.folder,
 	...){
 		
 	# check input
@@ -70,6 +72,14 @@ runViz.default <- function(
 		data.use = obj@smat@dmat[,pca.dims] %*% diag(sqrt(obj@smat@sdev[pca.dims])) ;
 	}else{
 		data.use = obj@smat@dmat[,pca.dims];
+	}
+	
+	if(missing(tmp.folder)){
+		stop("tmp.folder is missing")
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist");			
+		}
 	}
 	
 	# check input parameters
@@ -143,22 +153,33 @@ fftRtsne <- function(X,
 		     data_path=NULL, result_path=NULL,
 		     load_affinities=NULL,
 		     fast_tsne_path=NULL, nthreads=0, perplexity_list = NULL, 
-                     get_costs = FALSE, df = 1.0,... ) {
+             get_costs = FALSE, df = 1.0,
+			 tmp.folder,
+			 ... ) {
         version_number = '1.1.0'
 
 	if (is.null(fast_tsne_path)) {
 		stop("fast_tsne_path is NULL")
 	}
-
+	
+	if(missing(tmp.folder)){
+		stop("tmp.folder is missing")
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist");			
+		}
+	}
+	
 	if (is.null(data_path)) {
-		data_path <- tempfile(pattern='fftRtsne_data_', fileext='.dat')
+		data_path <- tempfile(pattern='fftRtsne_data_', tmpdir = tmp.folder, fileext='.dat')
 	}
 	if (is.null(result_path)) {
-		result_path <- tempfile(pattern='fftRtsne_result_', fileext='.dat')
+		result_path <- tempfile(pattern='fftRtsne_result_', tmpdir = tmp.folder, fileext='.dat')
 	}
 	if (is.null(fast_tsne_path)) {
 		fast_tsne_path <- system2('which', 'fast_tsne', stdout=TRUE)
 	}
+
 	fast_tsne_path <- normalizePath(fast_tsne_path)
 	if (!file_test('-x', fast_tsne_path)) {
 		stop(fast_tsne_path, " does not exist or is not executable; check your fast_tsne_path parameter")

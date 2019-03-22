@@ -35,6 +35,7 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' OVE to similar level with OVN. The scale factor is estimated from the data.
 #'
 #' @param obj A snap obj
+#' @param tmp.folder A non-empty character vector giving the directory name to save temp files
 #' @param ncell.chunk A numeric class that indicates number of cells to process per CPU node
 #' @param method A character class that indicates the normalization method to be used. This must be one of c("normOVN", "normOVE")
 #' @param k A numeric class that indicate number of neibouring cells to use for OVN (used only if method="OVN") (default k = 15) 
@@ -52,13 +53,14 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' @importFrom bigmemory as.big.matrix attach.big.matrix
 #' @export
 #'
-runNormJaccard <- function(obj, ncell.chunk, method, k, row.center, row.scale, low.threshold, high.threshold, num.cores, seed.use){
+runNormJaccard <- function(obj, tmp.folder, ncell.chunk, method, k, row.center, row.scale, low.threshold, high.threshold, num.cores, seed.use){
   UseMethod("runNormJaccard");
 }
 
 #' @export
 runNormJaccard.default <- function(
 	obj, 
+	tmp.folder,
 	ncell.chunk=1000, 
 	method=c("normOVE", "normOVN"), 
 	k=15,
@@ -78,6 +80,14 @@ runNormJaccard.default <- function(
 		}
 	}
 	
+	if(missing(tmp.folder)){
+		stop("tmp.folder is missing")
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist");			
+		}
+	}
+
 	if(!isJaccardComplete(obj@jmat)){
 		stop("jaccard object is not complete, run 'runJaccard' first")
 	}else{
@@ -135,15 +145,17 @@ runNormJaccard.default <- function(
 		id.ls = id.ls[-length(id.ls)];
 	}	
 	
-	prefix_tmp = tempfile(pattern = "file", tmpdir = ".")
-	backingfile_tmp <- paste(basename(prefix_tmp), ".bin", sep="");
-	descriptorfile_tmp <- paste(basename(prefix_tmp), ".desc", sep="");
+	prefix_tmp = tempfile(pattern = "file", tmpdir = tmp.folder);
+	backingfile_tmp <- paste(prefix_tmp, ".bin", sep="");
+	descriptorfile_tmp <- paste(prefix_tmp, ".desc", sep="");
 	
 	x <- as.big.matrix(x = obj@jmat@jmat, type = "double", 
-	                 separated = FALSE, 
-	                 backingfile = backingfile_tmp, 
-	                 descriptorfile = descriptorfile_tmp)
-					 
+	                   separated = FALSE, 
+					   backingpath=tmp.folder,
+	                   backingfile = basename(backingfile_tmp), 
+	                   descriptorfile = basename(descriptorfile_tmp)
+					  );
+
 	b1 <- obj@jmat@p1;
 	b2 <- obj@jmat@p2;
 	

@@ -4,7 +4,8 @@
 #' to identify the ‘communities’ in the resulting graph which represents groups of
 #' cells sharing similar accessibility profiles.
 #' 
-#' @param obj A snap object
+#' @param obj A snap object.
+#' @param tmp.folder Directory to store temporary files.
 #' @param louvain.lib Louvain implementation method to use ["R-igraph", "python-louvain"].
 #' "R-igraph" uses "cluster_louvain" implemented by igraph package in R. "python-louvain" uses louvain method implemented in "python-louvain" package. 
 #' "R-igraph" is signficantly faster but does not support different resolutions. "python-louvain" supports
@@ -20,13 +21,14 @@
 #' @importFrom methods as
 #' @export
 
-runCluster <- function(obj, louvain.lib, resolution, path.to.snaptools, seed.use) {
+runCluster <- function(obj, tmp.folder, louvain.lib, resolution, path.to.snaptools, seed.use) {
   UseMethod("runCluster", obj);
 }
 
 #' @export
 runCluster.default <- function(
 	obj, 
+	tmp.folder, 
 	louvain.lib=c("R-igraph", "python-louvain"),
 	resolution=1.0,
 	path.to.snaptools=NULL,
@@ -41,7 +43,15 @@ runCluster.default <- function(
 			stop("obj is not a snap object");
 		}		
 	}
-
+	
+	if(missing(tmp.folder)){
+		stop("tmp.folder is missing")
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist");			
+		}
+	}
+	
 	louvain.lib = match.arg(louvain.lib);
 	# louvain.lib is python-louvain only if 
 	# 1) louvain.lib == "python-louvain";
@@ -89,7 +99,7 @@ runCluster.default <- function(
 		obj@cluster = factor(cl$membership);		
 	}else if(louvain.lib == "python-louvain"){
 		if((x=nrow(obj@graph@mat)) > 0L){
-			data_path <- tempfile(pattern='community_data_', fileext='.dat');
+			data_path <- tempfile(pattern='community_data_', tmpdir=tmp.folder, fileext='.dat');
 			adj = obj@graph@mat;
 			i = adj@i + 1;
 			j = findInterval(seq(adj@x)-1,adj@p[-1])+1; 
@@ -100,7 +110,7 @@ runCluster.default <- function(
 			data_path = obj@graph@file;
 		}
 		cat("Epoch: finding clusters using python-louvain\n", file = stderr())		
-		result_path <- tempfile(pattern='community_result_', fileext='.dat')
+		result_path <- tempfile(pattern='community_result_', tmpdir=tmp.folder, fileext='.dat')
 		flag = system2(command=path.to.snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));		
 		if (flag != 0) {
 		   	stop("'runCluster' call failed");

@@ -3,9 +3,9 @@
 #' Program will find de novo and known motifs in regions in the genome using HOMER
 #' 
 #' @param obj A snap object.
+#' @param result.dir Directory to store Homer results.
 #' @param mat matrix to use c("pmat", "bmat").
 #' @param path.to.homer Directory path to "findMotifsGenome.pl" excutable file.
-#' @param result.dir Directory to store the results.
 #' @param genome Genome hg19 for human and mm10 for mouse.
 #' @param num.cores Number of cores to use [10].
 #' @param motif.length Motif length (default=8,10,12). NOTE: values greater 12 may cause the program to run out of memory.
@@ -24,9 +24,9 @@
 #' @export
 runHomer<- function(
 	obj,
+	result.dir,
 	mat,
 	path.to.homer,
-	result.dir,
 	genome,
 	num.cores,
 	motif.length,
@@ -48,9 +48,9 @@ runHomer<- function(
 #' @export
 runHomer.default <- function(
 	obj,
+	result.dir,
 	mat=c("pmat", "bmat"),
 	path.to.homer=NULL,
-	result.dir=NULL,
 	genome = 'mm10',
 	num.cores = 10,
 	motif.length = 10,
@@ -71,10 +71,14 @@ runHomer.default <- function(
 			stop(path.to.homer, " does not exist or is not executable; check your path.to.homer parameter")
 		}		
 		
-		if (is.null(result.dir)) {
-			result.dir <- tempfile(pattern='homer')
+		if(missing(result.dir)){
+			stop("result.dir is missing")
+		}else{
+			if(!dir.exists(result.dir)){
+				stop("result.dir does not exist");			
+			}
 		}
-		
+				
 		# check input
 		if(!is(obj, "snap")){
 			stop("obj is not a snap obj")
@@ -112,7 +116,7 @@ runHomer.default <- function(
 		
 		
 	    if ("data.frame" %in% class(x)) {
-	        target_bed <- tempfile("target_")
+	        target_bed <- tempfile("target_", tmpdir=result.dir)
 			write.table(x, file=target_bed, row.names=FALSE, col.names=FALSE, sep="\t", quote = FALSE)
 	    } else {
 	        if (file.exists(x) != TRUE) {
@@ -123,7 +127,7 @@ runHomer.default <- function(
 		
 	    if (!("automatic" %in% background)) {
 	        if ("data.frame" %in% class(background)) {
-	            background_bed <- tempfile("background_")
+	            background_bed <- tempfile("background_", tmpdir=result.dir)
 	            #.write_bed(background, path = background_bed)
 				write.table(target_bed, file=background_bed, row.names=FALSE, col.names=FALSE, sep="\t", quote = FALSE)
 	        } else {

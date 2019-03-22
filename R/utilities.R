@@ -103,9 +103,16 @@ pvalue2fdr <- function(p1, p2){
 
 
 #' @importFrom parallel mclapply
-splitBmat <- function(mat, id.ls, num.cores=1){
+splitBmat <- function(mat, id.ls, num.cores=1, tmp.folder){
+	if(missing(tmp.folder)){
+		stop("tmp.folder is missing")
+	}else{
+		if(!dir.exists(tmp.folder)){
+			stop("tmp.folder does not exist");			
+		}
+	}
 	fileList = lapply(id.ls, function(x){
-		tempfile(fileext=".rds")
+		tempfile(fileext=".rds", tmpdir=tmp.folder);
 	})
 	mclapply(as.list(seq(id.ls)), function(i){
 		saveRDS(mat[id.ls[[i]],], file=fileList[[i]]);
