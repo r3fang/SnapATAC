@@ -15,7 +15,7 @@ When applied to a dataset from mouse secondary motor cortex, SnapATAC is able to
 
 SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
 
-* Snaptools - a preprocessing pipeline that works with [snap](https://github.com/r3fang/SnapATAC/wiki/FAQs) file. 
+* SnapTools - a preprocessing pipeline that works with [snap](https://github.com/r3fang/SnapATAC/wiki/FAQs) file. 
 * SnapATAC  - a R package for the clustering, annotation, motif and downstream analysis.    
 
 Install snaptools from PyPI. See how to install snaptools on [FAQs](https://github.com/r3fang/SnapATAC/wiki/FAQs). 

@@ -1,10 +1,12 @@
-## Analysis of Mouse Secondary Motor Cortex (MOs) 2k Cells
+## Mouse Secondary Motor Cortex 2k Cells (Beginner)
 
-**Step 1. Download MOs 2k dataset**.             
+**Step 1. MOs 2k dataset**.             
 We will be analyzing a subset of Secondary Motor Cortex (MOs) from Fang 2019. There are 2,000 single cells that were randomly sampled from the original 65,000 cells in Fang 2019. We will start with a snap object `mos` which has been designed to efficiently work with multiple sparse matrices for single cell ATAC-seq datasets. 
 
 ```R
 $ R
+$ R
+> library(SnapATAC);
 > data(mos);
 > mos
 number of barcodes: 2000
@@ -135,6 +137,18 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	seed.use=10,
 	num.cores=5
 	);
+
+> mos = runViz(
+	obj=mos, 
+	dims=2,
+	pca.dims=1:20, 
+	weight.by.sd=TRUE,
+	method="umap",
+	fast_tsne_path=NULL,
+	Y.init=NULL,
+	seed.use=10,
+	num.cores=5
+	);
 ```
 
 **Step 9. Visulization (SnapATAC).**.     
@@ -144,6 +158,25 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 > plotViz(
 	obj=mos, 
 	method="tsne", 
+	point.size=1, 
+	point.shape=19, 
+	point.alpha=0.8, 
+	point.color="cluster",
+	text.add=TRUE,
+	text.size=1.4,
+	text.color="black",
+	text.halo.add=TRUE,
+	text.halo.color="white",
+	text.halo.width=0.2,
+	down.sample=10000,
+	pdf.file.name=NULL,
+	pdf.width=7, 
+	pdf.height=7
+	);
+
+> plotViz(
+	obj=mos, 
+	method="umap", 
 	point.size=1, 
 	point.shape=19, 
 	point.alpha=0.8, 
