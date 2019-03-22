@@ -1,17 +1,17 @@
 ## Mouse Secondary Motor Cortex 2k Cells (Beginner)
 
 **Step 1. MOs 2k dataset**.             
-We will be analyzing a subset of Secondary Motor Cortex (MOs) from Fang 2019. There are 2,000 single cells that were randomly sampled from the original 65,000 cells in Fang 2019. We will start with a snap object `mos` which has been designed to efficiently work with multiple sparse matrices for single cell ATAC-seq datasets. 
+We will be analyzing a subset of Secondary Motor Cortex (MOs) from Fang 2019. These are 2,000 single cells that are randomly sampled from the original >65,000 cells in Fang 2019. We will download the 2,000 cells saved as a `snap` object which has been designed to efficiently work with multiple sparse matrices for single cell ATAC-seq datasets. 
 
 ```R
 $ R
-> library(SnapATAC);
-> data(mos);
-> mos
+> system("wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/published_scATAC/MOs_2k/MOs_2k.rda");
+> load("MOs_2k.rda");
+> x.sp
 number of barcodes: 2000
 number of bins: 476589
-number of genes: 9
-number of peaks: 0
+number of peaks: 316257
+number of genes: 53278
 ```
 
 **Step 2. Jaccard Index Matrix (SnapATAC).**.        

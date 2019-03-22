@@ -1,14 +1,14 @@
-#' Single Nucleus ATAC-seq for MOs 2K
+#' Single Nucleus ATAC-seq Object
 #'
 #' Data from single nucleus ATAC-seq experiment on secondary motor cortex
-#' in adult mouse brain. The data is down-sampled to 2,000 cells from the 
-#' original dataset. 
+#' in adult mouse brain. The data is down-sampled to 100 cells with 1,000 bins,
+#' 1,000 peaks and 1,000 genes from the original dataset. 
 #'
 #' @docType data
 #'
-#' @usage data(mos)
+#' @usage data(demo)
 #'
-#' @format An object of class \code{"snap"} with 2000 cells:
+#' @format An object of class \code{"snap"} with 100 cells:
 #' \describe{
 #'   \item{metData}{meta data of each cell}
 #'   \item{bmat}{cell x bin matrix}
@@ -24,5 +24,5 @@
 #' @keywords datasets
 #'
 #' @examples
-#' data(mos)
-"mos"
+#' data(demo)
+"demo"
