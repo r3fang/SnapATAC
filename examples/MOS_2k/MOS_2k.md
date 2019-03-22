@@ -19,12 +19,13 @@ Next using the genome-wide cell-by-bin matrix (`bmat`), we calculated the cell-b
   
 ```R
 > x.sp = runJaccard(
-    obj= x.sp,
-    mat="bmat",
-    max.var=2000,
-    ncell.chunk=2000,
-    seed.use=10
-    );
+	obj= x.sp,
+	tmp.folder=tempdir(),
+	mat="bmat",
+	max.var=2000,
+	ncell.chunk=2000,
+	seed.use=10
+	);
 ``` 
 
 **Step 3. Normalization (SnapATAC).**
@@ -32,15 +33,16 @@ Due to the high dropout rate, we find that the jaccard index is highly affected 
 
 ```R
 > x.sp = runNormJaccard(
-    obj=x.sp,
-    ncell.chunk=2000,
-    method="normOVE",
-    row.center=TRUE,
-    row.scale=TRUE,
-    low.threshold=-5,
-    high.threshold=5,
-    num.cores=1,
-    seed.use=10
+	obj=x.sp,
+	tmp.folder=tempdir(),
+	ncell.chunk=2000,
+	method="normOVE",
+	row.center=TRUE,
+	row.scale=TRUE,
+	low.threshold=-5,
+	high.threshold=5,
+	num.cores=1,
+	seed.use=10
     );
 ``` 
 
@@ -49,14 +51,14 @@ Like other single-cell analysis, scATAC-seq also contains extensive technical no
 
 ```R
 > x.sp = runDimReduct(
-    obj=x.sp,
-    pc.num=50,
-    input.mat="jmat",
-    method="svd",
-    center=TRUE,
-    scale=FALSE,
-    seed.use=10
-    );
+	obj=x.sp,
+	pc.num=50,
+	input.mat="jmat",
+	method="svd",
+	center=TRUE,
+	scale=FALSE,
+	seed.use=10
+	);
 ```
 
 **Step 5. Determine statistically significant principal components (SnapATAC)**.        
@@ -72,8 +74,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 	pdf.file.name=NULL,
 	pdf.height=7,
 	pdf.width=7,
-	labs.title="PCA Elbow plot",
-	labs.subtitle=NULL,
+	labs.title="PCA Elbow plot"
 	);
 > plotDimReductPW(
 	obj=x.sp, 
@@ -114,6 +115,7 @@ Using KNN graph, we next apply community finding algorithm Louvain to identify t
 ```R
 > x.sp = runCluster(
 	obj=x.sp,
+	tmp.folder=tempdir(),
 	louvain.lib="R-igraph",
 	resolution=1.0,
 	path.to.snaptools=NULL,
@@ -127,6 +129,7 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 ```R
 > x.sp = runViz(
 	obj=x.sp, 
+	tmp.folder=tempdir(),
 	dims=2,
 	pca.dims=1:20, 
 	weight.by.sd=TRUE,
@@ -136,9 +139,9 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	seed.use=10,
 	num.cores=5
 	);
-
 > x.sp = runViz(
-	obj=x.sp, 
+	obj=x.sp,
+	tmp.folder=tempdir(), 
 	dims=2,
 	pca.dims=1:20, 
 	weight.by.sd=TRUE,
@@ -172,7 +175,6 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	pdf.width=7, 
 	pdf.height=7
 	);
-
 > plotViz(
 	obj=x.sp, 
 	method="umap", 
@@ -194,7 +196,6 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 ```
 
 <img src="./Viz_tsne.png" width="400" height="350" /> <img src="./Viz_umap.png" width="400" height="350" /> 
-
 
 **Step 10. Gene-body accessibility based gene annotation (SnapATAC).**.     
 We next uses gene-body accessibility level at known marker gene to help annotate identified cell clusters.

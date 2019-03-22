@@ -123,13 +123,16 @@ runJaccard.default <- function(
 	message("Epoch: cleaning up ...");
 	rm(mat.ref);
 	rm(id.ls);
-	rm(mat.list);
 	gc();
 	obj@jmat@jmat = jmat;
 	obj@jmat@p1 = p1;
 	obj@jmat@p2 = p2;
 	obj@jmat@norm = FALSE;
 	obj@jmat@method = character();
+	lapply(mat.list, function(x){
+		file.remove(x);
+	})
+	rm(mat.list);
 	return(obj);
 }
 

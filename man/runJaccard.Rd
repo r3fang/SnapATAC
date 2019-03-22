@@ -4,10 +4,12 @@
 \alias{runJaccard}
 \title{Calcualte Jaccard Index Matrix}
 \usage{
-runJaccard(obj, mat, max.var, ncell.chunk, num.cores, seed.use)
+runJaccard(obj, tmp.folder, mat, max.var, ncell.chunk, num.cores, seed.use)
 }
 \arguments{
 \item{obj}{A Snap obj}
+
+\item{tmp.folder}{A non-empty character vector giving the directory name that saves the temp files}
 
 \item{mat}{A character class that indicates what matrix slot is used to calculate jaccard index c("bmat", "pmat", "gmat")}
 

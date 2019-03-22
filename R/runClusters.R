@@ -118,6 +118,7 @@ runCluster.default <- function(
 		cluster = read.table(result_path);		
 		file.remove(result_path);
 		obj@cluster = factor(cluster[order(cluster[,1]),2]);		
+		file.remove(result_path);
 	}else{
 		stop("unrecognized louvain.lib option")
 	}

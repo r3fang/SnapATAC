@@ -4,18 +4,18 @@
 \alias{runHomer}
 \title{Motif Analysis Using Homer}
 \usage{
-runHomer(obj, mat, path.to.homer, result.dir, genome, num.cores, motif.length,
+runHomer(obj, result.dir, mat, path.to.homer, genome, num.cores, motif.length,
   scan.size, optimize.count, background, local.background, only.known,
   only.denovo, fdr.num, cache, overwrite, keep.minimal, ...)
 }
 \arguments{
 \item{obj}{A snap object.}
 
+\item{result.dir}{Directory to store Homer results.}
+
 \item{mat}{matrix to use c("pmat", "bmat").}
 
 \item{path.to.homer}{Directory path to "findMotifsGenome.pl" excutable file.}
-
-\item{result.dir}{Directory to store the results.}
 
 \item{genome}{Genome hg19 for human and mm10 for mouse.}
 

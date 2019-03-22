@@ -4,10 +4,13 @@
 \alias{runCluster}
 \title{Find Clusters Using Louvain Algorithm}
 \usage{
-runCluster(obj, louvain.lib, resolution, path.to.snaptools, seed.use)
+runCluster(obj, tmp.folder, louvain.lib, resolution, path.to.snaptools,
+  seed.use)
 }
 \arguments{
-\item{obj}{A snap object}
+\item{obj}{A snap object.}
+
+\item{tmp.folder}{Directory to store temporary files.}
 
 \item{louvain.lib}{Louvain implementation method to use ["R-igraph", "python-louvain"].
 "R-igraph" uses "cluster_louvain" implemented by igraph package in R. "python-louvain" uses louvain method implemented in "python-louvain" package. 

@@ -5,7 +5,7 @@
 \title{Dimentionality Reduction for Visualization}
 \usage{
 runViz(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.init,
-  seed.use, num.cores, ...)
+  seed.use, num.cores, tmp.folder, ...)
 }
 \arguments{
 \item{obj}{A snap object.}
@@ -25,6 +25,8 @@ runViz(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.init,
 \item{seed.use}{number; Random seeds to use.}
 
 \item{num.cores}{number; Number of CPU used for computing.}
+
+\item{tmp.folder}{Directory to store temporary files.}
 
 \item{...}{Arguments passed to Rtsne, umap or FIt-tsne}
 }

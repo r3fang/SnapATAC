@@ -4,11 +4,13 @@
 \alias{runNormJaccard}
 \title{Normalize Jaccard Index Matrix}
 \usage{
-runNormJaccard(obj, ncell.chunk, method, k, row.center, row.scale,
+runNormJaccard(obj, tmp.folder, ncell.chunk, method, k, row.center, row.scale,
   low.threshold, high.threshold, num.cores, seed.use)
 }
 \arguments{
 \item{obj}{A snap obj}
+
+\item{tmp.folder}{A non-empty character vector giving the directory name to save temp files}
 
 \item{ncell.chunk}{A numeric class that indicates number of cells to process per CPU node}
 
