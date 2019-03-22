@@ -32,7 +32,7 @@ Suggests:
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Collate: 
     'data.R'
     'dimReduct-class.R'

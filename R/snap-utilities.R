@@ -315,8 +315,16 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 		}		
 	}
 	
-	fileList = as.list(file);
-	
+	if(missing(num.cores)){
+		stop("num.cores is missing")
+	}else{
+		if(!is.numeric(num.cores)){
+			stop("num.cores is not an integer")
+		}		
+		num.cores = round(num.cores);
+	}
+
+	fileList = as.list(file);	
 	if(missing(sample)){
 		stop("sample is missing");
 	}else{
@@ -400,6 +408,15 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 		if(class(obj) != "snap"){
 			stop("obj is not a snap object")
 		}
+	}
+	
+	if(missing(num.cores)){
+		stop("num.cores is missing")
+	}else{
+		if(!is.numeric(num.cores)){
+			stop("num.cores is not an integer")
+		}		
+		num.cores = round(num.cores);
 	}
 	
 	fileList = as.list(unique(obj@file));
@@ -493,6 +510,16 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 		}
 	}
 	
+	if(missing(num.cores)){
+		stop("num.cores is missing")
+	}else{
+		if(!is.numeric(num.cores)){
+			stop("num.cores is not an integer")
+		}		
+		num.cores = round(num.cores);
+	}
+	
+	
 	fileList = as.list(unique(obj@file));
 
 	# check if snap files exist
@@ -514,7 +541,7 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 	# check if PM session exist
 	if(any(do.call(c, lapply(fileList, function(x){ "PM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
 		idx = which(do.call(c, lapply(fileList, function(x){ "PM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
-		print("error: the following nsap files do not contain PM session")
+		print("error: the following snap files do not contain PM session")
 		print(fileList[idx])
 		stop()
 	}
@@ -576,6 +603,15 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 		if(class(obj) != "snap"){
 			stop("obj is not a snap object")
 		}
+	}
+	
+	if(missing(num.cores)){
+		stop("num.cores is missing")
+	}else{
+		if(!is.numeric(num.cores)){
+			stop("num.cores is not an integer")
+		}		
+		num.cores = round(num.cores);
 	}
 	
 	fileList = as.list(unique(obj@file));
