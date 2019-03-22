@@ -31,12 +31,12 @@ runSnapAddPmat.default <- function(
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 	}
 	
-	if(class(peak) != "GRanges"){
+	if(!is(peak, "GRanges")){
 		stop("peak is not a GRanges object");
 	}else{
 		if((x = length(peak)) == 0L){
@@ -103,7 +103,7 @@ runSnapAddPmatSingle <- function(
 		}
 	}
 	
-	if(class(peak) != "GRanges"){
+	if(!is(peak, "GRanges")){
 		stop("peak is not a GRanges object");
 	}else{
 		if((x = length(peak)) == 0L){

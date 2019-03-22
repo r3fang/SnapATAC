@@ -15,7 +15,6 @@
 This function takes a snap object and returns number of cells
 }
 \examples{
-library(SnapATAC);
 data(demo);
 nrow(demo);
 

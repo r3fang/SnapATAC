@@ -76,8 +76,8 @@ runHomer.default <- function(
 		}
 		
 		# check input
-		if(class(obj) != "snap"){
-			stop("'obj' is not a snap obj")
+		if(!is(obj, "snap")){
+			stop("obj is not a snap obj")
 		}
 		
 		mat = match.arg(mat);

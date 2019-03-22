@@ -102,7 +102,7 @@ isKgraphEmpty <- function(obj){
 	if(is.null(obj)){
 		stop("obj is empty")
 	}else{
-		if(class(obj) != "kgraph"){
+		if(!is(obj, "kgraph")){
 			stop("obj is not a kgraph object");
 		}else{
 			if((x = nrow(obj@mat)) > 0L){
@@ -122,7 +122,7 @@ getGraph <- function(obj){
 	if(is.null(obj)){
 		stop("obj is empty")
 	}else{
-		if(class(obj) != "kgraph"){
+		if(!is(obj, "kgraph")){
 			stop("obj is not a kgraph object");
 		}
 		if(isKgraphEmpty(obj)){

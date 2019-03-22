@@ -1,4 +1,5 @@
 #' @importFrom methods new
+#' @import Matrix
 newSnap <- function () {
 	metaData=data.frame();
 	des = character()
@@ -69,7 +70,6 @@ setMethod("summarySnap", "snap", function(obj){
 #' @name nrow
 #' @param x snap; a snap object
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' nrow(demo);
 #' 
@@ -86,7 +86,6 @@ setMethod("nrow", "snap", function(x) length(x@barcode));
 #' @param mat A charater object indicates what matrix slot to use c("bmat", "pmat", "gmat")
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' binCov = colSums(demo, mat="bmat");
 #' peakCov = colSums(demo, mat="pmat");
@@ -113,7 +112,6 @@ setMethod("colSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=TR
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
 #' 
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' bmatRcov = rowSums(demo, mat="bmat");
 #' pmatRcov = rowSums(demo, mat="pmat");
@@ -143,7 +141,6 @@ setMethod("rowSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=TR
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
 #'
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' bmatRMeans = rowMeans(demo, mat="bmat");
 #' pmatRMeans = rowMeans(demo, mat="pmat");
@@ -174,7 +171,6 @@ setMethod("rowMeans", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=T
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix.
 #' 
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' bmatCMeans = colMeans(demo, mat="bmat");
 #' pmatCMeans = colMeans(demo, mat="pmat");
@@ -199,7 +195,6 @@ setMethod("colMeans", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=T
 #' This function takes any object as input and check if it is a snap object
 #' @param obj A snap object
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' is.snap(demo);
 #' @rdname is.snap-methods
@@ -209,7 +204,7 @@ setGeneric("is.snap", function(obj) standardGeneric("is.snap"))
 #' @rdname is.snap-methods
 #' @aliases is.snap,snap-method
 
-setMethod("is.snap", "snap", function(obj) return(class(obj) == "snap"));
+setMethod("is.snap", "snap", function(obj) return(is(obj, "snap")));
 
 #' subsetting for snap objects
 #'
@@ -220,7 +215,6 @@ setMethod("is.snap", "snap", function(obj) return(class(obj) == "snap"));
 #' @param mat character; indicates the slot to subsetting
 #' @param drop character; 
 #' @examples
-#' library(SnapATAC);
 #' data(demo);
 #' demo.sub = demo[1:10,];
 #' @export
@@ -301,6 +295,7 @@ setMethod("[", "snap",
 # barcode exists in snap file.
 # 
 #' @importFrom rhdf5 h5read
+#' @importFrom methods is
 barcodeInSnapFile <- function(barcode, file){
 	
 	if(missing(file)){
@@ -317,7 +312,7 @@ barcodeInSnapFile <- function(barcode, file){
 	if(missing(barcode)){
 		stop("barcode is missing");
 	}else{
-		if(class(barcode) != "character"){
+		if(!is(barcode, "character")){
 			stop("barcode is not a character object");
 		}
 	}
@@ -340,6 +335,7 @@ barcodeInSnapFile <- function(barcode, file){
 #' @return A snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom parallel mclapply
+#' @importFrom methods is
 #' @export
 createSnap <- function(file, sample, description, num.cores) {
   UseMethod("createSnap", file);
@@ -351,7 +347,7 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 	if(missing(file)){
 		stop("file is missing");
 	}else{
-		if(class(file) != "character"){
+		if(!is(file, "character")){
 			stop("file is not character")
 		}
 		if(any(duplicated(file))){
@@ -372,7 +368,7 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 	if(missing(sample)){
 		stop("sample is missing");
 	}else{
-		if(class(sample) != "character"){
+		if(!is(sample, "character")){
 			stop("sample is not character")
 		}
 		if(any(duplicated(sample))){
@@ -387,7 +383,7 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 	sampleList = as.list(sample);
 	
 	if(!(is.null(description))){
-		if(class(description) != "character"){
+		if(!is(description, "character")){
 			stop("description must be character object")
 		}
 	}else{
@@ -437,6 +433,7 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
 #' @importFrom parallel mclapply
+#' @importFrom methods is
 #' @export
 addBmatToSnap <- function(obj, bin.size, num.cores){
   UseMethod("addBmatToSnap", obj);
@@ -449,7 +446,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 	}
@@ -536,7 +533,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
-#' @import Matrix
+#' @importFrom methods is
 #' @export
 addPmatToSnap <- function(obj, num.cores){
   UseMethod("addPmatToSnap", obj);
@@ -549,7 +546,7 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 	}
@@ -632,6 +629,7 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom parallel mclapply
+#' @importFrom methods is
 #' @export
 addGmatToSnap <- function(obj, num.cores) {
   UseMethod("addGmatToSnap", obj);
@@ -644,7 +642,7 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 	}
@@ -713,6 +711,7 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 #' @return Return a snap object
 #' @importFrom methods slot
 #' @importFrom GenomicRanges GRanges
+#' @import Matrix
 #' @export
 rmBmatFromSnap <- function(obj){
   UseMethod("rmBmatFromSnap", obj);
@@ -724,7 +723,7 @@ rmBmatFromSnap.default <- function(obj){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 		data.use = methods::slot(obj, "bmat");
@@ -748,6 +747,7 @@ rmBmatFromSnap.default <- function(obj){
 #' @return Return a snap object
 #' @importFrom methods slot
 #' @importFrom GenomicRanges GRanges
+#' @import Matrix
 #' @export
 rmPmatFromSnap <- function(obj){
   UseMethod("rmPmatFromSnap", obj);
@@ -759,7 +759,7 @@ rmPmatFromSnap.default <- function(obj){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 		data.use = methods::slot(obj, "pmat");
@@ -783,6 +783,7 @@ rmPmatFromSnap.default <- function(obj){
 #' @return Return a snap object
 #' @importFrom methods slot
 #' @importFrom GenomicRanges GRanges
+#' @import Matrix
 #' @export
 rmGmatFromSnap <- function(obj){
   UseMethod("rmGmatFromSnap", obj);
@@ -794,7 +795,7 @@ rmGmatFromSnap.default <- function(obj){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 		data.use = methods::slot(obj, "gmat");
@@ -820,6 +821,7 @@ rmGmatFromSnap.default <- function(obj){
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
+#' @importFrom methods is
 #' @export
 createSnapFromBmat <- function(mat, barcodes, bins) {
   UseMethod("createSnapFromBmat", mat);
@@ -831,7 +833,7 @@ createSnapFromBmat.default <- function(mat, barcodes, bins){
 		stop("mat or barcodes or bins is missing");
 	}
 
-	if(!(class(mat) == "dsCMatrix" || class(mat) == "dgCMatrix")){
+	if(!(is(mat, "dsCMatrix") || is(mat, "dgCMatrix"))){
 		stop("'mat' is not a sparse matrix");
 	}
 
@@ -839,7 +841,7 @@ createSnapFromBmat.default <- function(mat, barcodes, bins){
 		stop("'mat' has different number of rows with number of barcodes");
 	}
 	
-	if(class(bins) != "GRanges"){
+	if(!is(bins, "GRanges")){
 		stop("'bins' is not a GRanges object")
 	}
 	
@@ -864,7 +866,7 @@ createSnapFromBmat.default <- function(mat, barcodes, bins){
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
-#' @import Matrix
+#' @importFrom methods is
 #' @export
 createSnapFromPmat <- function(mat, barcodes, peaks) {
   UseMethod("createSnapFromPmat", mat);
@@ -876,7 +878,7 @@ createSnapFromPmat.default <- function(mat, barcodes, peaks){
 		stop("mat or barcodes or peaks is missing");
 	}
 
-	if(!(class(mat) == "dsCMatrix" || class(mat) == "dgCMatrix")){
+	if(!(is(mat, "dsCMatrix") || is(mat, "dgCMatrix"))){
 		stop("'mat' is not a sparse matrix");
 	}
 
@@ -884,7 +886,7 @@ createSnapFromPmat.default <- function(mat, barcodes, peaks){
 		stop("'mat' has different number of rows with number of barcodes");
 	}
 	
-	if(class(peaks) != "GRanges"){
+	if(!is(peaks, "GRanges")){
 		stop("'peaks' is not a GRanges object")
 	}
 	if(length(peaks) != ncol(mat)){
@@ -908,6 +910,7 @@ createSnapFromPmat.default <- function(mat, barcodes, peaks){
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
+#' @importFrom methods is
 #' @export
 createSnapFromGmat <- function(mat, barcodes, gene.names) {
   UseMethod("createSnapFromGmat");
@@ -919,7 +922,7 @@ createSnapFromGmat.default <- function(mat, barcodes, gene.names){
 		stop("mat or barcodes or gene.names is missing");
 	}
 
-	if(!(class(mat) == "dsCMatrix" || class(mat) == "dgCMatrix")){
+	if(!(is(mat, "dsCMatrix") || is(mat, "dgCMatrix"))){
 		stop("'mat' is not a sparse matrix");
 	}
 
@@ -927,7 +930,7 @@ createSnapFromGmat.default <- function(mat, barcodes, gene.names){
 		stop("'mat' has different number of rows with number of barcodes");
 	}
 	
-	if(class(gene.names) != "character"){
+	if(!is(gene.names, "character")){
 		stop("'gene.names' is not a character object")
 	}
 	if(length(gene.names) != ncol(mat)){
@@ -979,6 +982,7 @@ readMetaData.default <- function(file){
 #' @param slot.names Name of slots to be exported c('barcode', 'tsne', 'umap', 'cluster', 'metaData')
 #' @importFrom methods slot
 #' @importFrom utils write.table
+#' @importFrom methods is
 #' @export
 exportMetaData <- function(obj, file, slot.names){
     UseMethod("exportMetaData", obj);	
@@ -991,7 +995,7 @@ exportMetaData.default <- function(obj, file, slot.names=c('barcode', 'cluster',
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("'obj' is not a snap object")
 		}
 		if((x=nrow(obj))==0L){
@@ -1059,6 +1063,7 @@ exportMetaData.default <- function(obj, file, slot.names=c('barcode', 'cluster',
 #' @param obj2 A snap object for replicate 2 [NULL].
 #' @return Return pearson correlation between replicates.
 #' @importFrom stats cor
+#' @importFrom methods is
 #' @export
 calBmatCor <- function(obj1, obj2) {
   UseMethod("calBmatCor", obj1);
@@ -1069,7 +1074,7 @@ calBmatCor.default <- function(obj1, obj2=NULL){
 	if(missing(obj1)){
 		stop("obj1 is missing.")
 	}else{
-		if(class(obj1) != "snap"){
+		if(!is(obj1, "snap")){
 			stop("obj1 is not a snap object")
 		}
 		
@@ -1084,7 +1089,7 @@ calBmatCor.default <- function(obj1, obj2=NULL){
 	
 	if(!is.null(obj2)){
 		# check if obj2 is a snap object
-		if(class(obj2) != "snap"){
+		if(!is(obj2, "snap")){
 			stop("obj2 is not a snap object")
 		}
 		
@@ -1245,6 +1250,7 @@ snapRbind <- function(obj1, obj2){
 #'
 #' @return Returns a snap object containing only the relevant subset of cells
 #' 
+#' @importFrom methods is
 #' @export
 filterCells <- function(obj, subset.names, low.thresholds, high.thresholds) {
   UseMethod("filterCells", obj);
@@ -1260,7 +1266,7 @@ filterCells.default <- function(
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 		metaData = obj@metaData;		
@@ -1323,7 +1329,7 @@ filterCells.default <- function(
 #'
 #' @return Returns a snap obj
 #' @importFrom stats sd
-#' @importFrom methods slot
+#' @importFrom methods slot is
 #' @export
 
 filterBins <- function(obj, low.threshold, high.threshold, mat) {
@@ -1336,7 +1342,7 @@ filterBins.default <- function(obj, low.threshold=-2, high.threshold=2, mat=c("b
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("'obj' is not a snap obj")
 		};		
 	}
@@ -1442,14 +1448,15 @@ readPeaks <- function(file){
 	return(bins)
 }
 
-
+#' @importFrom methods is
+#' @import Matrix
 addBmatToSnapSingle <- function(obj, file, bin.size=5000){	
 	# close the previously opened H5 file
 	H5close();
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 	}
@@ -1486,11 +1493,12 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 }
 
 
+#' @importFrom methods is
 addGmatToSnapSingle <- function(obj, file){
         # close the previously opened H5 file
         H5close();
         # check the input
-        if(class(obj) != "snap"){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))}
+        if(!is(obj, "snap")){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))}
         if(!file.exists(file)){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))};
         if(!isSnapFile(file)){stop(paste("Error @addGmat: ", file, " is not a snap-format file!", sep=""))};
 
@@ -1521,11 +1529,12 @@ addGmatToSnapSingle <- function(obj, file){
 		return(obj);
 }
 
+#' @importFrom methods is
 addPmatToSnapSingle <- function(obj, file){
         # close the previously opened H5 file
         H5close();
         # check the input
-        if(class(obj) != "snap"){stop(paste("Error @addPmat: ", file, " does not exist!", sep=""))}
+        if(!is(obj, "snap")){stop(paste("Error @addPmat: ", file, " does not exist!", sep=""))}
         if(!file.exists(file)){stop(paste("Error @addPmat: ", file, " does not exist!", sep=""))};
         if(!isSnapFile(file)){stop(paste("Error @addPmat: ", file, " is not a snap-format file!", sep=""))};
 
@@ -1565,6 +1574,7 @@ addPmatToSnapSingle <- function(obj, file){
 		return(obj);
 }
 
+#' @importFrom methods is
 createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){	
 	# close the previously opened H5 file
 	H5close();
@@ -1574,7 +1584,7 @@ createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){
 	if(!(is.logical(metaData))){stop(paste("metaData is not a logical variable!", sep=""))};
 	
 	if(!(is.null(description))){
-		if(class(description) != "character"){
+		if(!is(description, "character")){
 			stop("description must be character object")
 		}
 	}else{

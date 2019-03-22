@@ -19,7 +19,6 @@
 This function takes a snap object and returns the row sums of its count matrix.
 }
 \examples{
-library(SnapATAC);
 data(demo);
 bmatRcov = rowSums(demo, mat="bmat");
 pmatRcov = rowSums(demo, mat="pmat");

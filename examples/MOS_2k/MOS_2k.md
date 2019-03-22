@@ -18,8 +18,8 @@ number of genes: 53278
 Next using the genome-wide cell-by-bin matrix (`bmat`), we calculated the cell-by-cell jaccard similarity matrix by estimating the overlaps between two single cell profiles. 
   
 ```R
-> mos = runJaccard(
-    obj= mos,
+> x.sp = runJaccard(
+    obj= x.sp,
     mat="bmat",
     max.var=2000,
     ncell.chunk=2000,
@@ -31,8 +31,8 @@ Next using the genome-wide cell-by-bin matrix (`bmat`), we calculated the cell-b
 Due to the high dropout rate, we find that the jaccard index is highly affected by the differing read depth between cells. To eliminate such confounding factor, we have developed two methods for normalizing jaccard index `normOVE` and `normOVN`. In the below example, we will use `normOVE` to normalize the read depth effect. 
 
 ```R
-> mos = runNormJaccard(
-    obj=mos,
+> x.sp = runNormJaccard(
+    obj=x.sp,
     ncell.chunk=2000,
     method="normOVE",
     row.center=TRUE,
@@ -48,8 +48,8 @@ Due to the high dropout rate, we find that the jaccard index is highly affected 
 Like other single-cell analysis, scATAC-seq also contains extensive technical noise due to the high drop-out rate and random noise. To overcome this challenge, linear dimentionality reduction method such as PCA or SVD is often applied to combine information across a correlated feature set hereby creating a mega-feature and exclude the variance potential resulting from technical noise. Here, we perform SVD against the normalized matrix. 
 
 ```R
-> mos = runDimReduct(
-    obj=mos,
+> x.sp = runDimReduct(
+    obj=x.sp,
     pc.num=50,
     input.mat="jmat",
     method="svd",
@@ -64,7 +64,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 
 ```R
 > plotDimReductElbow(
-	obj=mos, 
+	obj=x.sp, 
 	point.size=1.3,
 	point.shape=19,
 	point.color="red",
@@ -76,7 +76,7 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 	labs.subtitle=NULL,
 	);
 > plotDimReductPW(
-	obj=mos, 
+	obj=x.sp, 
 	pca.dims=1:50,
 	point.size=0.3,
 	point.color="grey",
@@ -95,8 +95,8 @@ We next use an ad hoc approach for determining significant dimentions by simply 
 Using selected significant components, we next construct a K Nearest Neighbor (KNN) Graph. Using euclidean distance, the k-nearest neighbors of each cell are identified accoriding and used to create a KNN graph. KNN graph can be further refined to SNN (Shared Nearest Neighbor) graph by adding edge weight between cells as shared overlap in their local neighborhoods using Jaccard similarity. **This function is inspired and modified from Seurat package.**
 
 ```R
-> mos = runKNN(
-    obj=mos,
+> x.sp = runKNN(
+    obj=x.sp,
     pca.dims=1:20,
     weight.by.sd=TRUE,
     k=15,
@@ -112,8 +112,8 @@ Using selected significant components, we next construct a K Nearest Neighbor (K
 Using KNN graph, we next apply community finding algorithm Louvain to identify the clusters in the resulting graph which represent groups of cells sharing similar ATAC-seq profiles, potentially originating from the same cell type.
 
 ```R
-> mos = runCluster(
-	obj=mos,
+> x.sp = runCluster(
+	obj=x.sp,
 	louvain.lib="R-igraph",
 	resolution=1.0,
 	path.to.snaptools=NULL,
@@ -125,8 +125,8 @@ Using KNN graph, we next apply community finding algorithm Louvain to identify t
 SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these datasets. In the following example, data is visulized by tsne implemented by R package (Rtsne).
 
 ```R
-> mos = runViz(
-	obj=mos, 
+> x.sp = runViz(
+	obj=x.sp, 
 	dims=2,
 	pca.dims=1:20, 
 	weight.by.sd=TRUE,
@@ -137,8 +137,8 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	num.cores=5
 	);
 
-> mos = runViz(
-	obj=mos, 
+> x.sp = runViz(
+	obj=x.sp, 
 	dims=2,
 	pca.dims=1:20, 
 	weight.by.sd=TRUE,
@@ -155,7 +155,7 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 
 ```R
 > plotViz(
-	obj=mos, 
+	obj=x.sp, 
 	method="tsne", 
 	point.size=1, 
 	point.shape=19, 
@@ -174,7 +174,7 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 	);
 
 > plotViz(
-	obj=mos, 
+	obj=x.sp, 
 	method="umap", 
 	point.size=1, 
 	point.shape=19, 
@@ -200,10 +200,10 @@ SnapATAC allows using tSNE, UMAP and FIt-sne to visualize and explore these data
 We next uses gene-body accessibility level at known marker gene to help annotate identified cell clusters.
 
 ```R
-> mos = scaleCountMatrix(
-	obj=mos, 
+> x.sp = scaleCountMatrix(
+	obj=x.sp, 
 	mat="gmat", 
-	cov=SnapATAC::rowSums(mos, mat="bmat"), 
+	cov=SnapATAC::rowSums(x.sp, mat="bmat"), 
 	method="RPM"
 	);
 > marker.genes = c(
@@ -212,7 +212,7 @@ We next uses gene-body accessibility level at known marker gene to help annotate
 	"Sst", "Lamp5", "Slc17a7" 
 	);
 > plotGene(
-	obj=mos, 
+	obj=x.sp, 
 	gene.names=marker.genes,
 	viz.method="tsne",
 	point.size=0.5,

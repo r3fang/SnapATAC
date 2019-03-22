@@ -24,7 +24,7 @@ plotBarcode.default <- function(
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 		ncell = nrow(obj);
@@ -87,7 +87,7 @@ plotBinCoverage.default <- function(
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 		ncell = nrow(obj);
@@ -205,7 +205,7 @@ plotViz.default <- function(obj,
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 		ncell = nrow(obj);
@@ -282,7 +282,7 @@ plotViz.default <- function(obj,
 		  bty = "n", 
 		  cex = legend.text.size, 
 		  text.col = legend.text.color,
-		  horiz = F
+		  horiz = FALSE
 		  )		
 	}
 
@@ -327,7 +327,7 @@ plotDimReductElbow.default <- function(
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 		ncell = nrow(obj);
@@ -396,7 +396,7 @@ plotDimReductPW.default <- function(
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object");
 		}
 		ncell = nrow(obj);
@@ -432,7 +432,7 @@ plotDimReductPW.default <- function(
 	}
 	
 	op <- par(mfrow = c(5,5), oma = c(3,3,1,1) + 0.2, mar = c(0,0,1,1) + 0.2);
-	PCA.plot <- split(sort(pca.dims), ceiling(seq_along(pca.dims)/2));
+	PCA.plot <- split(sort(pca.dims), ceiling(seq(pca.dims)/2));
 	if((length(x = pca.dims)  %% 2) == 1){
 		PCA.plot = PCA.plot[1:(length(PCA.plot) - 1)]
 	}
@@ -520,7 +520,7 @@ plotGene.default <- function(
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 		ncell = nrow(obj);
@@ -640,6 +640,7 @@ plotGene.default <- function(
 #' @importFrom graphics stripchart boxplot
 #' @importFrom methods slot 
 #' @importFrom scales alpha
+#' @importFrom methods is
 #' @export
 boxPlotFeature <- function(obj, feature, outline, ylab, main, add.point,  point.size, point.shape, point.alpha, pdf.file.name, pdf.height, pdf.width){
   UseMethod("boxPlotFeature", obj);
@@ -663,7 +664,7 @@ boxPlotFeature.default <- function(
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("obj is not a snap object")
 		}
 		ncell = nrow(obj);

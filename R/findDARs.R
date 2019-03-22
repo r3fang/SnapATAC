@@ -43,7 +43,7 @@ findDAR.default <- function(
 		if(missing(obj)){
 			stop("obj is missing");
 		}else{
-			if(class(obj) != "snap"){
+			if(!is(obj, "snap")){
 				stop("obj is not a snap obj")
 			}
 			if((x=length(levels(obj@cluster))) == 0L){

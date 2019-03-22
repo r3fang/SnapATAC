@@ -34,6 +34,7 @@ NULL
 #' @importFrom Matrix sparseMatrix
 #' @importFrom plyr count
 #' @importFrom methods as
+#' @import Matrix
 #' @return Returns the object with object@kmat filled
 #' @export
 
@@ -57,8 +58,8 @@ runKNN.default <- function(
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
-			stop("obj is not a snap object")
+		if(!is(obj, "snap")){
+			stop("obj is not a snap obj")
 		}
 	}
 	

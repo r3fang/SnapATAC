@@ -88,7 +88,7 @@ isJaccardComplete <- function (obj) {
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "jaccard"){
+		if(!is(obj, "jaccard")){
 			stop("obj is not a jaccard object")
 		}
 	}
@@ -103,7 +103,7 @@ isJaccardNorm <- function (obj) {
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "jaccard"){
+		if(!is(obj, "jaccard")){
 			stop("obj is not a jaccard object")
 		}
 	}

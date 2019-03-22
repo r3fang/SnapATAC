@@ -38,8 +38,8 @@ runViz.default <- function(
 	...){
 		
 	# check input
-	if(class(obj) != "snap"){
-		stop("'obj' is not a snap obj")
+	if(!is(obj, "snap")){
+		stop("obj is not a snap object")
 	}
 	
 	if(nrow(obj@smat@dmat) == 0){

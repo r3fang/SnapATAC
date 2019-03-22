@@ -42,9 +42,9 @@ runJaccard.default <- function(
 		stop("obj is missing");
 	}else{
 		# check if obj is a snap
-		if(class(obj) != "snap"){
-			stop("'obj' is not a snap obj")
-		}		
+		if(!is(obj, "snap")){
+			stop("obj is not a snap obj")
+		}
 	}
 		
 	# check if mat is binary;
@@ -83,7 +83,7 @@ runJaccard.default <- function(
 	
 	# step 2) slice the orginal obj into list
 	id = seq(nrow(mat.use));
-	id.ls = split(id, ceiling(seq_along(id)/ncell.chunk));
+	id.ls = split(id, ceiling(seq(id)/ncell.chunk));
 	
 	message("Epoch: splitting obj into chunks ...");
 	if(length(id.ls) > 1){

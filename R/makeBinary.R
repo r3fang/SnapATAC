@@ -20,7 +20,7 @@ makeBinary <- function(obj, mat, outlier.filter) {
 
 #' @export
 makeBinary.default <- function(obj, mat=c("bmat", "pmat", "gmat"), outlier.filter=1e-3){
-	if(class(obj) != "snap"){
+	if(!is(obj, "snap")){
 		stop("obj is not a snap obj")
 	}
 	

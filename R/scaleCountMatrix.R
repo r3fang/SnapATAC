@@ -18,7 +18,7 @@ scaleCountMatrix.default <- function(
 	method=c("logRPM", "RPM", "log")
 ){	
 	
-	if(class(obj) != "snap"){
+	if(!is(obj, "snap")){
 		stop("object is not a snap object");
 	}
 

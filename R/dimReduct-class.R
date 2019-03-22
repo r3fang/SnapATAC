@@ -79,7 +79,7 @@ isDimReductComplete <- function (obj) {
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "dim.reduct"){
+		if(!is(obj, "dim.reduct")){
 			stop("obj is not a dim.reduct")
 		}
 	}
@@ -99,7 +99,7 @@ weightDimReduct <- function(obj, pca.dims, weight.by.sd=TRUE){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "dim.reduct"){
+		if(!is(obj, "dim.reduct")){
 			stop("obj is not a dim.reduct")
 		}
 	}
@@ -113,12 +113,12 @@ weightDimReduct <- function(obj, pca.dims, weight.by.sd=TRUE){
 	return(data.use);
 }
 
-
+#' @importFrom methods is
 dimReductDim <- function(obj){
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "dim.reduct"){
+		if(!is(obj, "dim.reduct")){
 			stop("obj is not a dim.reduct")
 		}
 	}

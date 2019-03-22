@@ -32,7 +32,7 @@ runDimReduct.default <- function(
 	...
 ){
 	# 1. check if obj is a snap;
-	if(class(obj) != "snap"){
+	if(!is(obj, "snap")){
 		stop("obj is not a snap obj")
 	}
 	

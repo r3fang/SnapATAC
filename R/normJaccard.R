@@ -73,7 +73,7 @@ runNormJaccard.default <- function(
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
-		if(class(obj) != "snap"){
+		if(!is(obj, "snap")){
 			stop("'obj' is not a snap obj")
 		}
 	}
@@ -127,7 +127,7 @@ runNormJaccard.default <- function(
 	message("Epoch: splitting obj into chunks ...");
 	# step 2) slice the orginal obj into list
 	id = seq(nrow(obj));
-	id.ls = split(id, ceiling(seq_along(id)/ncell.chunk ));
+	id.ls = split(id, ceiling(seq(id)/ncell.chunk ));
 	
 	if(length(id.ls) > 1){
 		id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
@@ -153,8 +153,8 @@ runNormJaccard.default <- function(
 
 	message("Epoch: normalizing jaccard index for each chunk ...");
 	nmat <- foreach(i=1:length(id.ls), .verbose=FALSE, .export="normJaccard", .packages="bigmemory", .combine = "rbind") %dopar% {
-	    t <- attach.big.matrix(descriptorfile_tmp);
-		return(normJaccard(jmat=t[id.ls[[i]],], b1=b1[id.ls[[i]]], b2=b2, method, k));
+	    t_mat <- attach.big.matrix(descriptorfile_tmp);
+		return(normJaccard(jmat=t_mat[id.ls[[i]],], b1=b1[id.ls[[i]]], b2=b2, method, k));
 	}
 	stopCluster(cl);
 	closeAllConnections();
