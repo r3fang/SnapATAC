@@ -18,3 +18,9 @@ Return a snap object
 This function takes a snap object as input and add the cell-by-gene 
 matrix to the existing snap object.
 }
+\examples{
+file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+demo.sp = createSnap(file.name, sample="demo");
+demo.sp = addGmatToSnap(demo.sp);
+
+}

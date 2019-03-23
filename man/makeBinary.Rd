@@ -24,3 +24,8 @@ It has been observed that some entries in the count matrix have exceedingly high
 are due to alingnment or other type of errors. This function first identifies the top outlier.filter (%) 
 non-zero values in the count matrix as cutoff and then remove any values above this cutoff as outliers.
 }
+\examples{
+data(demo.sp);
+demo.sp = makeBinary(demo.sp, mat="bmat");
+
+}

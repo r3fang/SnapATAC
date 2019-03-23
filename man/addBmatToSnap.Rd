@@ -21,3 +21,10 @@ Return a snap object
 This function takes a snap object as input and add the cell-by-bin 
 matrix to the existing snap object.
 }
+\examples{
+file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+demo.sp = createSnap(file.name, sample="demo");
+showBinSizes(file.name);
+demo.sp = addBmatToSnap(demo.sp, bin.size=100000);
+
+}

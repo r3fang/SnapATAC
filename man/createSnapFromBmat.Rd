@@ -19,3 +19,16 @@ Return a snap object
 \description{
 This function takes a cell-by-bin count matrix as input and returns a snap object.
 }
+\examples{
+library("GenomicRanges");
+mat = Matrix(sample(0:10, 100, replace=TRUE),sparse=TRUE, ncol=5);
+barcodes = paste("barcode", seq(nrow(mat)), sep=".");
+chroms = c("chr1", "chr1", "chr1", "chr1", "chr1");
+pos = c(1, 5001, 10001, 15001, 20001);
+bins = GRanges(chroms, IRanges(pos, pos+5000));
+x.sp = createSnapFromBmat(
+mat, 
+barcodes=barcodes,
+bins=bins
+);
+}

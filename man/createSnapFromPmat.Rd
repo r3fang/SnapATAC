@@ -16,3 +16,16 @@ createSnapFromPmat(mat, barcodes, peaks)
 \description{
 This function takes a cell-by-peak count matrix as input and returns a snap object.
 }
+\examples{
+library("GenomicRanges");
+mat = Matrix(sample(0:10, 100, replace=TRUE),sparse=TRUE, ncol=5);
+barcodes = paste("barcode", seq(nrow(mat)), sep=".");
+chroms = c("chr1", "chr1", "chr1", "chr1", "chr1");
+pos = c(1, 5001, 10001, 15001, 20001);
+peaks = GRanges(chroms, IRanges(pos, pos+100));
+x.sp = createSnapFromPmat(
+mat, 
+barcodes=barcodes,
+peaks=peaks
+);
+}

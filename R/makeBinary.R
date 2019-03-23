@@ -9,6 +9,10 @@
 #' @param obj A snap obj.
 #' @param mat A character class indicates what matrix slot to use c("bmat", "pmat", "gmat").
 #' @param outlier.filter A numeric class within the range between 0 and 1. The non-zero elememnts in the count matrix are identified annd filtered as outliers (default 1e-3)
+#' @examples
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' 
 #' @importFrom stats quantile
 #' @return Returns a Snap obj with the binary matrix stored in obj@bmat
 #' 

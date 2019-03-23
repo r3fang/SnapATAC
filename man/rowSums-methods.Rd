@@ -19,9 +19,9 @@
 This function takes a snap object and returns the row sums of its count matrix.
 }
 \examples{
-data(demo);
-bmatRcov = rowSums(demo, mat="bmat");
-pmatRcov = rowSums(demo, mat="pmat");
-gmatRcov = rowSums(demo, mat="gmat");
+data(demo.sp);
+a = rowSums(demo.sp, mat="bmat");
+b = rowSums(demo.sp, mat="pmat");
+d = rowSums(demo.sp, mat="gmat");
 
 }

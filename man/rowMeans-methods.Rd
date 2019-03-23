@@ -19,9 +19,9 @@
 This function takes a snap object and returns the row means of its count matrix.
 }
 \examples{
-data(demo);
-bmatRMeans = rowMeans(demo, mat="bmat");
-pmatRMeans = rowMeans(demo, mat="pmat");
-gmatRMeans = rowMeans(demo, mat="gmat");
+data(demo.sp);
+a = rowMeans(demo.sp, mat="bmat");
+b = rowMeans(demo.sp, mat="pmat");
+d = rowMeans(demo.sp, mat="gmat");
 
 }

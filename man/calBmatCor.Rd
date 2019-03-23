@@ -24,3 +24,8 @@ cannot be empty. This function helps check whether the current
 cell-by-bin matrix is sufficient for downstream analysis. If the 
 pearson correlation is less than 0.95 recommend to use a bigger bin.size.
 }
+\examples{
+data(demo.sp);
+calBmatCor(demo.sp)
+
+}

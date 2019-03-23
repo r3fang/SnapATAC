@@ -10,9 +10,14 @@ rmBmatFromSnap(obj)
 \item{obj}{A snap object to remove cell-by-bin matrix.}
 }
 \value{
-Return a snap object
+Return a snap object without cell-by-bin matrix
 }
 \description{
 This function takes a snap object as input and removes the cell-by-bin 
 matrix in the existing snap object. Report error when cell-by-bin matrix is empty.
+}
+\examples{
+data(demo.sp)
+rmBmatFromSnap(demo.sp)
+
 }

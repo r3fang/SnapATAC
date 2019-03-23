@@ -22,3 +22,7 @@ plotBinCoverage(obj, rm.zeros, pdf.file.name, pdf.width, pdf.height, ...)
 \description{
 Plot Bin Coverage Distribution
 }
+\examples{
+data(demo.sp);
+plotBinCoverage(demo.sp, col="grey", border="grey");
+}

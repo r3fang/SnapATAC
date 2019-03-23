@@ -64,3 +64,10 @@ different cells. To solve this under-estimate problem for OVE, we found that OVE
 correlated with OVN (r>0.99), therefore, we can estimate a scale factor alpha to scale 
 OVE to similar level with OVN. The scale factor is estimated from the data.
 }
+\examples{
+data(demo.sp);
+demo.sp = makeBinary(demo.sp, mat="bmat");
+demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+demo.sp = runNormJaccard(obj=demo.sp, tmp.folder=tempdir());
+
+}

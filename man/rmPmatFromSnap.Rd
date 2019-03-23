@@ -10,9 +10,14 @@ rmPmatFromSnap(obj)
 \item{obj}{A snap object to remove cell-by-peak matrix.}
 }
 \value{
-Return a snap object
+Return a snap object without cell-by-peak matrix
 }
 \description{
 This function takes a snap object as input and removes the cell-by-peak 
 matrix in the existing snap object. Report error when cell-by-peak matrix is empty.
+}
+\examples{
+data(demo.sp)
+rmPmatFromSnap(demo.sp)
+
 }

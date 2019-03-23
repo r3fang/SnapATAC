@@ -48,3 +48,12 @@ neighbor graph in which every cell is represented as a node and edges are drawn 
 cells within k nearest neighbors. Edge weight between any two cells can be refined by shared 
 overlap in their local neighborhoods using Jaccard similarity (snn).
 }
+\examples{
+data(demo.sp);
+demo.sp = makeBinary(demo.sp, mat="bmat");
+demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+demo.sp = runNormJaccard(obj=demo.sp, tmp.folder=tempdir());
+demo.sp = runDimReduct(obj=demo.sp, pc.num=10, input.mat="jmat");
+demo.sp = runKNN(obj=demo.sp, pca.dims=1:5, k=15, snn=TRUE, save.knn=FALSE);
+
+}

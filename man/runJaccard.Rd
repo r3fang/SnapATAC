@@ -34,3 +34,9 @@ intense with the increase of cell number. To solve this problem, we divide
 the cells into groups and calculated a sub jaccard index matrix, which are later combined
 to create the full jaccard index matrix.
 }
+\examples{
+data(demo.sp);
+demo.sp = makeBinary(demo.sp, mat="bmat");
+demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+
+}

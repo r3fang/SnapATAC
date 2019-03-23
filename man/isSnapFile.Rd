@@ -15,3 +15,8 @@ Return a logical variable indicates whether file is a snap file.
 \description{
 This function takes a file name as input and check if the file is a snap-formated file
 }
+\examples{
+file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+isSnapFile(file.name);
+
+}

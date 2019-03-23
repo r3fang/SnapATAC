@@ -15,3 +15,8 @@ A data frame contains barcodes and its attributes
 \description{
 Take a snap file as input and read the barcode session only.
 }
+\examples{
+file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+md = readMetaData(file.name);
+
+}

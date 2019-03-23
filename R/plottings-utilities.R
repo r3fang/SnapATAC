@@ -1,35 +1,3 @@
-####### Add Halo to Text
-####### @param plt a ggplot object
-####### @param x,y numeric vectors of coordinates where the text 'labels' should be written.  If the length of 'x' and 'y' differs, the shorter one is recycled.
-####### @param labels a character vector or expression specifying the _text_ to be written.  An attempt is made to coerce other language objects (names and calls) to expressions, and vectors and other classed objects to character vectors by 'as.character'.  If 'labels' is longer than 'x' and 'y', the coordinates are recycled to the length of 'labels'.
-####### @param text.color text color to use ["black"]
-####### @param text.size text size to use [1]
-####### @param text.halo To add halo around text [TRUE].
-####### @param text.halo.color Halo color ["white"].
-####### @param text.halo.width Halo with [0.2].
-######textHalo_ggplot2 <- function(
-######	plt,
-######	x, y = NULL, 
-######	labels = NULL, 
-######	text.color='black', 
-######	text.size=1, 
-######	text.halo=TRUE, 
-######	text.halo.color='white', 
-######	text.halo.width=0.1
-######){
-######	theta <- seq(0, 2*pi, length.out=50);
-######	xo <- text.halo.width * diff(range(x))/200
-######	yo <- text.halo.width * diff(range(y))/200
-######	
-######	if(text.halo){
-######		for(i in theta) {
-######		    plt <- plt + annotate("text", x=x+ cos(i)*xo,y=y+ sin(i)*yo, label=labels, size=text.size, colour=text.halo.color)
-######		}
-######	}
-######	plt <- plt + annotate("text", x=x,y=y,label=labels, size=text.size, colour=text.color)
-######	return(plt);
-######}
-
 #' @importFrom grDevices xy.coords 
 #' @importFrom graphics strwidth strheight 
 textHalo <- function(
@@ -99,3 +67,34 @@ colVector <- function(num.color=60, type=c("qual", "div", "seq")){
 
 
 
+####### Add Halo to Text
+####### @param plt a ggplot object
+####### @param x,y numeric vectors of coordinates where the text 'labels' should be written.  If the length of 'x' and 'y' differs, the shorter one is recycled.
+####### @param labels a character vector or expression specifying the _text_ to be written.  An attempt is made to coerce other language objects (names and calls) to expressions, and vectors and other classed objects to character vectors by 'as.character'.  If 'labels' is longer than 'x' and 'y', the coordinates are recycled to the length of 'labels'.
+####### @param text.color text color to use ["black"]
+####### @param text.size text size to use [1]
+####### @param text.halo To add halo around text [TRUE].
+####### @param text.halo.color Halo color ["white"].
+####### @param text.halo.width Halo with [0.2].
+######textHalo_ggplot2 <- function(
+######	plt,
+######	x, y = NULL, 
+######	labels = NULL, 
+######	text.color='black', 
+######	text.size=1, 
+######	text.halo=TRUE, 
+######	text.halo.color='white', 
+######	text.halo.width=0.1
+######){
+######	theta <- seq(0, 2*pi, length.out=50);
+######	xo <- text.halo.width * diff(range(x))/200
+######	yo <- text.halo.width * diff(range(y))/200
+######	
+######	if(text.halo){
+######		for(i in theta) {
+######		    plt <- plt + annotate("text", x=x+ cos(i)*xo,y=y+ sin(i)*yo, label=labels, size=text.size, colour=text.halo.color)
+######		}
+######	}
+######	plt <- plt + annotate("text", x=x,y=y,label=labels, size=text.size, colour=text.color)
+######	return(plt);
+######}

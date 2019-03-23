@@ -46,6 +46,12 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' @param num.cores A numeric class that indicates the number of cores to use for calculation [1].
 #' @param seed.use A numeric class that indicates random seeding number [10].
 #'
+#' @examples
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+#' demo.sp = runNormJaccard(obj=demo.sp, tmp.folder=tempdir());
+#' 
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom foreach foreach %dopar%

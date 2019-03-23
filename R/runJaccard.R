@@ -17,6 +17,12 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' @param ncell.chunk A numeric class that indicates the number of cells to calculate per processing core 
 #' @param num.cores Number of processors to use.
 #' @param seed.use A numeric variable indicates the random seed to use [10].
+#'
+#' @examples
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+#' 
 #' @return Returns a Snap obj with the jaccard index matrix stored in obj@jmat
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel makeCluster stopCluster detectCores

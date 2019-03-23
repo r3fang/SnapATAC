@@ -59,5 +59,4 @@ Collate:
     'runSnapAddPmat.R'
     'runViz.R'
     'scaleCountMatrix.R'
-    'showBinSizes.R'
     'snap-utilities.R'

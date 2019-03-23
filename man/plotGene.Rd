@@ -56,3 +56,55 @@ plotGene(obj, gene.names, viz.method, point.size, point.color, point.shape,
 \description{
 Plot gene-body accessibility level
 }
+\examples{
+data(demo.sp);
+demo.sp = makeBinary(demo.sp, mat="bmat");
+demo.sp = runJaccard(
+obj=demo.sp, 
+tmp.folder=tempdir(), 
+mat="bmat"
+);
+demo.sp = runNormJaccard(
+obj=demo.sp, 
+tmp.folder=tempdir()
+);
+demo.sp = runDimReduct(
+obj=demo.sp, 
+pc.num=10, 
+input.mat="jmat"
+);
+demo.sp = runKNN(
+obj=demo.sp, 
+pca.dims=1:5, 
+k=15, 
+snn=TRUE, 
+save.knn=FALSE
+);
+demo.sp = runCluster(
+obj=demo.sp, 
+tmp.folder=tempdir(), 
+louvain.lib="R-igraph"
+);
+demo.sp = runViz(
+obj=demo.sp, 
+tmp.folder=tempdir(), 
+pca.dims=1:5, 
+method="Rtsne"
+);
+demo.sp = scaleCountMatrix(
+obj=demo.sp,
+mat="gmat",
+cov=rowSums(demo.sp, mat="bmat"),
+method="RPM"
+)
+gene.names = c(
+"Prdm14",   "E330040D14Rik", "Gm17971",       
+"Gm17970",	"Defb44-ps",     "Gm7357",
+"Gm37265",  "Kctd18",		"Gm37143"
+)
+plotGene(
+obj=demo.sp, 
+gene.names=gene.names, 
+viz.method="tsne"
+)
+}

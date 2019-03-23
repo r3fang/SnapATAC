@@ -4,7 +4,16 @@
 #' @param mat Matrix to be normalized c("gmat", "bmat", "pmat")
 #' @param cov A numeric array as cell coverage to normalize the count matrix
 #' @param method Method to normalize the matrix c("logRPM", "RPM", "log")
-#' importFrom methods as slot
+#' @examples
+#' data(demo.sp)
+#' scaleCountMatrix(
+#'	obj=demo.sp, 
+#'	mat="gmat", 
+#'	cov=rowSums(demo.sp, mat="bmat"), 
+#'	method="RPM"
+#'	);
+#' 
+#' @importFrom methods as slot
 #' @export
 scaleCountMatrix <- function(obj, mat, cov, method) {
   UseMethod("scaleCountMatrix", obj);

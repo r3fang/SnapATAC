@@ -38,3 +38,13 @@ different reads in peak ratio distribution compared to neuronal cells. We suspec
 the nucleus size or global chromatin accessibility. Second, pre-defined set of accessibility peaks 
 are incomplete and biased to the dominant populations.
 }
+\examples{
+data(demo.sp);
+filterCells(
+obj=demo.sp, 
+subset.names=c("UMI"), 
+low.thresholds=c(10),
+high.thresholds=c(Inf)
+);
+
+}

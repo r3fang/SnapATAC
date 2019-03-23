@@ -56,3 +56,47 @@ cell cluster label or sample ID c("cluster", "sample").}
 \description{
 Visulization
 }
+\examples{
+data(demo.sp);
+demo.sp = makeBinary(demo.sp, mat="bmat");
+demo.sp = runJaccard(
+obj=demo.sp, 
+tmp.folder=tempdir(), 
+mat="bmat"
+);
+demo.sp = runNormJaccard(
+obj=demo.sp, 
+tmp.folder=tempdir()
+);
+demo.sp = runDimReduct(
+obj=demo.sp, 
+pc.num=10, 
+input.mat="jmat"
+);
+demo.sp = runKNN(
+obj=demo.sp, 
+pca.dims=1:5, 
+k=15, 
+snn=TRUE, 
+save.knn=FALSE
+);
+demo.sp = runCluster(
+obj=demo.sp, 
+tmp.folder=tempdir(), 
+louvain.lib="R-igraph"
+);
+demo.sp = runViz(
+obj=demo.sp, 
+tmp.folder=tempdir(), 
+pca.dims=1:5, 
+method="Rtsne"
+);
+plotViz(
+	obj=demo.sp, 
+	method="tsne", 
+	point.color="sample", 
+	text.add=FALSE,
+legend.add=TRUE
+);
+
+}

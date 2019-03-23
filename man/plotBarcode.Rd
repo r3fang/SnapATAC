@@ -20,3 +20,7 @@ plotBarcode(obj, pdf.file.name, pdf.width, pdf.height, ...)
 \description{
 Plot Barocde Quality Control Distribution
 }
+\examples{
+data(demo.sp);
+plotBarcode(demo.sp, col="grey", border="grey");
+}

@@ -16,3 +16,8 @@ summarySnap(obj)
 \description{
 This function takes a snap object and returns the summary statistics
 }
+\examples{
+file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+x.sp = createSnap(file.name, sample="demo");
+summarySnap(x.sp);
+}

@@ -25,3 +25,12 @@ This function takes a snap obj as input and perform feature selection in the fol
 3) the log-nromal distribution is then converted into zscore; 
 4) bins with zscore beyond [low.threshold, high.threshold] are filtered;
 }
+\examples{
+data(demo.sp);
+filterBins(
+obj=demo.sp, 
+low.threshold=-2,
+high.threshold=2
+);
+
+}

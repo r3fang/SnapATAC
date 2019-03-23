@@ -38,6 +38,34 @@ newSnap <- function () {
 			  );	
 }
 
+#' Show bin sizes in a snap file
+#'
+#' This function takes a snap-format file name as input and check the bin 
+#' sizes or resolutions have been generated for count matrix
+#'
+#' @param file character. input snap-format file name
+#'
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' showBinSizes(file.name);
+#' 
+#' @return integer vector. A vector of integers indicating the bin sizes
+#'
+#' @export
+#'
+showBinSizes <- function(file) {
+  UseMethod("showBinSizes", file);
+}
+
+#' @export
+showBinSizes.default <- function(file){
+	# this is to check what are the binSizes have been generated
+	if(!file.exists(file)){stop("file does not exist!")}
+	if(!isSnapFile(file)){stop("input file is not a snap file\n")}		
+	binSizeList = tryCatch(binSizeList <- h5read(file, '/AM/binSizeList'), error = function(e) {print(paste("Warning @check.bin.size: '/AM/binSizeList' not found in ", file)); return(numeric())})
+	return(binSizeList);
+}
+
 #' summarySnap for snap object.
 #'
 #' This function takes a snap object and returns the summary statistics
@@ -46,6 +74,10 @@ newSnap <- function () {
 #' @rdname summarySnap-methods
 #' @importFrom stats median
 #' @exportMethod summarySnap
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' x.sp = createSnap(file.name, sample="demo");
+#' summarySnap(x.sp);
 setGeneric("summarySnap", function(obj) standardGeneric("summarySnap"))
 
 #' @rdname summarySnap-methods
@@ -70,9 +102,8 @@ setMethod("summarySnap", "snap", function(obj){
 #' @name nrow
 #' @param x snap; a snap object
 #' @examples
-#' data(demo);
-#' nrow(demo);
-#' 
+#' data(demo.sp);
+#' nrow(demo.sp);
 #' @rdname nrow-methods
 #' @aliases nrow,snap-method
 #' @exportMethod nrow
@@ -86,10 +117,10 @@ setMethod("nrow", "snap", function(x) length(x@barcode));
 #' @param mat A charater object indicates what matrix slot to use c("bmat", "pmat", "gmat")
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
 #' @examples
-#' data(demo);
-#' binCov = colSums(demo, mat="bmat");
-#' peakCov = colSums(demo, mat="pmat");
-#' geneCov = colSums(demo, mat="gmat");
+#' data(demo.sp);
+#' a = colSums(demo.sp, mat="bmat");
+#' b = colSums(demo.sp, mat="pmat");
+#' d = colSums(demo.sp, mat="gmat");
 #' @rdname colSums-methods
 #' @aliases colSums,snap-method
 #' @exportMethod colSums
@@ -112,10 +143,10 @@ setMethod("colSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=TR
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
 #' 
 #' @examples
-#' data(demo);
-#' bmatRcov = rowSums(demo, mat="bmat");
-#' pmatRcov = rowSums(demo, mat="pmat");
-#' gmatRcov = rowSums(demo, mat="gmat");
+#' data(demo.sp);
+#' a = rowSums(demo.sp, mat="bmat");
+#' b = rowSums(demo.sp, mat="pmat");
+#' d = rowSums(demo.sp, mat="gmat");
 #' 
 #' @rdname rowSums-methods
 #' @aliases rowSums,snap-method
@@ -141,10 +172,10 @@ setMethod("rowSums", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=TR
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix
 #'
 #' @examples
-#' data(demo);
-#' bmatRMeans = rowMeans(demo, mat="bmat");
-#' pmatRMeans = rowMeans(demo, mat="pmat");
-#' gmatRMeans = rowMeans(demo, mat="gmat");
+#' data(demo.sp);
+#' a = rowMeans(demo.sp, mat="bmat");
+#' b = rowMeans(demo.sp, mat="pmat");
+#' d = rowMeans(demo.sp, mat="gmat");
 #' 
 #' @rdname rowMeans-methods
 #' @importFrom methods slot
@@ -171,10 +202,10 @@ setMethod("rowMeans", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=T
 #' @param na.rm A logical variable indicates wether to remove NA in the matrix.
 #' 
 #' @examples
-#' data(demo);
-#' bmatCMeans = colMeans(demo, mat="bmat");
-#' pmatCMeans = colMeans(demo, mat="pmat");
-#' gmatCMeans = colMeans(demo, mat="gmat");
+#' data(demo.sp);
+#' a = colMeans(demo.sp, mat="bmat");
+#' b = colMeans(demo.sp, mat="pmat");
+#' d = colMeans(demo.sp, mat="gmat");
 #' 
 #' @rdname colMeans-methods
 #' @importFrom methods slot
@@ -195,15 +226,14 @@ setMethod("colMeans", "snap", function(x, mat=c("bmat", "pmat", "gmat"), na.rm=T
 #' This function takes any object as input and check if it is a snap object
 #' @param obj A snap object
 #' @examples
-#' data(demo);
-#' is.snap(demo);
+#' data(demo.sp);
+#' is.snap(demo.sp);
 #' @rdname is.snap-methods
 #' @exportMethod is.snap
 setGeneric("is.snap", function(obj) standardGeneric("is.snap"))
 
 #' @rdname is.snap-methods
 #' @aliases is.snap,snap-method
-
 setMethod("is.snap", "snap", function(obj) return(is(obj, "snap")));
 
 #' subsetting for snap objects
@@ -215,11 +245,13 @@ setMethod("is.snap", "snap", function(obj) return(is(obj, "snap")));
 #' @param mat character; indicates the slot to subsetting
 #' @param drop character; 
 #' @examples
-#' data(demo);
-#' demo.sub = demo[1:10,];
+#' data(demo.sp);
+#' demo.sp[1:10,];
+#' demo.sp[,1:10,mat="bmat"];
+#' demo.sp[,1:10,mat="pmat"];
 #' @export
 setMethod("[", "snap",
-	function(x,i,j,mat=c("bmat", "pmat"), drop="missing"){
+	function(x,i,j,mat=c("bmat", "pmat", "gmat"), drop="missing"){
 		.barcode = x@barcode;
 		.file = x@file;
 		.sample = x@sample;
@@ -262,6 +294,8 @@ setMethod("[", "snap",
 	   		}else if(mat == "pmat"){
  	 		   if(ncol(.pmat) > 0){.pmat <- .pmat[,j,drop=FALSE]}
 			   if(length(.peak) > 0){.peak <- .peak[j];}	   
+	   		}else if(mat == "gmat"){
+ 	 		   if(ncol(.gmat) > 0){.gmat <- .gmat[,j,drop=FALSE]}
 	   		}
 	   }
 	   x@bmat = .bmat;
@@ -283,20 +317,30 @@ setMethod("[", "snap",
 	   return(x);
 })
 
-# Check barcode existance in snap file
-#
-# This function takes an array of barcodes and a snap-format file as input 
-# and check whether selected barcodes exist in the snap file.
-# 
-# @param barcode An array of selected barcodes.
-# @param file A snap format file.
-# 
-# @return Return an array of logical variable indicates whether the 
-# barcode exists in snap file.
-# 
+#' Check barcode existance in snap file
+#'
+#' This function takes an array of barcodes and a snap-format file as input 
+#' and check whether selected barcodes exist in the snap file.
+#' 
+#' @param barcode An array of selected barcodes.
+#' @param file A snap format file.
+#' 
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' barcodes = c("ACATTGGCAACCAGGTTGCTGGTATTGGAAGT", "ACATTGGCAAGAGGCAACAAGGATATCTGAGT");
+#' barcodeInSnapFile(barcodes, file.name);
+#' 
+#' @return Return an array of logical variable indicates whether the 
+#' barcode exists in snap file.
 #' @importFrom rhdf5 h5read
 #' @importFrom methods is
+#' @export
 barcodeInSnapFile <- function(barcode, file){
+	UseMethod("barcodeInSnapFile", barcode);
+}
+
+#' @export
+barcodeInSnapFile.default <- function(barcode, file){
 	
 	if(missing(file)){
 		stop("file is missing");
@@ -317,7 +361,7 @@ barcodeInSnapFile <- function(barcode, file){
 		}
 	}
 	
-	barcode.ref = as.character(tryCatch(barcode.ref <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
+	barcode.ref = as.character(tryCatch(barcode.ref <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @barcodeInSnapFile: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
 	        options(scipen=999);
 	return(barcode %in% barcode.ref);
 
@@ -332,6 +376,10 @@ barcodeInSnapFile <- function(barcode, file){
 #' @param sample A short sample name (i.g. "MOS.rep1").
 #' @param description Description of the experiment [NULL].
 #' @param num.cores Number of processers to use [1].
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' demo.sp = createSnap(file.name, sample="demo");
+#' 
 #' @return A snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom parallel mclapply
@@ -342,7 +390,7 @@ createSnap <- function(file, sample, description, num.cores) {
 }
 
 #' @export
-createSnap.default <- function(file, sample, description=NULL, num.cores=2){
+createSnap.default <- function(file, sample, description=NULL, num.cores=1){
 	
 	if(missing(file)){
 		stop("file is missing");
@@ -355,14 +403,10 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 		}		
 	}
 	
-	if(missing(num.cores)){
-		stop("num.cores is missing")
-	}else{
-		if(!is.numeric(num.cores)){
-			stop("num.cores is not an integer")
-		}		
-		num.cores = round(num.cores);
-	}
+	if(!is.numeric(num.cores)){
+		stop("num.cores is not an integer")
+	}		
+	num.cores = round(num.cores);
 
 	fileList = as.list(file);	
 	if(missing(sample)){
@@ -428,6 +472,13 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=2){
 #' @param bin.size Cell-by-bin matrix with bin size of bin.size 
 #' will be added to snap object.
 #' @param num.cores Number of processors to use.
+#' 
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' demo.sp = createSnap(file.name, sample="demo");
+#' showBinSizes(file.name);
+#' demo.sp = addBmatToSnap(demo.sp, bin.size=100000);
+#' 
 #' @return Return a snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
@@ -451,14 +502,10 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 		}
 	}
 	
-	if(missing(num.cores)){
-		stop("num.cores is missing")
-	}else{
-		if(!is.numeric(num.cores)){
-			stop("num.cores is not an integer")
-		}		
-		num.cores = round(num.cores);
-	}
+	if(!is.numeric(num.cores)){
+		stop("num.cores is not an integer")
+	}		
+	num.cores = round(num.cores);
 	
 	fileList = as.list(unique(obj@file));
 
@@ -495,7 +542,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 
 	# check if bins match
 	bin.list = lapply(fileList, function(x){
-		readBins(x)
+		readBins(x, bin.size=bin.size)
 	})
 	
 	if(!all(sapply(bin.list, FUN = identical, bin.list[[1]]))){
@@ -507,7 +554,7 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 	num.cores = max(num.cores, 2);
 	obj.ls = mclapply(fileList, function(file){
 		idx = which(obj@file == file)
-		addBmatToSnapSingle(obj[idx,], file);
+		addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 	}, mc.cores=num.cores);
 	
 	# combine
@@ -530,6 +577,12 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 #' 
 #' @param obj A snap object.
 #' @param num.cores Number of processors to use.
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' demo.sp = createSnap(file.name, sample="demo");
+#' showBinSizes(file.name);
+#' demo.sp = addPmatToSnap(demo.sp);
+#' 
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
@@ -540,7 +593,7 @@ addPmatToSnap <- function(obj, num.cores){
 }
 
 #' @export
-addPmatToSnap.default <- function(obj, num.cores=2){
+addPmatToSnap.default <- function(obj, num.cores=1){
 	# close the previously opened H5 file
 	H5close();
 	if(missing(obj)){
@@ -551,14 +604,10 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 		}
 	}
 	
-	if(missing(num.cores)){
-		stop("num.cores is missing")
-	}else{
-		if(!is.numeric(num.cores)){
-			stop("num.cores is not an integer")
-		}		
-		num.cores = round(num.cores);
-	}
+	if(!is.numeric(num.cores)){
+		stop("num.cores is not an integer")
+	}		
+	num.cores = round(num.cores);
 	
 	
 	fileList = as.list(unique(obj@file));
@@ -625,6 +674,11 @@ addPmatToSnap.default <- function(obj, num.cores=2){
 #' 
 #' @param obj A snap object to add cell-by-bin matrix.
 #' @param num.cores Number of processors to use.
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' demo.sp = createSnap(file.name, sample="demo");
+#' demo.sp = addGmatToSnap(demo.sp);
+#' 
 #' @return Return a snap object
 #' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
@@ -636,7 +690,7 @@ addGmatToSnap <- function(obj, num.cores) {
 }
 
 #' @export
-addGmatToSnap.default <- function(obj, num.cores=2){	
+addGmatToSnap.default <- function(obj, num.cores=1){	
 	# close the previously opened H5 file
 	H5close();
 	if(missing(obj)){
@@ -647,14 +701,10 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 		}
 	}
 	
-	if(missing(num.cores)){
-		stop("num.cores is missing")
-	}else{
-		if(!is.numeric(num.cores)){
-			stop("num.cores is not an integer")
-		}		
-		num.cores = round(num.cores);
-	}
+	if(!is.numeric(num.cores)){
+		stop("num.cores is not an integer")
+	}		
+	num.cores = round(num.cores);
 	
 	fileList = as.list(unique(obj@file));
 
@@ -708,7 +758,11 @@ addGmatToSnap.default <- function(obj, num.cores=2){
 #' matrix in the existing snap object. Report error when cell-by-bin matrix is empty.
 #' 
 #' @param obj A snap object to remove cell-by-bin matrix.
-#' @return Return a snap object
+#' @examples
+#' data(demo.sp)
+#' rmBmatFromSnap(demo.sp)
+#' 
+#' @return Return a snap object without cell-by-bin matrix 
 #' @importFrom methods slot
 #' @importFrom GenomicRanges GRanges
 #' @import Matrix
@@ -744,7 +798,11 @@ rmBmatFromSnap.default <- function(obj){
 #' matrix in the existing snap object. Report error when cell-by-peak matrix is empty.
 #' 
 #' @param obj A snap object to remove cell-by-peak matrix.
-#' @return Return a snap object
+#' @examples
+#' data(demo.sp)
+#' rmPmatFromSnap(demo.sp)
+#' 
+#' @return Return a snap object without cell-by-peak matrix
 #' @importFrom methods slot
 #' @importFrom GenomicRanges GRanges
 #' @import Matrix
@@ -780,7 +838,11 @@ rmPmatFromSnap.default <- function(obj){
 #' is empty.
 #' 
 #' @param obj A snap object to remove cell-by-gene matrix.
-#' @return Return a snap object
+#' @examples
+#' data(demo.sp)
+#' rmPmatFromSnap(demo.sp)
+#' 
+#' @return Return a snap object without cell-by-peak matrix
 #' @importFrom methods slot
 #' @importFrom GenomicRanges GRanges
 #' @import Matrix
@@ -808,7 +870,6 @@ rmGmatFromSnap.default <- function(obj){
 	return(obj);
 }
 
-
 #' Create a snap object from cell-by-bin matrix
 #' 
 #' This function takes a cell-by-bin count matrix as input and returns a snap object.
@@ -816,9 +877,19 @@ rmGmatFromSnap.default <- function(obj){
 #' @param mat A sparse matrix
 #' @param barcodes Corresponding barcodes
 #' @param bins A GenomicRanges object for the genomic coordinates of the bins
-#' 
+#' @examples
+#' library("GenomicRanges");
+#' mat = Matrix(sample(0:10, 100, replace=TRUE),sparse=TRUE, ncol=5);
+#' barcodes = paste("barcode", seq(nrow(mat)), sep=".");
+#' chroms = c("chr1", "chr1", "chr1", "chr1", "chr1");
+#' pos = c(1, 5001, 10001, 15001, 20001);
+#' bins = GRanges(chroms, IRanges(pos, pos+5000));
+#' x.sp = createSnapFromBmat(
+#'	mat, 
+#'	barcodes=barcodes,
+#'	bins=bins
+#'	);
 #' @return Return a snap object
-#' @importFrom rhdf5 h5read H5close
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
 #' @importFrom methods is
@@ -863,7 +934,18 @@ createSnapFromBmat.default <- function(mat, barcodes, bins){
 #' @param mat A sparse matrix
 #' @param barcodes Corresponding barcodes
 #' @param peaks A GRanges object for the genomic coordinates of peaks
-#' @importFrom rhdf5 h5read H5close
+#' @examples
+#' library("GenomicRanges");
+#' mat = Matrix(sample(0:10, 100, replace=TRUE),sparse=TRUE, ncol=5);
+#' barcodes = paste("barcode", seq(nrow(mat)), sep=".");
+#' chroms = c("chr1", "chr1", "chr1", "chr1", "chr1");
+#' pos = c(1, 5001, 10001, 15001, 20001);
+#' peaks = GRanges(chroms, IRanges(pos, pos+100));
+#' x.sp = createSnapFromPmat(
+#'	mat, 
+#'	barcodes=barcodes,
+#'	peaks=peaks
+#'	);
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
 #' @importFrom methods is
@@ -907,7 +989,15 @@ createSnapFromPmat.default <- function(mat, barcodes, peaks){
 #' @param mat A sparse matrix
 #' @param barcodes An array of characters for barcodes
 #' @param gene.names An array of characters for gene names
-#' @importFrom rhdf5 h5read H5close
+#' @examples
+#' mat = Matrix(sample(0:10, 100, replace=TRUE),sparse=TRUE, ncol=5);
+#' barcodes = paste("barcode", seq(nrow(mat)), sep=".");
+#' gene.names = paste("genes", seq(ncol(mat)), sep=".");
+#' x.sp = createSnapFromGmat(
+#'	mat, 
+#'	barcodes=barcodes,
+#'	gene.names=gene.names
+#'	);
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
 #' @importFrom methods is
@@ -949,6 +1039,11 @@ createSnapFromGmat.default <- function(mat, barcodes, gene.names){
 #' Take a snap file as input and read the barcode session only.
 #'
 #' @param file character for the snap-format file name which the data are to be read from.
+#'
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' md = readMetaData(file.name);
+#' 
 #' @return A data frame contains barcodes and its attributes
 #'
 #' @importFrom rhdf5 h5read
@@ -1061,6 +1156,10 @@ exportMetaData.default <- function(obj, file, slot.names=c('barcode', 'cluster',
 #' 
 #' @param obj1 A snap object for replicate 1
 #' @param obj2 A snap object for replicate 2 [NULL].
+#' @examples
+#' data(demo.sp);
+#' calBmatCor(demo.sp)
+#' 
 #' @return Return pearson correlation between replicates.
 #' @importFrom stats cor
 #' @importFrom methods is
@@ -1247,6 +1346,15 @@ snapRbind <- function(obj1, obj2){
 #' @param subset.names Attributes used to filter cells c('fragment.num', 'UMI', 'mito.ratio', 'umap.ratio', 'dup.ratio', 'pair.ratio'). 
 #' @param low.thresholds Low cutoffs for the parameters (default is -Inf)
 #' @param high.thresholds High cutoffs for the parameters (default is Inf)
+#' 
+#' @examples
+#' data(demo.sp);
+#' filterCells(
+#'	obj=demo.sp, 
+#'	subset.names=c("UMI"), 
+#'	low.thresholds=c(10),
+#'	high.thresholds=c(Inf)
+#'	);
 #'
 #' @return Returns a snap object containing only the relevant subset of cells
 #' 
@@ -1327,6 +1435,14 @@ filterCells.default <- function(
 #' @param high.threshold High cutoffs for the parameters (default is 2)
 #' @param mat Matrix to filter c("bmat", "pmat")
 #'
+#' @examples
+#' data(demo.sp);
+#' filterBins(
+#'	obj=demo.sp, 
+#'	low.threshold=-2,
+#'	high.threshold=2
+#'	);
+#' 
 #' @return Returns a snap obj
 #' @importFrom stats sd
 #' @importFrom methods slot is
@@ -1363,12 +1479,14 @@ filterBins.default <- function(obj, low.threshold=-2, high.threshold=2, mat=c("b
 	return(obj)
 }
 
-
-
 #' Check a snap-format file
 #' 
 #' This function takes a file name as input and check if the file is a snap-formated file 
 #' @param file A file name.
+#' @examples
+#' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
+#' isSnapFile(file.name);
+#' 
 #' @return Return a logical variable indicates whether file is a snap file.
 #' @importFrom rhdf5 h5read h5ls
 #' 
@@ -1425,7 +1543,6 @@ readBins <- function(file, bin.size=5000){
 	rm(binChrom, binStart);
 	return(bins)
 }
-
 
 readPeaks <- function(file){	
 	H5close();

@@ -5,6 +5,9 @@
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
 #' @param ... Arguments passed to hist method.
+#' @examples 
+#' data(demo.sp);
+#' plotBarcode(demo.sp, col="grey", border="grey");
 #' @importFrom graphics par hist 
 #' @importFrom grDevices pdf dev.off
 #' @export
@@ -67,6 +70,9 @@ plotBarcode.default <- function(
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
 #' @param ... Arguments passed to hist method.
+#' @examples 
+#' data(demo.sp);
+#' plotBinCoverage(demo.sp, col="grey", border="grey");
 #' @importFrom stats sd
 #' @importFrom grDevices pdf dev.off
 #' @importFrom graphics hist
@@ -149,6 +155,50 @@ plotBinCoverage.default <- function(
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
 #' @param ... Arguments passed to plot method.
+#'
+#' @examples 
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' demo.sp = runJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	mat="bmat"
+#'	);
+#' demo.sp = runNormJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir()
+#'	);
+#' demo.sp = runDimReduct(
+#'	obj=demo.sp, 
+#'	pc.num=10, 
+#'	input.mat="jmat"
+#'	);
+#' demo.sp = runKNN(
+#'	obj=demo.sp, 
+#'	pca.dims=1:5, 
+#'	k=15, 
+#'	snn=TRUE, 
+#'	save.knn=FALSE
+#'	);
+#' demo.sp = runCluster(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	louvain.lib="R-igraph"
+#'	);
+#' demo.sp = runViz(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	pca.dims=1:5, 
+#'	method="Rtsne"
+#'	);
+#' plotViz(
+#' 	obj=demo.sp, 
+#' 	method="tsne", 
+#' 	point.color="sample", 
+#' 	text.add=FALSE,
+#'	legend.add=TRUE
+#' );
+#' 
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
@@ -303,6 +353,26 @@ plotViz.default <- function(obj,
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
 #' @param ... Arguments passed to plot function. 
+#'
+#' @examples 
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' demo.sp = runJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	mat="bmat"
+#'	);
+#' demo.sp = runNormJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir()
+#'	);
+#' demo.sp = runDimReduct(
+#'	obj=demo.sp, 
+#'	pc.num=10, 
+#'	input.mat="jmat"
+#'	);
+#' plotDimReductElbow(demo.sp);
+#' 
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
@@ -370,12 +440,32 @@ plotDimReductElbow.default <- function(
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
+#' 
+#' @examples 
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' demo.sp = runJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	mat="bmat"
+#'	);
+#' demo.sp = runNormJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir()
+#'	);
+#' demo.sp = runDimReduct(
+#'	obj=demo.sp, 
+#'	pc.num=10, 
+#'	input.mat="jmat"
+#'	);
+#' plotDimReductPW(demo.sp, pca.dims=1:10);
+#' 
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
 #' @importFrom graphics plot text title mtext
 #' @export
-plotDimReductPW <- function(obj,  pca.dims, point.size, point.color, point.shape, point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width){
+plotDimReductPW <- function(obj, pca.dims, point.size, point.color, point.shape, point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width){
   UseMethod("plotDimReductPW", obj);
 }
 
@@ -458,7 +548,6 @@ plotDimReductPW.default <- function(
 	graphics::par(mfrow=c(1,1));
 }
 
-##########################################################
 #' Plot gene-body accessibility level
 #'
 #' @param obj A snap object.
@@ -482,6 +571,58 @@ plotDimReductPW.default <- function(
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
 #' @param ... Arguments passed to plot method.
+#' 
+#' @examples 
+#' data(demo.sp);
+#' demo.sp = makeBinary(demo.sp, mat="bmat");
+#' demo.sp = runJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	mat="bmat"
+#'	);
+#' demo.sp = runNormJaccard(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir()
+#'	);
+#' demo.sp = runDimReduct(
+#'	obj=demo.sp, 
+#'	pc.num=10, 
+#'	input.mat="jmat"
+#'	);
+#' demo.sp = runKNN(
+#'	obj=demo.sp, 
+#'	pca.dims=1:5, 
+#'	k=15, 
+#'	snn=TRUE, 
+#'	save.knn=FALSE
+#'	);
+#' demo.sp = runCluster(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	louvain.lib="R-igraph"
+#'	);
+#' demo.sp = runViz(
+#'	obj=demo.sp, 
+#'	tmp.folder=tempdir(), 
+#'	pca.dims=1:5, 
+#'	method="Rtsne"
+#'	);
+#' demo.sp = scaleCountMatrix(
+#'	obj=demo.sp,
+#'	mat="gmat",
+#'	cov=rowSums(demo.sp, mat="bmat"),
+#'	method="RPM"
+#'	)
+#' gene.names = c(
+#'	"Prdm14",   "E330040D14Rik", "Gm17971",       
+#'	"Gm17970",	"Defb44-ps",     "Gm7357",
+#'	"Gm37265",  "Kctd18",		"Gm37143"
+#'	)
+#' plotGene(
+#'	obj=demo.sp, 
+#'	gene.names=gene.names, 
+#'	viz.method="tsne"
+#'	)
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot 
 #' @importFrom scales alpha
@@ -618,9 +759,6 @@ plotGene.default <- function(
 	}
 	par(mfrow=c(1,1));
 }
-
-
-
 
 #' Feature Enrichment Boxplot
 #'

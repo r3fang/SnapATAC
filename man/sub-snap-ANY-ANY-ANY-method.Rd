@@ -5,7 +5,7 @@
 \alias{[,snap,ANY,ANY,ANY-method}
 \title{subsetting for snap objects}
 \usage{
-\S4method{[}{snap,ANY,ANY,ANY}(x, i, j, mat = c("bmat", "pmat"),
+\S4method{[}{snap,ANY,ANY,ANY}(x, i, j, mat = c("bmat", "pmat", "gmat"),
   drop = "missing")
 }
 \arguments{
@@ -23,6 +23,8 @@
 This function takes a snap object and returns the subset of snap object.
 }
 \examples{
-data(demo);
-demo.sub = demo[1:10,];
+data(demo.sp);
+demo.sp[1:10,];
+demo.sp[,1:10,mat="bmat"];
+demo.sp[,1:10,mat="pmat"];
 }
