@@ -1,11 +1,11 @@
 ## SnapATAC (Development)
-**SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) clusters cells without reliance on open chromatin peaks defined by aggregate signal; 2) adjusts for sequencing depth differing between cells; 3) can scale up to millions of cells; 4) uncovers cis-regulatory elements in identified cell types; 5) processes multiple samples together. 
+**SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) clusters cells without reliance on open chromatin peaks defined by aggregate signal; 2) adjusts for sequencing depth differing between cells; 3) can scale up to millions of cells; 4) sensitive to uncover cis-regulatory elements in rare cell types. 
 
 ## How fast is SnapATAC?  
 For 10X PBMC 10K single cell ATAC-seq dataset, from loading the cell count matrix to finding clusters, SnapATAC finishes the analysis within **4min**. On average, SnapATAC increase less than 30 seconds per thousand cells. 
 
 ## How accurate is SnapATAC?  
-When applied to a dataset from mouse secondary motor cortex, SnapATAC is able to identify nearly 50 cell types including rare population (Sst-Chodl) which accounts for less than 0.1% of the total population.
+When applied to a dataset from mouse secondary motor cortex, SnapATAC identifies nearly 50 cell types including rare population (Sst-Chodl) which accounts for less than 0.1% of the total population.
 
 ## Requirements  
 * Python (>=2.7)
@@ -15,8 +15,8 @@ When applied to a dataset from mouse secondary motor cortex, SnapATAC is able to
 
 SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
 
-* SnapTools - a preprocessing pipeline that works with [snap](https://github.com/r3fang/SnapATAC/wiki/FAQs) file. 
-* SnapATAC  - a R package for the clustering, annotation, motif and downstream analysis.    
+* SnapTools - a python module for pre-processing and working with [snap](https://github.com/r3fang/SnapATAC/wiki/FAQs) file. 
+* SnapATAC  - a R package for the clustering, annotation, motif discovery and downstream analysis.    
 
 Install snaptools from PyPI. See how to install snaptools on [FAQs](https://github.com/r3fang/SnapATAC/wiki/FAQs). 
 
@@ -24,7 +24,7 @@ Install snaptools from PyPI. See how to install snaptools on [FAQs](https://gith
 $ pip install snaptools
 ```
 
-Install SnapATAC R pakcage. 
+Install SnapATAC R pakcage (development version). 
 
 ```
 $ R
