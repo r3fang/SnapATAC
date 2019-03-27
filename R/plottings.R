@@ -341,6 +341,116 @@ plotViz.default <- function(obj,
 	}
 }
 
+#' PlotFeatureSingle
+#'
+#' @param obj A snap object.
+#' @param feature.value Feature enrichment value for each cell. Value will be normalized betweeen 0 and 1.
+#' @param method Visulization method c("tsne", "umap").
+#' @param point.size Point size [1].
+#' @param point.shape Point shape type [19].
+#' @param point.color Color of point ["red"]. 
+#' @param down.sample Downsample the original cells to down.sample cells to ovoid large dataset [10,000].
+#' @param pdf.file.name pdf file name to save the plot [NULL].
+#' @param pdf.width the width of the graphics region in inches [7].
+#' @param pdf.height the height of the graphics region in inches [7].
+#' @param ... Arguments passed to plot method.
+#'
+#' @importFrom grDevices pdf dev.off
+#' @importFrom methods slot
+#' @importFrom scales alpha
+#' @importFrom graphics plot text title legend
+#' @export
+PlotFeatureSingle <- function(obj, 
+	feature.value,
+	method, 
+	point.size, 
+	point.shape, 
+	point.color, 
+	down.sample, 
+	pdf.file.name, 
+	pdf.width, 
+	pdf.height, 
+	...
+){
+  UseMethod("PlotFeatureSingle", obj);
+}
+
+#' @export
+PlotFeatureSingle.default <- function(
+	obj, 
+	feature.value,
+	method=c("tsne", "umap"), 
+	point.size=1, 
+	point.shape=19, 
+	point.color="red",
+	down.sample=10000,
+	pdf.file.name=NULL,
+	pdf.width=7, 
+	pdf.height=7,
+	...
+){	
+	if(missing(obj)){
+		stop("obj is missing");
+	}else{
+		if(!is(obj, "snap")){
+			stop("obj is not a snap object");
+		}
+		ncell = nrow(obj);
+	}
+	
+	if(missing(feature.value)){
+		stop("feature.value is missing")
+	}else{
+		feature.value = (feature.value-min(feature.value))/(max(feature.value)-min(feature.value));
+	}
+	
+	if(is.integer(down.sample)){
+		stop("down.sample must be an integer");
+	}
+	
+	method = match.arg(method);
+	data.use = as.data.frame(slot(obj, method));
+	if((x=nrow(data.use)) == 0L){
+		stop("visulization method does not exist, run runViz first!")
+	}
+	
+	if(!is.null(pdf.file.name)){
+		if(file.exists(pdf.file.name)){
+			warning("pdf.file already exists");
+			file.remove(pdf.file.name);
+		}else{
+			if(!file.create(pdf.file.name)){
+				stop("cannot create pdf.file, not a directory")				
+			}
+			file.remove(pdf.file.name);
+		}	
+		pdf(pdf.file.name,width=pdf.width,height=pdf.height); 
+	}
+	
+	down.sample = min(down.sample, ncell);
+	idx.ds = sort(sample(seq(ncell), down.sample));
+	data.use = data.use[idx.ds,,drop=FALSE]
+										
+	graphics::plot(x=data.use[,1],
+				   y=data.use[,2],
+		 		   cex=point.size, 
+		 		   pch=point.shape, 
+		 		   col=scales::alpha(point.color, feature.value),
+		 		   xlab="",
+		 		   ylab="",
+		 		   yaxt='n',
+		 		   xaxt='n',
+		 		   axes=FALSE,
+		 		   ...
+				   );
+	graphics::title(ylab="Dim-2", line=0.5, cex.lab=1.2, font.lab=2)
+	graphics::title(xlab="Dim-1", line=0.5, cex.lab=1.2, font.lab=2)
+	graphics::box(lwd=2);		
+  	
+	if(!is.null(pdf.file.name)){
+		dev.off()		
+	}
+}
 
 #' Elbow Plot for Dimentionality Reduction Result
 #'
