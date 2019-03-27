@@ -1476,6 +1476,11 @@ filterBins.default <- function(obj, low.threshold=-2, high.threshold=2, mat=c("b
 	idy2 = which(zcov >= low.threshold & zcov <= high.threshold);
 	idy = idy[idy2];
 	methods::slot(obj, mat) = data.use[,idy,drop=FALSE];
+	if(mat=="bmat"){
+		obj@feature = obj@feature[idy];
+	}else if(mat=="pmat"){
+		obj@peak = obj@peak[idy];		
+	}
 	return(obj)
 }
 

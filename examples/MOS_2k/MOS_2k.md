@@ -5,6 +5,7 @@ We will be analyzing a subset of Secondary Motor Cortex (MOs) from Fang 2019. Th
 
 ```R
 $ R
+> library(SnapATAC);
 > system("wget http://renlab.sdsc.edu/r3fang/share/Fang_2019/published_scATAC/MOs_2k/MOs_2k.rda");
 > load("MOs_2k.rda");
 > x.sp
