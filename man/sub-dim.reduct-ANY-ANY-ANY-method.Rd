@@ -19,3 +19,7 @@
 \description{
 This function takes a dim.reduct object and returns the subset of the object.
 }
+\examples{
+data(demo.sp);
+demo.sub.sp = demo.sp[1:5,];
+}

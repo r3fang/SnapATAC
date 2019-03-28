@@ -158,39 +158,6 @@ plotBinCoverage.default <- function(
 #'
 #' @examples 
 #' data(demo.sp);
-#' demo.sp = makeBinary(demo.sp, mat="bmat");
-#' demo.sp = runJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	mat="bmat"
-#'	);
-#' demo.sp = runNormJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir()
-#'	);
-#' demo.sp = runDimReduct(
-#'	obj=demo.sp, 
-#'	pc.num=10, 
-#'	input.mat="jmat"
-#'	);
-#' demo.sp = runKNN(
-#'	obj=demo.sp, 
-#'	pca.dims=1:5, 
-#'	k=15, 
-#'	snn=TRUE, 
-#'	save.knn=FALSE
-#'	);
-#' demo.sp = runCluster(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	louvain.lib="R-igraph"
-#'	);
-#' demo.sp = runViz(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	pca.dims=1:5, 
-#'	method="Rtsne"
-#'	);
 #' plotViz(
 #' 	obj=demo.sp, 
 #' 	method="tsne", 
@@ -355,12 +322,30 @@ plotViz.default <- function(obj,
 #' @param pdf.height the height of the graphics region in inches [7].
 #' @param ... Arguments passed to plot method.
 #'
+#' @examples
+#' data(demo.sp);
+#' x = rexp(nrow(demo.sp));
+#' x = (x-min(x))/(max(x)-min(x));
+#' PlotFeatureSingle(
+#' 	obj=demo.sp, 
+#' 	feature.value=x,
+#' 	method="tsne", 
+#' 	point.size=1, 
+#' 	point.shape=19, 
+#' 	point.color="red", 
+#' 	down.sample=10000, 
+#' 	pdf.file.name=NULL, 
+#' 	pdf.width=7, 
+#' 	pdf.height=7
+#' )
+#' 
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
 #' @importFrom graphics plot text title legend
 #' @export
-PlotFeatureSingle <- function(obj, 
+PlotFeatureSingle <- function(
+	obj, 
 	feature.value,
 	method, 
 	point.size, 
@@ -466,21 +451,6 @@ PlotFeatureSingle.default <- function(
 #'
 #' @examples 
 #' data(demo.sp);
-#' demo.sp = makeBinary(demo.sp, mat="bmat");
-#' demo.sp = runJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	mat="bmat"
-#'	);
-#' demo.sp = runNormJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir()
-#'	);
-#' demo.sp = runDimReduct(
-#'	obj=demo.sp, 
-#'	pc.num=10, 
-#'	input.mat="jmat"
-#'	);
 #' plotDimReductElbow(demo.sp);
 #' 
 #' @importFrom grDevices pdf dev.off
@@ -553,21 +523,6 @@ plotDimReductElbow.default <- function(
 #' 
 #' @examples 
 #' data(demo.sp);
-#' demo.sp = makeBinary(demo.sp, mat="bmat");
-#' demo.sp = runJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	mat="bmat"
-#'	);
-#' demo.sp = runNormJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir()
-#'	);
-#' demo.sp = runDimReduct(
-#'	obj=demo.sp, 
-#'	pc.num=10, 
-#'	input.mat="jmat"
-#'	);
 #' plotDimReductPW(demo.sp, pca.dims=1:10);
 #' 
 #' @importFrom grDevices pdf dev.off
@@ -684,43 +639,10 @@ plotDimReductPW.default <- function(
 #' 
 #' @examples 
 #' data(demo.sp);
-#' demo.sp = makeBinary(demo.sp, mat="bmat");
-#' demo.sp = runJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	mat="bmat"
-#'	);
-#' demo.sp = runNormJaccard(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir()
-#'	);
-#' demo.sp = runDimReduct(
-#'	obj=demo.sp, 
-#'	pc.num=10, 
-#'	input.mat="jmat"
-#'	);
-#' demo.sp = runKNN(
-#'	obj=demo.sp, 
-#'	pca.dims=1:5, 
-#'	k=15, 
-#'	snn=TRUE, 
-#'	save.knn=FALSE
-#'	);
-#' demo.sp = runCluster(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	louvain.lib="R-igraph"
-#'	);
-#' demo.sp = runViz(
-#'	obj=demo.sp, 
-#'	tmp.folder=tempdir(), 
-#'	pca.dims=1:5, 
-#'	method="Rtsne"
-#'	);
 #' demo.sp = scaleCountMatrix(
 #'	obj=demo.sp,
 #'	mat="gmat",
-#'	cov=rowSums(demo.sp, mat="bmat"),
+#'	cov=SnapATAC::rowSums(demo.sp, mat="bmat"),
 #'	method="RPM"
 #'	)
 #' gene.names = c(
@@ -889,6 +811,11 @@ plotGene.default <- function(
 #' @importFrom methods slot 
 #' @importFrom scales alpha
 #' @importFrom methods is
+#' 
+#' @examples
+#' data(demo.sp);
+#' boxPlotFeature(demo.sp, rnorm(nrow(demo.sp)));
+#' 
 #' @export
 boxPlotFeature <- function(obj, feature, outline, ylab, main, add.point,  point.size, point.shape, point.alpha, pdf.file.name, pdf.height, pdf.width){
   UseMethod("boxPlotFeature", obj);

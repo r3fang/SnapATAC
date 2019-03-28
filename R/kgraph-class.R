@@ -9,6 +9,10 @@ NULL
 #' @slot file file name that saves that knn graph
 #' @slot snn knn is converted to snn graph if True
 #' @slot snn.prune snn prunning. edges with weight less than snn.prune will be removed
+#' @examples
+#' data(demo.sp);
+#' demo.sub.sp = demo.sp[1:5,]
+#' 
 #' @name kgraph-class
 #' @rdname kgraph-class
 #' @importFrom methods setClassUnion
@@ -45,6 +49,9 @@ setMethod(
 #' @param i selected rows
 #' @param j selected columns
 #' @param drop drop unused levels
+#' @examples
+#' data(demo.sp);
+#' demo.sub.sp = demo.sp[1:5,];
 #' @export
 setMethod(
 	f="[", 

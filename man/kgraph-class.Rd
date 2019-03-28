@@ -20,3 +20,8 @@ Class kgraph defines a kgraph object.
 \item{\code{snn.prune}}{snn prunning. edges with weight less than snn.prune will be removed}
 }}
 
+\examples{
+data(demo.sp);
+demo.sub.sp = demo.sp[1:5,]
+
+}

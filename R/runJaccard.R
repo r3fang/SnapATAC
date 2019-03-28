@@ -15,13 +15,14 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' @param mat A character class that indicates what matrix slot is used to calculate jaccard index c("bmat", "pmat", "gmat")
 #' @param max.var A numeric variable indicates the how many dimentions for jaccard index to be calcualted
 #' @param ncell.chunk A numeric class that indicates the number of cells to calculate per processing core 
+#' @param do.par A logic variable indicates weather to run this in parallel with multiple processors.
 #' @param num.cores Number of processors to use.
 #' @param seed.use A numeric variable indicates the random seed to use [10].
 #'
 #' @examples
 #' data(demo.sp);
 #' demo.sp = makeBinary(demo.sp, mat="bmat");
-#' demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+#' demo.sp = runJaccard(obj=demo.sp, mat="bmat", tmp.folder=tempdir(), do.par=FALSE);
 #' 
 #' @return Returns a Snap obj with the jaccard index matrix stored in obj@jmat
 #' @importFrom doParallel registerDoParallel
@@ -31,7 +32,7 @@ globalVariables(names = 'i', package = 'SnapATAC', add = TRUE)
 #' @importFrom methods slot
 #' @export
 
-runJaccard <- function(obj, tmp.folder, mat, max.var, ncell.chunk, num.cores, seed.use) {
+runJaccard <- function(obj, tmp.folder, mat, max.var, ncell.chunk, do.par, num.cores, seed.use) {
   UseMethod("runJaccard", obj);
 }
 
@@ -42,6 +43,7 @@ runJaccard.default <- function(
 	mat = c("bmat", "pmat", "gmat"),
 	max.var = 2000, 
 	ncell.chunk = 1000, 
+	do.par=TRUE,
 	num.cores=1,
 	seed.use = 10
 	){
@@ -79,67 +81,71 @@ runJaccard.default <- function(
 		stop("input matrix contains empty rows, remove empty rows first")	
 	}
     
-    # input checking for parallel options
-	if(num.cores > 1){
-        if (num.cores == 1) {
-          num.cores = 1
-        } else if (num.cores > detectCores()) {
-          num.cores <- detectCores() - 1
-          warning(paste0("num.cores set greater than number of available cores(", detectCores(), "). Setting num.cores to ", num.cores, "."))
-        }
-      } else if (num.cores != 1) {
-        num.cores <- 1
-	}
-	
 	max.var = min(max.var, nrow(mat.use));
-
 	# randomly select a subset of cells as reference 
 	set.seed(seed.use);
-	mat.ref = mat.use[sort(sample(seq(nrow(mat.use)), max.var)),]
+	mat.ref = mat.use[sort(sample(seq(nrow(mat.use)), max.var)),];
 	
-	# step 2) slice the orginal obj into list
-	id = seq(nrow(mat.use));
-	id.ls = split(id, ceiling(seq(id)/ncell.chunk));
+	if(do.par==TRUE){
+	    # input checking for parallel options
+		if(num.cores > 1){
+	        if (num.cores == 1) {
+	          num.cores = 1
+	        } else if (num.cores > detectCores()) {
+	          num.cores <- detectCores() - 1
+	          warning(paste0("num.cores set greater than number of available cores(", detectCores(), "). Setting num.cores to ", num.cores, "."))
+	        }
+	      } else if (num.cores != 1) {
+	        num.cores <- 1
+		}
+		
+		# step 2) slice the orginal obj into list
+		id = seq(nrow(mat.use));
+		id.ls = split(id, ceiling(seq(id)/ncell.chunk));
 	
-	message("Epoch: splitting obj into chunks ...");
-	if(length(id.ls) > 1){
-		id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
-		# remove the last item of the list
-		id.ls = id.ls[-length(id.ls)];
-	}		
+		message("Epoch: splitting obj into chunks ...");
+		if(length(id.ls) > 1){
+			id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
+			# remove the last item of the list
+			id.ls = id.ls[-length(id.ls)];
+		}		
 	
-	mat.list = splitBmat(mat.use, id.ls, num.cores, tmp.folder);
+		mat.list = splitBmat(mat.use, id.ls, num.cores, tmp.folder);
 	
-	message("Epoch: scheduling CPUs ...");
-	cl <- makeCluster(num.cores);
-	registerDoParallel(cl);	
+		message("Epoch: scheduling CPUs ...");
+		cl <- makeCluster(num.cores);
+		registerDoParallel(cl);	
 	
-	message("Epoch: calculating jaccard index for each chunk ...");
-	jmat <- foreach(i=seq(mat.list), .verbose=FALSE,  .export=c("calJaccardSingle", "calJaccard"), .combine = "rbind") %dopar% {
-		calJaccardSingle(mat.list[[i]], mat.ref)
+		message("Epoch: calculating jaccard index for each chunk ...");
+		jmat <- foreach(i=seq(mat.list), .verbose=FALSE,  .export=c("calJaccardSingle", "calJaccard"), .combine = "rbind") %dopar% {
+			calJaccardSingle(mat.list[[i]], mat.ref)
+		}
+		stopCluster(cl);
+		closeAllConnections();
+		gc();	
+		
+		message("Epoch: cleaning up ...");
+		rm(id.ls);
+		lapply(mat.list, function(x){
+			file.remove(x);
+		})
+		rm(mat.list);
+		gc();
+		
+	}else{
+		jmat = calJaccard(mat.use, mat.ref)
 	}
-	stopCluster(cl);
-	closeAllConnections();
-	gc();	
-	
+
 	p1   <- Matrix::rowMeans(mat.use);
 	p2   <- Matrix::rowMeans(mat.ref);
-
-	# remove large objects
-	message("Epoch: cleaning up ...");
 	rm(mat.ref);
-	rm(id.ls);
-	gc();
+	rm(mat.use);
+	# remove large objects
 	obj@jmat@jmat = jmat;
 	obj@jmat@p1 = p1;
 	obj@jmat@p2 = p2;
 	obj@jmat@norm = FALSE;
 	obj@jmat@method = character();
-	lapply(mat.list, function(x){
-		file.remove(x);
-	})
-	rm(mat.list);
 	return(obj);
 }
-
 

@@ -33,3 +33,21 @@ PlotFeatureSingle(obj, feature.value, method, point.size, point.shape,
 \description{
 PlotFeatureSingle
 }
+\examples{
+data(demo.sp);
+x = rexp(nrow(demo.sp));
+x = (x-min(x))/(max(x)-min(x));
+PlotFeatureSingle(
+	obj=demo.sp, 
+	feature.value=x,
+	method="tsne", 
+	point.size=1, 
+	point.shape=19, 
+	point.color="red", 
+	down.sample=10000, 
+	pdf.file.name=NULL, 
+	pdf.width=7, 
+	pdf.height=7
+)
+
+}

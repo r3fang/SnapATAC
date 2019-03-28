@@ -31,9 +31,6 @@ This function takes a snap obj as input and performs computation of linear dimen
 }
 \examples{
 data(demo.sp);
-demo.sp = makeBinary(demo.sp, mat="bmat");
-demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
-demo.sp = runNormJaccard(obj=demo.sp, tmp.folder=tempdir());
 demo.sp = runDimReduct(obj=demo.sp, pc.num=10, input.mat="jmat");
 
 }

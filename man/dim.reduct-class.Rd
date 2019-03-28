@@ -20,3 +20,7 @@ Class defines a dim.reduct object.
 \item{\code{character}}{a character object indicates the method used for dimentionality reduction}
 }}
 
+\examples{
+data(demo.sp);
+demo.sub.sp = demo.sp[1:5,]
+}

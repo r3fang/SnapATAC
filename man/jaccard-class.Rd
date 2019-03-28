@@ -20,3 +20,7 @@ Class jaccard defines a jaccard object.
 \item{\code{method}}{normalization method used to normalize jaccard index matrix}
 }}
 
+\examples{
+data(demo.sp);
+demo.sub.sp = demo.sp[1:5,]
+}

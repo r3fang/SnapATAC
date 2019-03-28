@@ -19,3 +19,7 @@
 \description{
 This function takes a jaccard object and returns the subset of jaccard object.
 }
+\examples{
+data(demo.sp);
+demo.sub.sp = demo.sp[1:5,]
+}

@@ -18,6 +18,18 @@
 #' @param fdr False discovery rate (FDR) [5e-2].
 #' @param pvalue Pvalue [1e-2].
 #' 
+#' @examples
+#' data(demo.sp);
+#' idy = findDAR(
+#'	obj=demo.sp, 
+#'  mat="pmat", 
+#'  cluster.pos=1, 
+#'  bcv=0.1, 
+#'  fdr=0.01, 
+#'  test.method="exactTest", 
+#'  seed.use=10
+#'  );
+#' 
 #' @importFrom methods slot
 #' @importFrom edgeR DGEList glmLRT glmFit glmQLFit exactTest
 #' @importFrom stats model.matrix

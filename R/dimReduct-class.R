@@ -8,6 +8,9 @@ NULL
 #' @slot sdev variance for each principal conponents
 #' @slot iter iterations used for running dimentionality reduction 
 #' @slot character a character object indicates the method used for dimentionality reduction
+#' @examples
+#' data(demo.sp);
+#' demo.sub.sp = demo.sp[1:5,]
 #' @name dim.reduct-class
 #' @rdname dim.reduct-class
 dim.reduct <- setClass(
@@ -38,6 +41,9 @@ setMethod(
 #' @param i integer; selected rows
 #' @param j integer; selected dimentions
 #' @param drop character; 
+#' @examples
+#' data(demo.sp);
+#' demo.sub.sp = demo.sp[1:5,];
 #' @export
 setMethod("[", "dim.reduct",
 	function(x,i,j, drop="missing"){

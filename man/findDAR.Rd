@@ -35,3 +35,16 @@ for technical replicates.}
 This function takes a snap object and finds differentially 
 accessible regions (DARs) that define clusters.
 }
+\examples{
+data(demo.sp);
+idy = findDAR(
+obj=demo.sp, 
+ mat="pmat", 
+ cluster.pos=1, 
+ bcv=0.1, 
+ fdr=0.01, 
+ test.method="exactTest", 
+ seed.use=10
+ );
+
+}

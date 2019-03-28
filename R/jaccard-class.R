@@ -9,6 +9,9 @@ NULL
 #' @slot p2 an array of numeric values indicates the coverage for columns
 #' @slot norm a logical variable indicates whether jaccard index matrix has been normalized
 #' @slot method normalization method used to normalize jaccard index matrix
+#' @examples
+#' data(demo.sp);
+#' demo.sub.sp = demo.sp[1:5,]
 #' @name jaccard-class
 #' @rdname jaccard-class
 #' @importFrom methods setClassUnion
@@ -44,6 +47,9 @@ setMethod(
 #' @param i selected rows
 #' @param j selected columns
 #' @param drop drop unused levels
+#' @examples
+#' data(demo.sp);
+#' demo.sub.sp = demo.sp[1:5,]
 #' @export
 setMethod(
 	f="[", 

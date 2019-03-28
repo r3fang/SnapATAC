@@ -35,3 +35,8 @@ boxPlotFeature(obj, feature, outline, ylab, main, add.point, point.size,
 \description{
 Feature Enrichment Boxplot
 }
+\examples{
+data(demo.sp);
+boxPlotFeature(demo.sp, rnorm(nrow(demo.sp)));
+
+}

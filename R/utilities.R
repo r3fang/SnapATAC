@@ -1,4 +1,3 @@
-
 # Find centroid of each cluster
 # @param x coordinates
 # @param y cluster label

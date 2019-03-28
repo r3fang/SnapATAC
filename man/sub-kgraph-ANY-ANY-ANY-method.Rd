@@ -19,3 +19,7 @@
 \description{
 This function takes a kgraph object and returns the subset of kgraph object.
 }
+\examples{
+data(demo.sp);
+demo.sub.sp = demo.sp[1:5,];
+}

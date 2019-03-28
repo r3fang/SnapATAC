@@ -33,21 +33,6 @@ Pairwise plot for Dimentionality Reduction Result
 }
 \examples{
 data(demo.sp);
-demo.sp = makeBinary(demo.sp, mat="bmat");
-demo.sp = runJaccard(
-obj=demo.sp, 
-tmp.folder=tempdir(), 
-mat="bmat"
-);
-demo.sp = runNormJaccard(
-obj=demo.sp, 
-tmp.folder=tempdir()
-);
-demo.sp = runDimReduct(
-obj=demo.sp, 
-pc.num=10, 
-input.mat="jmat"
-);
 plotDimReductPW(demo.sp, pca.dims=1:10);
 
 }

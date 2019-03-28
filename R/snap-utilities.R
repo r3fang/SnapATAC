@@ -1078,6 +1078,9 @@ readMetaData.default <- function(file){
 #' @importFrom methods slot
 #' @importFrom utils write.table
 #' @importFrom methods is
+#' @examples
+#' data(demo.sp);
+#' exportMetaData(demo.sp, file="demo.metadata.txt", slot.names=c("barcode", "tsne"));
 #' @export
 exportMetaData <- function(obj, file, slot.names){
     UseMethod("exportMetaData", obj);	

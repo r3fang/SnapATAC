@@ -4,7 +4,8 @@
 \alias{runJaccard}
 \title{Calcualte Jaccard Index Matrix}
 \usage{
-runJaccard(obj, tmp.folder, mat, max.var, ncell.chunk, num.cores, seed.use)
+runJaccard(obj, tmp.folder, mat, max.var, ncell.chunk, do.par, num.cores,
+  seed.use)
 }
 \arguments{
 \item{obj}{A Snap obj}
@@ -16,6 +17,8 @@ runJaccard(obj, tmp.folder, mat, max.var, ncell.chunk, num.cores, seed.use)
 \item{max.var}{A numeric variable indicates the how many dimentions for jaccard index to be calcualted}
 
 \item{ncell.chunk}{A numeric class that indicates the number of cells to calculate per processing core}
+
+\item{do.par}{A logic variable indicates weather to run this in parallel with multiple processors.}
 
 \item{num.cores}{Number of processors to use.}
 
@@ -37,6 +40,6 @@ to create the full jaccard index matrix.
 \examples{
 data(demo.sp);
 demo.sp = makeBinary(demo.sp, mat="bmat");
-demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
+demo.sp = runJaccard(obj=demo.sp, mat="bmat", tmp.folder=tempdir(), do.par=FALSE);
 
 }

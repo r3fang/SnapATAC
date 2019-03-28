@@ -359,4 +359,3 @@ runMACSForAll <- function(
 	peaks.gr = GenomicRanges::reduce(do.call(c, peak.ls));
 	return(peaks.gr);
 }
-

@@ -5,7 +5,7 @@
 \title{Normalize Jaccard Index Matrix}
 \usage{
 runNormJaccard(obj, tmp.folder, ncell.chunk, method, k, row.center, row.scale,
-  low.threshold, high.threshold, num.cores, seed.use)
+  low.threshold, high.threshold, do.par, num.cores, seed.use)
 }
 \arguments{
 \item{obj}{A snap obj}
@@ -25,6 +25,8 @@ runNormJaccard(obj, tmp.folder, ncell.chunk, method, k, row.center, row.scale,
 \item{low.threshold}{A numeric class that indicates the min value for normalized jaccard index [-5].}
 
 \item{high.threshold}{A numeric class that indicates the max value for normalized jaccard index [5].}
+
+\item{do.par}{A logical variable indicates if to run this in parallel using multiple processors [TRUE].}
 
 \item{num.cores}{A numeric class that indicates the number of cores to use for calculation [1].}
 
@@ -66,8 +68,8 @@ OVE to similar level with OVN. The scale factor is estimated from the data.
 }
 \examples{
 data(demo.sp);
-demo.sp = makeBinary(demo.sp, mat="bmat");
-demo.sp = runJaccard(obj=demo.sp, tmp.folder=tempdir(), mat="bmat");
-demo.sp = runNormJaccard(obj=demo.sp, tmp.folder=tempdir());
+demo.sp = makeBinary(demo.sp);
+demo.sp = runJaccard(obj=demo.sp, mat="bmat", do.par=FALSE, tmp.folder=tempdir());
+demo.sp = runNormJaccard(obj=demo.sp, do.par=FALSE, tmp.folder=tempdir());
 
 }
