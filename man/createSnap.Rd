@@ -4,7 +4,7 @@
 \alias{createSnap}
 \title{Create a snap object from a snap file}
 \usage{
-createSnap(file, sample, description, num.cores)
+createSnap(file, sample, description, do.par, num.cores)
 }
 \arguments{
 \item{file}{Name of a snap-format file.}
@@ -12,6 +12,8 @@ createSnap(file, sample, description, num.cores)
 \item{sample}{A short sample name (i.g. "MOS.rep1").}
 
 \item{description}{Description of the experiment [NULL].}
+
+\item{do.par}{A logical variable indicates if run this using multiple processors [FALSE].}
 
 \item{num.cores}{Number of processers to use [1].}
 }
@@ -24,6 +26,6 @@ a snap object.
 }
 \examples{
 file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-demo.sp = createSnap(file.name, sample="demo");
+demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
 
 }

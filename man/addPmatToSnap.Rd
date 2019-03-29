@@ -4,12 +4,14 @@
 \alias{addPmatToSnap}
 \title{Add cell-by-peak matrix}
 \usage{
-addPmatToSnap(obj, num.cores)
+addPmatToSnap(obj, do.par, num.cores)
 }
 \arguments{
 \item{obj}{A snap object.}
 
-\item{num.cores}{Number of processors to use.}
+\item{do.par}{A logical varaible indicates whether to use multiple processors [FALSE].}
+
+\item{num.cores}{Number of processors to use [1].}
 }
 \description{
 This function takes a snap object as input and add the 
@@ -17,8 +19,8 @@ cell-by-peak matrix to the existing snap object.
 }
 \examples{
 file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-demo.sp = createSnap(file.name, sample="demo");
+demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
 showBinSizes(file.name);
-demo.sp = addPmatToSnap(demo.sp);
+demo.sp = addPmatToSnap(demo.sp, do.par=FALSE);
 
 }

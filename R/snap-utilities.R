@@ -375,22 +375,23 @@ barcodeInSnapFile.default <- function(barcode, file){
 #' @param file Name of a snap-format file.
 #' @param sample A short sample name (i.g. "MOS.rep1").
 #' @param description Description of the experiment [NULL].
+#' @param do.par A logical variable indicates if run this using multiple processors [FALSE].
 #' @param num.cores Number of processers to use [1].
 #' @examples
 #' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-#' demo.sp = createSnap(file.name, sample="demo");
+#' demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
 #' 
 #' @return A snap object
-#' @importFrom rhdf5 h5read H5close
+#' @importFrom rhdf5 h5read
 #' @importFrom parallel mclapply
 #' @importFrom methods is
 #' @export
-createSnap <- function(file, sample, description, num.cores) {
+createSnap <- function(file, sample, description, do.par, num.cores) {
   UseMethod("createSnap", file);
 }
 
 #' @export
-createSnap.default <- function(file, sample, description=NULL, num.cores=1){
+createSnap.default <- function(file, sample, description=NULL, do.par=FALSE, num.cores=1){
 	
 	if(missing(file)){
 		stop("file is missing");
@@ -451,10 +452,15 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=1){
 	}
 	
 	message("Epoch: reading the barcode session ...");
-	num.cores = max(num.cores, 2);
-	obj.ls = mclapply(as.list(seq(fileList)), function(i){
-		createSnapSingle(file=fileList[[i]], sample=sampleList[[i]]);
-	}, mc.cores=num.cores);
+	if(do.par){
+		obj.ls = mclapply(as.list(seq(fileList)), function(i){
+			createSnapSingle(file=fileList[[i]], sample=sampleList[[i]]);
+		}, mc.cores=num.cores);
+	}else{
+		obj.ls = lapply(as.list(seq(fileList)), function(i){
+			createSnapSingle(file=fileList[[i]], sample=sampleList[[i]]);
+		});		
+	}
 	
 	obj = Reduce(snapRbind, obj.ls);
 	rm(obj.ls);
@@ -471,29 +477,34 @@ createSnap.default <- function(file, sample, description=NULL, num.cores=1){
 #' @param obj A snap object to add cell-by-bin matrix.
 #' @param bin.size Cell-by-bin matrix with bin size of bin.size 
 #' will be added to snap object.
-#' @param num.cores Number of processors to use.
+#' @param do.par A logical variable indicates whether use multiple processors [FALSE].
+#' @param num.cores Number of processors to use [1].
 #' 
 #' @examples
 #' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-#' demo.sp = createSnap(file.name, sample="demo");
+#' demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
 #' showBinSizes(file.name);
-#' demo.sp = addBmatToSnap(demo.sp, bin.size=100000);
+#' demo.sp = addBmatToSnap(demo.sp, bin.size=100000, do.par=FALSE);
 #' 
 #' @return Return a snap object
-#' @importFrom rhdf5 h5read H5close
+#' @importFrom rhdf5 h5read
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
 #' @importFrom parallel mclapply
 #' @importFrom methods is
 #' @export
-addBmatToSnap <- function(obj, bin.size, num.cores){
+addBmatToSnap <- function(obj, bin.size, do.par, num.cores){
   UseMethod("addBmatToSnap", obj);
 }
 
 #' @export
-addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){	
+addBmatToSnap.default <- function(obj, bin.size=5000, do.par=FALSE, num.cores=1){	
 	# close the previously opened H5 file
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
@@ -551,11 +562,17 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 	
 	# read the snap object
 	message("Epoch: reading cell-bin count matrix session ...");
-	num.cores = max(num.cores, 2);
-	obj.ls = mclapply(fileList, function(file){
-		idx = which(obj@file == file)
-		addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
-	}, mc.cores=num.cores);
+	if(do.par){
+		obj.ls = mclapply(fileList, function(file){
+			idx = which(obj@file == file)
+			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
+		}, mc.cores=num.cores);		
+	}else{
+		obj.ls = lapply(fileList, function(file){
+			idx = which(obj@file == file)
+			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
+		});		
+	}
 	
 	# combine
 	if((x=length(obj.ls)) == 1L){
@@ -576,26 +593,32 @@ addBmatToSnap.default <- function(obj, bin.size=5000, num.cores=2){
 #' cell-by-peak matrix to the existing snap object.
 #' 
 #' @param obj A snap object.
-#' @param num.cores Number of processors to use.
+#' @param do.par A logical varaible indicates whether to use multiple processors [FALSE].
+#' @param num.cores Number of processors to use [1].
 #' @examples
 #' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-#' demo.sp = createSnap(file.name, sample="demo");
+#' demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
 #' showBinSizes(file.name);
-#' demo.sp = addPmatToSnap(demo.sp);
+#' demo.sp = addPmatToSnap(demo.sp, do.par=FALSE);
 #' 
-#' @importFrom rhdf5 h5read H5close
+#' @importFrom rhdf5 h5read
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom IRanges IRanges
 #' @importFrom methods is
 #' @export
-addPmatToSnap <- function(obj, num.cores){
+addPmatToSnap <- function(obj, do.par, num.cores){
   UseMethod("addPmatToSnap", obj);
 }
 
 #' @export
-addPmatToSnap.default <- function(obj, num.cores=1){
+addPmatToSnap.default <- function(obj, do.par=FALSE, num.cores=1){
 	# close the previously opened H5 file
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
+
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
@@ -647,11 +670,17 @@ addPmatToSnap.default <- function(obj, num.cores=1){
 	
 	# read the snap object
 	message("Epoch: reading cell-peak count matrix session ...");
-	num.cores = max(num.cores, 2);
-	obj.ls = mclapply(fileList, function(file){
-		idx = which(obj@file == file)
-		addPmatToSnapSingle(obj[idx,], file);
-	}, mc.cores=num.cores);
+	if(do.par){
+		obj.ls = mclapply(fileList, function(file){
+			idx = which(obj@file == file)
+			addPmatToSnapSingle(obj[idx,], file);
+		}, mc.cores=num.cores);		
+	}else{
+		obj.ls = lapply(fileList, function(file){
+			idx = which(obj@file == file)
+			addPmatToSnapSingle(obj[idx,], file);
+		});				
+	}
 	
 	# combine
 	if((x=length(obj.ls)) == 1L){
@@ -673,26 +702,31 @@ addPmatToSnap.default <- function(obj, num.cores=1){
 #' matrix to the existing snap object.
 #' 
 #' @param obj A snap object to add cell-by-bin matrix.
+#' @param do.par A logical variable indicates whether to use multiple processors [FALSE].
 #' @param num.cores Number of processors to use.
 #' @examples
 #' file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-#' demo.sp = createSnap(file.name, sample="demo");
-#' demo.sp = addGmatToSnap(demo.sp);
+#' demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
+#' demo.sp = addGmatToSnap(demo.sp, do.par=FALSE);
 #' 
 #' @return Return a snap object
-#' @importFrom rhdf5 h5read H5close
+#' @importFrom rhdf5 h5read 
 #' @importFrom GenomicRanges GRanges findOverlaps
 #' @importFrom parallel mclapply
 #' @importFrom methods is
 #' @export
-addGmatToSnap <- function(obj, num.cores) {
+addGmatToSnap <- function(obj, do.par, num.cores) {
   UseMethod("addGmatToSnap", obj);
 }
 
 #' @export
-addGmatToSnap.default <- function(obj, num.cores=1){	
+addGmatToSnap.default <- function(obj, do.par=FALSE, num.cores=1){	
 	# close the previously opened H5 file
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
@@ -734,11 +768,17 @@ addGmatToSnap.default <- function(obj, num.cores=1){
 	
 	# read the snap object
 	message("Epoch: reading cell-gene count matrix session ...");
-	num.cores = max(2, num.cores);
-	obj.ls = mclapply(fileList, function(file){
-		idx = which(obj@file == file);
-		addGmatToSnapSingle(obj[idx,], file);
-	}, mc.cores=num.cores);
+	if(do.par){
+		obj.ls = mclapply(fileList, function(file){
+			idx = which(obj@file == file);
+			addGmatToSnapSingle(obj[idx,], file);
+		}, mc.cores=num.cores);		
+	}else{
+		obj.ls = lapply(fileList, function(file){
+			idx = which(obj@file == file);
+			addGmatToSnapSingle(obj[idx,], file);
+		});				
+	}
 
 	# combine
 	if((x=length(obj.ls)) == 1L){
@@ -1057,7 +1097,11 @@ readMetaData.default <- function(file){
 	if(!file.exists(file)){stop(paste("Error @readMetaData: ", file, " does not exist!", sep=""))};
 	if(!isSnapFile(file)){stop(paste("Error @readMetaData: ", file, " is not a snap-format file!", sep=""))};
 	# close the previously opened H5 file
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @readSnap: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
 	TN = as.numeric(tryCatch(TN <- h5read(file, '/BD/TN'), error = function(e) {print(paste("Warning @readMetaData: 'BD/TN' not found in ",file)); return(c())}));
 	UM = as.numeric(tryCatch(UM <- h5read(file, '/BD/UM'), error = function(e) {print(paste("Warning @readMetaData: 'BD/UM' not found in ",file)); return(c())}));
@@ -1529,7 +1573,11 @@ isSnapFile.default <- function(file){
 }
 
 readBins <- function(file, bin.size=5000){	
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	if(!file.exists(file)){stop(paste("Error @addBmat: ", file, " does not exist!", sep=""))};
 	if(!isSnapFile(file)){stop(paste("Error @addBmat: ", file, " is not a snap-format file!", sep=""))};
 	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmat: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
@@ -1553,7 +1601,12 @@ readBins <- function(file, bin.size=5000){
 }
 
 readPeaks <- function(file){	
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
+	
 	if(!file.exists(file)){stop(paste("Error @addBmat: ", file, " does not exist!", sep=""))};
 	if(!isSnapFile(file)){stop(paste("Error @addBmat: ", file, " is not a snap-format file!", sep=""))};
 	options(scipen=999);
@@ -1577,7 +1630,12 @@ readPeaks <- function(file){
 #' @import Matrix
 addBmatToSnapSingle <- function(obj, file, bin.size=5000){	
 	# close the previously opened H5 file
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
+	
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
@@ -1612,7 +1670,11 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	nBin = length(obj@feature);
 	obj@bmat = 	sparseMatrix(i=idx, j =idy, x=count, dims = c(nBarcode, nBin));
 	rm(idx, idy, count);
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	gc();
 	return(obj);
 }
@@ -1621,7 +1683,11 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 #' @importFrom methods is
 addGmatToSnapSingle <- function(obj, file){
         # close the previously opened H5 file
-        H5close();
+		if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+			rhdf5::h5closeAll();		
+		}else{
+			rhdf5::H5close();
+		}
         # check the input
         if(!is(obj, "snap")){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))}
         if(!file.exists(file)){stop(paste("Error @addGmat: ", file, " does not exist!", sep=""))};
@@ -1649,7 +1715,11 @@ addGmatToSnapSingle <- function(obj, file){
 		obj@gmat = 	sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nGene));
 		colnames(obj@gmat) = geneName;
 		rm(idx, idy, count);
-		H5close();
+		if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+			rhdf5::h5closeAll();		
+		}else{
+			rhdf5::H5close();
+		}
 		gc();
 		return(obj);
 }
@@ -1657,7 +1727,11 @@ addGmatToSnapSingle <- function(obj, file){
 #' @importFrom methods is
 addPmatToSnapSingle <- function(obj, file){
         # close the previously opened H5 file
-        H5close();
+		if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+			rhdf5::h5closeAll();		
+		}else{
+			rhdf5::H5close();
+		}
         # check the input
         if(!is(obj, "snap")){stop(paste("Error @addPmat: ", file, " does not exist!", sep=""))}
         if(!file.exists(file)){stop(paste("Error @addPmat: ", file, " does not exist!", sep=""))};
@@ -1694,7 +1768,12 @@ addPmatToSnapSingle <- function(obj, file){
 		nPeak = length(obj@peak);
 		obj@pmat = 	sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nPeak));
 		rm(idx, idy, count);
-		H5close();
+		if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+			rhdf5::h5closeAll();		
+		}else{
+			rhdf5::H5close();
+		}
+		
 		gc();
 		return(obj);
 }
@@ -1702,7 +1781,11 @@ addPmatToSnapSingle <- function(obj, file){
 #' @importFrom methods is
 createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){	
 	# close the previously opened H5 file
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	# check the input
 	if(!file.exists(file)){stop(paste(file, " does not exist!", sep=""))};
 	if(!isSnapFile(file)){stop(paste(file, " is not a snap-format file!", sep=""))};
@@ -1736,7 +1819,11 @@ createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){
 	res@des = description;
 	res@sample = rep(sample, length(barcode));
 	res@file = rep(normalizePath(file), length(res@barcode));
-	H5close();
+	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+		rhdf5::h5closeAll();		
+	}else{
+		rhdf5::H5close();
+	}
 	gc();
 	return(res);	
 }

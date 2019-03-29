@@ -4,7 +4,7 @@
 \alias{addBmatToSnap}
 \title{Add cell-by-bin matrix}
 \usage{
-addBmatToSnap(obj, bin.size, num.cores)
+addBmatToSnap(obj, bin.size, do.par, num.cores)
 }
 \arguments{
 \item{obj}{A snap object to add cell-by-bin matrix.}
@@ -12,7 +12,9 @@ addBmatToSnap(obj, bin.size, num.cores)
 \item{bin.size}{Cell-by-bin matrix with bin size of bin.size 
 will be added to snap object.}
 
-\item{num.cores}{Number of processors to use.}
+\item{do.par}{A logical variable indicates whether use multiple processors [FALSE].}
+
+\item{num.cores}{Number of processors to use [1].}
 }
 \value{
 Return a snap object
@@ -23,8 +25,8 @@ matrix to the existing snap object.
 }
 \examples{
 file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-demo.sp = createSnap(file.name, sample="demo");
+demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
 showBinSizes(file.name);
-demo.sp = addBmatToSnap(demo.sp, bin.size=100000);
+demo.sp = addBmatToSnap(demo.sp, bin.size=100000, do.par=FALSE);
 
 }

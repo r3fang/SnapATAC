@@ -4,10 +4,12 @@
 \alias{addGmatToSnap}
 \title{Add cell-by-gene matrix}
 \usage{
-addGmatToSnap(obj, num.cores)
+addGmatToSnap(obj, do.par, num.cores)
 }
 \arguments{
 \item{obj}{A snap object to add cell-by-bin matrix.}
+
+\item{do.par}{A logical variable indicates whether to use multiple processors [FALSE].}
 
 \item{num.cores}{Number of processors to use.}
 }
@@ -20,7 +22,7 @@ matrix to the existing snap object.
 }
 \examples{
 file.name = system.file("extdata", "demo.snap", package = "SnapATAC");
-demo.sp = createSnap(file.name, sample="demo");
-demo.sp = addGmatToSnap(demo.sp);
+demo.sp = createSnap(file.name, sample="demo", do.par=FALSE);
+demo.sp = addGmatToSnap(demo.sp, do.par=FALSE);
 
 }
