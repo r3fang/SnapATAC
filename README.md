@@ -4,6 +4,9 @@
 ## How fast is SnapATAC?  
 For 10X PBMC 10K single cell ATAC-seq dataset, from loading the cell count matrix to finding clusters, SnapATAC finishes the analysis within **4min**. On average, SnapATAC increase less than 30 seconds per thousand cells. 
 
+<img src="./images/SnapATAC_CellRanger.png" />
+
+
 ## How accurate is SnapATAC?  
 When applied to a dataset from mouse secondary motor cortex, SnapATAC identifies nearly 50 cell types including rare population (Sst-Chodl) which accounts for less than 0.1% of the total population.
 
