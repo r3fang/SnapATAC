@@ -33,7 +33,9 @@ Imports:
 	graphics, 
 	utils
 Suggests:
-	umap
+	umap,
+	cicero,
+	chromVAR
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
