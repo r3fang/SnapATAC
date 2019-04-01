@@ -1,14 +1,15 @@
 ## SnapATAC (Development)
-**SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) clusters cells without reliance on open chromatin peaks defined by aggregate signal; 2) adjusts for sequencing depth differing between cells; 3) can scale up to millions of cells; 4) sensitive to uncover cis-regulatory elements in rare cell types. 
+**SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) overcomes the limitation of reliance on population-level peak annotation, 2) improves the clustering accuracy by integrating "off-peak" reads, 3) controls for the major bias using a regression-based normalization method and 4) substantially outperforms current methods in scalability.
 
 ## How fast is SnapATAC?  
 For 10X PBMC 10K single cell ATAC-seq dataset, from loading the cell count matrix to finding clusters, SnapATAC finishes the analysis within **4min**. On average, SnapATAC increase less than 30 seconds per thousand cells. 
 
 <img src="./images/SnapATAC_CellRanger.png" />
 
-
 ## How accurate is SnapATAC?  
 When applied to a dataset from mouse secondary motor cortex, SnapATAC identifies nearly 50 cell types including rare population (Sst-Chodl) which accounts for less than 0.1% of the total population.
+
+<img src="./images/SnapATAC_cluster_tree.png" />
 
 ## Requirements  
 * Python ( >= 2.7)
