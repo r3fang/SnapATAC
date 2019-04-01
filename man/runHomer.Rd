@@ -6,7 +6,7 @@
 \usage{
 runHomer(obj, result.dir, mat, path.to.homer, genome, num.cores, motif.length,
   scan.size, optimize.count, background, local.background, only.known,
-  only.denovo, fdr.num, cache, overwrite, keep.minimal, ...)
+  only.denovo, fdr.num, cache, keep.minimal, ...)
 }
 \arguments{
 \item{obj}{A snap object.}
@@ -38,8 +38,6 @@ runHomer(obj, result.dir, mat, path.to.homer, genome, num.cores, motif.length,
 \item{fdr.num}{Calculate empirical FDR for de novo discovery #=number of randomizations [5].}
 
 \item{cache}{Size in MB for statistics cache [500].}
-
-\item{overwrite}{Overwirite if the result.dir already exists [TRUE].}
 
 \item{keep.minimal}{Keep minimal version of output [FALSE].}
 

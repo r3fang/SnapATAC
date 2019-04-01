@@ -17,7 +17,6 @@
 #' @param only.denovo Only to search for de novo motifs [FALSE].
 #' @param fdr.num Calculate empirical FDR for de novo discovery #=number of randomizations [5].
 #' @param cache Size in MB for statistics cache [500].
-#' @param overwrite Overwirite if the result.dir already exists [TRUE].
 #' @param keep.minimal Keep minimal version of output [FALSE].
 #' @param ... Arguments passed to "findMotifsGenome.pl".
 #' @importFrom utils file_test write.table read.csv 
@@ -38,7 +37,6 @@ runHomer<- function(
 	only.denovo,
 	fdr.num,
 	cache,
-	overwrite,
 	keep.minimal,
 	...
 	) {
@@ -62,7 +60,6 @@ runHomer.default <- function(
 	only.denovo = FALSE,
 	fdr.num = 5,
 	cache = 100,
-	overwrite = TRUE,
 	keep.minimal = FALSE,
 	...
 	){
@@ -74,11 +71,11 @@ runHomer.default <- function(
 		if(missing(result.dir)){
 			stop("result.dir is missing")
 		}else{
-			if(!dir.exists(result.dir)){
-				stop("result.dir does not exist");			
+			if(dir.exists(result.dir)){
+				stop("result.dir already exists, remove it first");			
 			}
 		}
-				
+
 		# check input
 		if(!is(obj, "snap")){
 			stop("obj is not a snap obj")
@@ -96,10 +93,6 @@ runHomer.default <- function(
 		}
 		
 	    ## Error checking -----------------------------------------------------
-	    if (overwrite == FALSE & dir.exists(result.dir)) {
-	        stop("Output directory exists (set `overwrite = TRUE` to bypass)")
-	    }
-
 	    if (background != "automatic" && local.background != FALSE) {
 	        stop("`background` and `local.background` are mutually exclusive; use only one")
 	    }
