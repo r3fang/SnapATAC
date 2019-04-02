@@ -3,3 +3,4 @@
 .RData
 .Rproj
 test/*
+examples/10X_15k/

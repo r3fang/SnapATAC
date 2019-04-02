@@ -99,9 +99,6 @@ findDAR.default <- function(
 		ncell.neg = length(idx.neg);
 		
 		##############################################################################
-		##############################################################################
-		##############################################################################
-		##############################################################################
 		message("Epoch: identifying DARs for positive cluster ...")
 		test.method = match.arg(test.method);
 		
@@ -123,9 +120,6 @@ findDAR.default <- function(
 			tb.pos <- exactTest(y, dispersion=bcv^2)$table;
 		}
 		
-		##############################################################################
-		##############################################################################
-		##############################################################################
 		##############################################################################
 		message("Epoch: identifying DARs for negative cluster ...")
 		set.seed(seed.use);
@@ -162,8 +156,9 @@ findDAR.default <- function(
 		if((x=length(which(fdr_table[,2] <= fdr))) > 0){
 			fdr.idx = max(which(fdr_table[,2] <= fdr));
 			pvalue = min(pvalue, fdr_table[fdr.idx,1]);
-			return(which(p1 <= pvalue));
+			tb.pos$label = 0;
+			tb.pos$label[which(p1 <= pvalue)] = 1;
+			return(tb.pos);
 		}
-		return(c())
+		return(data.frame());
 }
-
