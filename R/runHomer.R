@@ -73,6 +73,8 @@ runHomer.default <- function(
 		}else{
 			if(dir.exists(result.dir)){
 				stop("result.dir already exists, remove it first");			
+			}else{
+				dir.create(result.dir, recursive = TRUE);
 			}
 		}
 
@@ -92,7 +94,6 @@ runHomer.default <- function(
 			stop("feature for motif analysis is empty")
 		}
 		
-	    ## Error checking -----------------------------------------------------
 	    if (background != "automatic" && local.background != FALSE) {
 	        stop("`background` and `local.background` are mutually exclusive; use only one")
 	    }
@@ -110,7 +111,7 @@ runHomer.default <- function(
 		
 	    if ("data.frame" %in% class(x)) {
 	        target_bed <- tempfile("target_", tmpdir=result.dir)
-			write.table(x, file=target_bed, row.names=FALSE, col.names=FALSE, sep="\t", quote = FALSE)
+			write.table(x, file=target_bed, row.names=FALSE, col.names=FALSE, sep="\t", quote = FALSE);
 	    } else {
 	        if (file.exists(x) != TRUE) {
 	            stop("Check that your bed file for `x` exists")
