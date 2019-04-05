@@ -47,7 +47,7 @@ findDAR.default <- function(
 	cluster.neg=NULL,
 	bcv=0.1,
 	fdr=5e-2,
-	pvalue=5e-2,
+	pvalue=1e-2,
 	test.method=c("exactTest", "LRT", "QLF"),
 	seed.use=10
 	){
@@ -152,13 +152,13 @@ findDAR.default <- function(
 		p2[which(tb.neg$logFC > 0)] = 1;
 		
 		fdr_table = pvalue2fdr(p1, p2);
-				
-		if((x=length(which(fdr_table[,2] <= fdr))) > 0){
+		if((x=length(which(fdr_table[,2] <= fdr))) > 0L){
 			fdr.idx = max(which(fdr_table[,2] <= fdr));
 			pvalue = min(pvalue, fdr_table[fdr.idx,1]);
 			tb.pos$label = 0;
 			tb.pos$label[which(p1 <= pvalue)] = 1;
 			return(tb.pos);
 		}
-		return(data.frame());
+		tb.pos$label = 0;
+		return(tb.pos);
 }
