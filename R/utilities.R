@@ -110,12 +110,19 @@ splitBmat <- function(mat, id.ls, num.cores=1, tmp.folder){
 			stop("tmp.folder does not exist");			
 		}
 	}
-	fileList = lapply(id.ls, function(x){
-		tempfile(fileext=".rds", tmpdir=tmp.folder);
-	})
-	mclapply(as.list(seq(id.ls)), function(i){
-		saveRDS(mat[id.ls[[i]],], file=fileList[[i]]);
+	fileList = mclapply(as.list(seq(id.ls)), function(i){
+		file.name = tempfile(fileext=".rds", tmpdir=tmp.folder);
+		zz <- file(description=file.name, "w"); 
+		saveRDS(mat[id.ls[[i]],], file=file.name);		
+		close(zz);
+		file.name
 	}, mc.cores=num.cores);
 	return(fileList);
 }
+
+
+
+
+
+
 
