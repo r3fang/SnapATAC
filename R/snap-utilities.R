@@ -1516,12 +1516,52 @@ extractReadsFromOneCell <- function(
 	return(frags.gr)
 }
 
+#' Extract Reads By Barcodes
+#'
+#' This function takes a barcode list and snap file as input and quickly extract reads belonging to the given barcodes. 
+#' 
+#' @param barcodes A vector contains the selected barcodes.
+#' @param files A vector contains the snap file that barcodes belong to.
+#' @param do.par A logic variable indicates weather to run this in parallel with multiple processors.
+#' @param num.cores Number of processors to use.
+#' 
+#' @return Returns A GenomicRanges object that contains the reads
+#' 
+#' @importFrom methods is
+#' @importFrom doParallel registerDoParallel
+#' @importFrom parallel makeCluster stopCluster detectCores
+#' @importFrom foreach foreach %dopar%
+#' @importFrom stats lm
+#' @importFrom methods slot
+#' @export
 extractReads <- function(
 	barcodes,
 	files,
 	do.par=TRUE,
 	num.cores=1
 ){
+	if(missing(barcodes)){
+		stop("barcodes is missing")
+	}else{
+		if(class(barcodes) != "character"){
+			stop("barcodes must be character");
+		}
+	}
+
+	if(missing(files)){
+		stop("files is missing")
+	}else{
+		if(class(files) != "character"){
+			stop("files must be character");
+		}
+	}
+	ncell = length(barcodes);
+	nfile = length(files);
+	
+	if(ncell != nfile){
+		stop("barcodes have different length with barcodes");
+	}
+	
 	if(do.par){
 	    # input checking for parallel options
 		if(num.cores > 1){
@@ -1536,12 +1576,12 @@ extractReads <- function(
 		}
 	}
 	
-	read.ls = lapply(seq(barcodes), function(i){
+	read.ls = mclapply(as.list(seq(barcodes)), function(i){
 		extractReadsFromOneCell(
 			barcode = barcodes[i], 
 			file = files[i]
 		)		
-	});
+	}, mc.cores=num.cores);
 	read.gr = Reduce(c, read.ls);
 	return(read.gr);
 }
