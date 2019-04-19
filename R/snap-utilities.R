@@ -1258,7 +1258,6 @@ calBmatCor.default <- function(obj1, obj2=NULL){
 	return(cor(cov1, cov2, method="pearson"));
 }
 
-
 # Combine snap objects
 #
 # Takes two snap objects and combines them.
@@ -1469,6 +1468,84 @@ filterCells.default <- function(
 	return(obj);
 }
 
+extractReadsFromOneCell <- function(
+	barcode, 
+	file
+){
+	if(missing(file)){
+		stop("file is missing");
+	}else{
+		if(!isSnapFile(file)){
+			stop(paste0(file, " is not a snap file"));			
+		}
+	}
+
+	# read the reference barcode list
+	barcode.list = as.character(tryCatch(barcode.list <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @extractReadsFromOneCell: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));
+	if(missing(barcode)){
+		stop("barcode is missing");
+	}else{
+		if(class(barcode) != "character"){
+			stop(paste0("barocde ", barcode, " is not character object"));
+		}else{
+			if(!(barcode %in% barcode.list)){
+				stop(paste0("barocde ", barcode, " does not exist in snape file", file));
+			}
+		}		
+	}
+	
+	pos.list = as.numeric(tryCatch(pos.list <- h5read(file, "FM/barcodePos"), error = function(e) {print(paste("Warning @readMetaData: 'FM/barcodePos' not found in ",file)); return(c())}));
+	len.list = as.numeric(tryCatch(len.list <- h5read(file, "FM/barcodeLen"), error = function(e) {print(paste("Warning @readMetaData: 'FM/barcodeLen' not found in ",file)); return(c())}));
+	
+	if((x=length(pos.list)) != (y=length(len.list))){
+		stop("FM/barcodeLen has different length with FM/barcodePos")
+	}
+	
+	pos = pos.list[match(barcode, barcode.list)];
+	len = len.list[match(barcode, barcode.list)];
+	idx.arr = seq(pos, pos + len - 1);
+
+	chroms = h5read(file, "FM/fragChrom", index=list(idx.arr))
+	starts = h5read(file, "FM/fragStart", index=list(idx.arr))
+	lens = h5read(file, "FM/fragLen", index=list(idx.arr))
+	frags.gr = GRanges(chroms, 
+		IRanges(starts, starts + lens - 1), 
+		barcode=rep(barcode, length(chroms)), 
+		file=rep(file, length(chroms))
+		);
+	return(frags.gr)
+}
+
+extractReads <- function(
+	barcodes,
+	files,
+	do.par=TRUE,
+	num.cores=1
+){
+	if(do.par){
+	    # input checking for parallel options
+		if(num.cores > 1){
+	        if (num.cores == 1) {
+	          num.cores = 1
+	        } else if (num.cores > detectCores()) {
+	          num.cores <- detectCores() - 1
+	          warning(paste0("num.cores set greater than number of available cores(", parallel::detectCores(), "). Setting num.cores to ", num.cores, "."))
+	        }
+	      } else if (num.cores != 1) {
+	        num.cores <- 1
+		}
+	}
+	
+	read.ls = lapply(seq(barcodes), function(i){
+		extractReadsFromOneCell(
+			barcode = barcodes[i], 
+			file = files[i]
+		)		
+	});
+	read.gr = Reduce(c, read.ls);
+	return(read.gr);
+}
+
 #' Feature filtration
 #'
 #' This function takes a snap obj as input and perform feature selection in the following manner:
@@ -1494,14 +1571,12 @@ filterCells.default <- function(
 #' @importFrom stats sd
 #' @importFrom methods slot is
 #' @export
-
 filterBins <- function(obj, low.threshold, high.threshold, mat) {
   UseMethod("filterBins", obj);
 }
 
 #' @export
 filterBins.default <- function(obj, low.threshold=-2, high.threshold=2, mat=c("bmat", "pmat")){
-
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
@@ -1678,7 +1753,6 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	gc();
 	return(obj);
 }
-
 
 #' @importFrom methods is
 addGmatToSnapSingle <- function(obj, file){
