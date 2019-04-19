@@ -77,10 +77,10 @@ findDAR.default <- function(
 		if(missing(cluster.pos)){
 			stop("cluster.pos is missing")
 		}else{
-			if(!(cluster.pos %in% levels(obj@cluster))){
+			if(any(!cluster.pos %in% levels(obj@cluster))){
 				stop("cluster.pos does not exist in cluster")
 			}
-			idx.pos = which(obj@cluster == cluster.pos);
+			idx.pos = which(obj@cluster %in% cluster.pos);
 		}
 		
 		if(is.null(cluster.neg)){

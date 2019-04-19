@@ -18,7 +18,7 @@ createPmat(obj, peaks, ncell.chunk, do.par, num.cores)
 \item{num.cores}{Number of processers to use [1].}
 }
 \value{
-Returns a snap objects contains cell by peak matrix
+Returns a snap objects contains cell-by-peak matrix
 }
 \description{
 This function takes a snap object and peak list as input and creates cell-by-peak matrix
