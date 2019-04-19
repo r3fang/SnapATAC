@@ -411,6 +411,19 @@ SnapATAC visualize the datausing  tSNE, UMAP and FIt-sne. In the following examp
 	seed.use=10,
 	num.cores=5
 	);
+
+> x.sp = runViz(
+	obj=x.sp, 
+	tmp.folder=tempdir(),
+	dims=2,
+	pca.dims=1:40, 
+	weight.by.sd=FALSE,
+	method="umap",
+	fast_tsne_path=NULL,
+	Y.init=NULL,
+	seed.use=10,
+	num.cores=5
+	);
 ```
 
 **Step 13. Visulization (SnapATAC)**              
@@ -435,6 +448,25 @@ SnapATAC provides flexible visualization.
 	pdf.width=7, 
 	pdf.height=7
 	);
+> plotViz(
+	obj=x.sp, 
+	method="umap", 
+	point.size=0.5, 
+	point.shape=19, 
+	point.alpha=0.8, 
+	point.color="cluster", 
+	text.add=FALSE,
+	text.size=1.5,
+	text.color="black",
+	text.halo.add=TRUE,
+	text.halo.color="white",
+	text.halo.width=0.2,
+	down.sample=10000,
+	legend.add=TRUE,
+	pdf.file.name=NULL,
+	pdf.width=7, 
+	pdf.height=7
+	);
 > feature.value = SnapATAC::rowSums(x.sp@bmat);
 > feature.value = pmin(feature.value, quantile(feature.value, 0.99));
 > feature.value = pmax(feature.value, 0);
@@ -444,6 +476,18 @@ SnapATAC provides flexible visualization.
 	feature.value=feature.value,
 	method="tsne", 
 	point.size=0.3, 
+	point.shape=19, 
+	point.color="red", 
+	down.sample=10000, 
+	pdf.file.name=NULL, 
+	pdf.width=7, 
+	pdf.height==7
+	);
+> PlotFeatureSingle(
+	obj=x.sp, 
+	feature.value=feature.value,
+	method="umap", 
+	point.size=0.2, 
 	point.shape=19, 
 	point.color="red", 
 	down.sample=10000, 
