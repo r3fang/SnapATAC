@@ -1557,11 +1557,35 @@ extractReads <- function(
 	}
 	ncell = length(barcodes);
 	nfile = length(files);
-	
+	fileList = as.list(unique(files));
 	if(ncell != nfile){
 		stop("barcodes have different length with barcodes");
 	}
 	
+	# check if snap files exist
+	if(any(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){file.exists(x)})) == FALSE)
+		print("error: these files does not exist")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if files are all snap files
+	if(any(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){isSnapFile(x)})) == FALSE)
+		print("error: these files are not snap file")
+		print(fileList[idx])
+		stop()
+	}
+	
+	# check if FM session exist
+	if(any(do.call(c, lapply(fileList, function(x){ "FM" %in% h5ls(x, recursive=1)$name  })) == FALSE)){
+		idx = which(do.call(c, lapply(fileList, function(x){ "FM" %in% h5ls(x, recursive=1)$name  })) == FALSE)
+		print("error: the following nsap files do not contain FM session")
+		print(fileList[idx])
+		stop()
+	}
+
 	if(do.par){
 	    # input checking for parallel options
 		if(num.cores > 1){
@@ -1575,7 +1599,6 @@ extractReads <- function(
 	        num.cores <- 1
 		}
 	}
-	
 	read.ls = mclapply(as.list(seq(barcodes)), function(i){
 		extractReadsFromOneCell(
 			barcode = barcodes[i], 
