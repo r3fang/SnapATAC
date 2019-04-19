@@ -4,7 +4,7 @@
 \alias{createPmat}
 \title{Create Cell-by-Peak Matrix}
 \usage{
-createPmat(obj, peaks, ncell.chunk, do.par, num.cores)
+createPmat(obj, peaks, ncell.chunk = 20, do.par = TRUE, num.cores = 1)
 }
 \arguments{
 \item{obj}{A snap object.}

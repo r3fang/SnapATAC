@@ -16,12 +16,7 @@
 #' @importFrom parallel makeCluster stopCluster detectCores
 #' @importFrom foreach foreach %dopar%
 #' @export
-createPmat <- function(obj, peaks, ncell.chunk, do.par, num.cores) {
-  UseMethod("createPmat", obj);
-}
-
-#' @export
-createPmat.defult <- function(
+createPmat <- function(
 	obj,
 	peaks,
 	ncell.chunk=20,
