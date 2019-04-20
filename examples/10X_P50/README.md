@@ -836,4 +836,111 @@ Tcf21(bHLH)/ArterySmoothMuscle-Tcf21-ChIP-Seq(GSE61369)/Homer	-116.7
  
 ```
 
+**Step 22. Subclustering of Pvalb**       
+
+```R
+> idx = which(x.sp@cluster == "Gaba.b");
+> x.pv.xp = x.sp[idx,];
+> x.pv.xp = runJaccard(
+	obj = x.pv.xp,
+	tmp.folder=tempdir(),
+	mat = "bmat",
+	max.var=2000,
+	ncell.chunk=1000,
+	do.par=FALSE,
+	num.cores=1,
+	seed.use=10
+	);
+> x.pv.xp = runNormJaccard(
+	obj = x.pv.xp,
+	tmp.folder=tempdir(),
+	ncell.chunk=1000,
+	method="normOVE",
+	row.center=TRUE,
+	row.scale=TRUE,
+	low.threshold=-5,
+	high.threshold=5,
+	do.par=TRUE,
+	num.cores=5,
+	seed.use=10
+	);
+> x.pv.xp = runDimReduct(
+	x.pv.xp,
+	pc.num=50,
+	input.mat="jmat",
+	method="svd",
+	center=TRUE,
+	scale=FALSE,
+	seed.use=10
+	);
+> x.pv.xp = runKNN(
+    obj=x.pv.xp,
+    pca.dims=1:10,
+    weight.by.sd=TRUE,
+    k=15,
+    nn.eps=0.0,
+    snn=TRUE,
+    snn.prune=1/15,
+    save.knn=FALSE,
+    filename=NULL
+    );
+> x.pv.xp = runCluster(
+	obj=x.pv.xp,
+	tmp.folder=tempdir(),
+	louvain.lib="R-igraph",
+	path.to.snaptools=NULL,
+	seed.use=10
+	);
+> x.pv.xp = runViz(
+	obj=x.pv.xp, 
+	tmp.folder=tempdir(),
+	dims=2,
+	pca.dims=1:10, 
+	weight.by.sd=TRUE,
+	method="umap",
+	fast_tsne_path=NULL,
+	Y.init=NULL,
+	seed.use=10,
+	num.cores=5
+	);
+> plotViz(
+	obj=x.pv.xp, 
+	method="umap", 
+	point.size=1, 
+	point.shape=19, 
+	point.alpha=0.8, 
+	point.color="cluster", 
+	text.add=FALSE,
+	text.size=1.5,
+	text.color="black",
+	text.halo.add=TRUE,
+	text.halo.color="white",
+	text.halo.width=0.2,
+	down.sample=10000,
+	legend.add=TRUE,
+	pdf.file.name=NULL,
+	pdf.width=7, 
+	pdf.height=7
+	);
+> feature.value = SnapATAC::rowSums(x.pv.xp@bmat);
+> feature.value = pmin(feature.value, quantile(feature.value, 0.99));
+> feature.value = pmax(feature.value, 0);
+> feature.value = (feature.value-min(feature.value))/(max(feature.value)-min(feature.value));
+> PlotFeatureSingle(
+	obj=x.pv.xp, 
+	feature.value=feature.value,
+	method="umap", 
+	point.size=1, 
+	point.shape=19, 
+	point.color="red", 
+	down.sample=10000, 
+	pdf.file.name=NULL, 
+	pdf.width=7, 
+	pdf.height==7
+	);
+```
+
+<img src="./Pv_Viz_umap.png" width="330" height="330" />  <img src="./Pv_Viz_umap_depth.png" width="330" height="330" /> 
+
+
 
