@@ -666,7 +666,8 @@ We next extracted the clusters belonging to excitatory neurons based on the gene
 
 <img src="./Viz_tsne_cell_type.png" width="400" height="370" />
 
-**Step 18. Identify cis-elements for each cluster seperately**      
+**Step 18. Identify cis-elements for each cluster seperately**        
+This will also create `nrrowPeak` and `.bedGraph` file that contains the peak and track for the given cluster. In the below example, SnapATAC creates `atac_v1_adult_brain_fresh_5k.sst_peaks.narrowPeak` and `atac_v1_adult_brain_fresh_5k_treat_pileup.bdg`. `atac_v1_adult_brain_fresh_5k_treat_pileup.bdg` can later be converted to `bigWig` file for visulization using (`bedGraphToBigWig`)(https://anaconda.org/bioconda/ucsc-bedgraphtobigwig).
 
 ```R
 > system("which snaptools")
@@ -675,7 +676,7 @@ We next extracted the clusters belonging to excitatory neurons based on the gene
 /home/r3fang/anaconda2/bin/macs2
 > peaks_sst.df = runMACS(
 	obj=x.sp[which(x.sp@cluster=="Gaba.a"),], 
-	output.prefix="CEMBA180306_2B.Sst",
+	output.prefix="atac_v1_adult_brain_fresh_5k.Sst",
 	path.to.snaptools="/home/r3fang/anaconda2/bin/snaptools",
 	path.to.macs="/home/r3fang/anaconda2/bin/macs2",
 	gsize="mm", 
@@ -703,9 +704,11 @@ Identify peaks for clusters with cells more than 100 cells.
     macs.options="--nomodel --shift 37 --ext 73 --qval 1e-2 -B --SPMR --call-summits",
 	tmp.folder=tempdir()
     ); 
-> peaks.gr
-
 ```
+
+After converting the `bedGraph` file to `bigWig` file, we next visulize the cell-type specific chromatin landscapes using IGV browser.
+
+<img src="./tracks.png" />
 
 **Step 19. Create a cell-by-peak matrix**     
 Using merged peaks as a reference, we next create a cell-by-peak matrix using the original snap file.
