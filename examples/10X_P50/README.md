@@ -10,7 +10,7 @@ $ tar -xvf atac_v1_adult_brain_fresh_5k_fastqs.tar
 ```
 
 **Step 2. Barcode demultiplexing**.         
-In this example, we have one 10x library sequenced on three flow cells. Note that `cellranger-atac mkfastq` generates the following fastq files with one library (`Library1`) split into two lanes (`_1`, `_2` and `_3` lanes):
+In this example, we have one 10x library sequenced on three flow cells. Note that `cellranger-atac mkfastq` generates the following fastq files with one library (`atac_v1_adult_brain_fresh_5k_S1`) split into three lanes (`_L001`, `_L002` and `_L003` lanes):
     
 ```bash
 $ cd atac_v1_adult_brain_fresh_5k_fastqs
@@ -63,27 +63,32 @@ $ snaptools dex-fastq \
 	--index-fastq-list atac_v1_adult_brain_fresh_5k_S1_L003_R2_001.fastq.gz
 
 # merge three lanes into a single fastq file
-$ cat atac_v1_adult_brain_fresh_5k_S1_L001_R1_001.dex.fastq.gz atac_v1_adult_brain_fresh_5k_S1_L002_R1_001.dex.fastq.gz atac_v1_adult_brain_fresh_5k_S1_L003_R1_001.dex.fastq.gz > atac_v1_adult_brain_fresh_5k_R1.dex.fastq.gz 
-$ cat atac_v1_adult_brain_fresh_5k_S1_L001_R3_001.dex.fastq.gz atac_v1_adult_brain_fresh_5k_S1_L002_R3_001.dex.fastq.gz atac_v1_adult_brain_fresh_5k_S1_L003_R3_001.dex.fastq.gz > atac_v1_adult_brain_fresh_5k_R3.dex.fastq.gz
- 
+$ cat atac_v1_adult_brain_fresh_5k_S1_L001_R1_001.dex.fastq.gz \
+	atac_v1_adult_brain_fresh_5k_S1_L002_R1_001.dex.fastq.gz \
+	atac_v1_adult_brain_fresh_5k_S1_L003_R1_001.dex.fastq.gz \
+	> atac_v1_adult_brain_fresh_5k_R1.dex.fastq.gz 
+$ cat atac_v1_adult_brain_fresh_5k_S1_L001_R3_001.dex.fastq.gz \
+	atac_v1_adult_brain_fresh_5k_S1_L002_R3_001.dex.fastq.gz \
+	atac_v1_adult_brain_fresh_5k_S1_L003_R3_001.dex.fastq.gz \
+	> atac_v1_adult_brain_fresh_5k_R3.dex.fastq.gz
 ```
 
 **Step 3. Index reference gnome (snaptools)**      
-Index the reference genome before alignment (skip this step if you already have done this before). Here we show how to index the genome `hg19.fa` using `BWA`. User can switch to other aligner by setting `--aligner` tag, currently snaptools supports `bwa`, `bowtie2` and `minimap2`. You also need to specify the folder that contains the aligner executable binary file. For instance, if bwa is installed under `/opt/biotools/bwa/bin/bwa`, set `--path-to-aligner=/opt/biotools/bwa/bin/` and `--aligner=bwa`.
+Index the reference genome before alignment (skip this step if you already have done this before). Here we show how to index the genome `mm10.fa` using `BWA`. User can switch to other aligner by setting `--aligner` tag, currently snaptools supports `bwa`, `bowtie2` and `minimap2`. You also need to specify the folder that contains the aligner executable binary file. For instance, if bwa is installed under `/opt/biotools/bwa/bin/bwa`, set `--path-to-aligner=/opt/biotools/bwa/bin/` and `--aligner=bwa`.
          
 ```bash
 $ which bwa
 /opt/biotools/bwa/bin/bwa 
 $ snaptools index-genome  \
-	--input-fasta=hg19.fa  \
-	--output-prefix=hg19  \
+	--input-fasta=mm10.fa  \
+	--output-prefix=mm10  \
 	--path-to-aligner=/opt/biotools/bwa/bin/  \
 	--aligner=bwa  \
 	--num-threads=10
 ```
 
 **Step 4. Alignment (snaptools)**     
-We next align the de-multicomplexed reads to the reference genome using `snaptools` with following command. After alignment, reads are automatically sorted by the read names (`--if-sort`). User can set multiple CPUs (`--num-threads`) to speed up this step.
+We next align the de-multicomplexed reads to the reference genome using `snaptools` with following command. After alignment, reads are sorted by the read names (`--if-sort`). User can use multiple CPUs by setting (`--num-threads`) to speed up this step. This will create algnment file `atac_v1_adult_brain_fresh_5k.bam`. 
 
 ```bash
 $ snaptools align-paired-end  \
@@ -100,10 +105,10 @@ $ snaptools align-paired-end  \
 	--overwrite=TRUE                     
 ```
 
-**Step 5. Pre-processing (snaptools)**
-After alignment, we convert pair-end reads into fragments and for each fragment we check the following attributes: 1) mapping quality score MAPQ; 2) whether two ends are appropriately paired; 3) fragment length. We only keep those fragments that are 1) properly paired according to the alignment flag; 2) whose MAPQ is greater than 30 (`--min-mapq`); 3) with fragment length greater than 50 (`--min-flen`) and less than 2000bp (`--max-flen`). PCR duplicates are removed for each cell separately.        
+**Step 5. Pre-processing (snaptools)**               
+After alignment, we convert pair-end reads into fragments and for each fragment we check the following attributes: 1) mapping quality score MAPQ; 2) whether two ends are appropriately paired; 3) fragment length. We only keep those fragments that are 1) properly paired according to the alignment flag; 2) whose MAPQ is greater than 30 (`--min-mapq`); 3) with fragment length greater than 50 (`--min-flen`) and less than 1000bp (`--max-flen`). PCR duplicates are removed for each cell separately.        
 
-After alignment and filtration, we generated a snap-format (Single-Nucleus Accessibility Profiles) file that contains meta data, cell-by-bin count matrices, cell-by-gene count matrix, cell-by-peak count matrix and indexed usable fragments. Detailed information about snap file can be found in [here](https://github.com/r3fang/SnapTools/blob/master/docs/snap_format.docx). As shown in the previous analysis [10X analysis report](http://cf.10xgenomics.com/samples/cell-atac/1.0.1/atac_v1_pbmc_10k/atac_v1_pbmc_10k_web_summary.html), the vast majority of the cell barcodes have coverage less than 1000 fragments, such high barcode diversity is likely due to the low sequencing quality (73.4%) for cell barcode. To avoid spending time on processing many "junky" barcodes, snaptools allows user to filter potential useless barcodes by two tags `--max-num` and `min-cov`. `--max-num` will force to only keep top `--max-num` barcodes with highest coverage. In this experiment, because only 5k cells are used as initial material, therefore, it is safe to set  `--max-num=20000`. This tag is very important for processing 10X dataset that has large barcode space.  
+After alignment and filtration, we generated a snap-format (Single-Nucleus Accessibility Profiles) file that contains meta data and indexed usable fragments. Detailed information about snap file can be found in [here](https://github.com/r3fang/SnapTools/blob/master/docs/snap_format.docx). As shown in the previous analysis [10X analysis report](http://cf.10xgenomics.com/samples/cell-atac/1.0.1/atac_v1_pbmc_10k/atac_v1_pbmc_10k_web_summary.html), the vast majority of the cell barcodes have coverage less than 1000 fragments, such high barcode diversity is likely due to the low sequencing quality (73.4%) for cell barcode. To avoid spending time and memory on processing many "junky" barcodes, snaptools allows user to filter potential useless barcodes by setting two tags `--max-num` and `min-cov`. `--max-num` will force to only keep top `--max-num` barcodes with highest coverage. In this experiment, because only 5k cells are used as initial material, therefore, it is safe to set  `--max-num=20000`. This tag is very important for processing 10X dataset that has large barcode space. This step will create two files `atac_v1_adult_brain_fresh_5k.snap` and `atac_v1_adult_brain_fresh_5k.snap.qc`.
 
 ```bash
 $ wget http://hgdownload.cse.ucsc.edu/goldenPath/mm10/bigZips/mm10.chrom.sizes 
@@ -137,20 +142,20 @@ UQ - Total number of unique fragments:       93379593
 CM - Total number of chrM fragments:         0
 ```
 
-**Step 6. Cell-by-bin matrix (snaptools)**      
-Using snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, only one cell-by-bin matrix is created with bin size of 5,000 (`--bin-size-lis 5000`. (**Note that this does not create a new file, cell-by-bin matrix is stored in `atac_v1_adult_brain_fresh_5k.snap`**)
+**Step 6. Cell-by-bin matrix (snaptools)**        
+Using snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, cell-by-bin matrix is created with bin size of 1,000, 5,000 and 10,000. (**Note that this does not create a new file, cell-by-bin matrix is stored in `atac_v1_adult_brain_fresh_5k.snap`**)
 
 ```bash
 $ snaptools snap-add-bmat	\
 	--snap-file=atac_v1_adult_brain_fresh_5k.snap \
-	--bin-size-lis 5000	\
+	--bin-size-lis 1000 5000 100000	\
 	--verbose=True
 ```
 
-**Step 7. Barcode selection (SnapATAC)**       
-Using generated snap file, we next identify the high-quality barcode based on the following metrices: 1) `fragment.num` - Total Sequencing Fragments; 2) `umap.ratio` - uniquely mapped ratio; 3) `dup.ratio ` - duplate ratio; 4) `pair.ratio` - properly paired ratio; 5) `mito.ratio` - mitochondrial ratio. 
+**Step 7. Barcode selection (SnapATAC)**        
+Using generated snap file, we can identify the high-quality barcode based on the following metrices: 1) `fragment.num` - Total Sequencing Fragments; 2) `umap.ratio` - uniquely mapped ratio; 3) `dup.ratio ` - duplate ratio; 4) `pair.ratio` - properly paired ratio; 5) `mito.ratio` - mitochondrial ratio. 
 
-Note that we no longer use reads in peak ratio as a metric for cell selection mainly for two reasons: First, we found the reads-in-peak ratio is highly cell type specific. For instance, according to a published single cell ATAC-seq (Schep Nature Method 2017), human fibroblast (BJ) cells have significantly higher reads-in-peak ratio (40-60%) versus (20-40%) for GM12878 cells. Similarly, we found Glia cells have very different reads in peak ratio distribution compared to neuronal cells. We suspect this may reflect the nucleus size or global chromatin accessibility. Second, accessibility peaks identified from aggregate signal are usually incomplete and are biased to the dominant populations in a complex tissue. To guide the selection of barcodes, ` plotBarcode` plots the distribution of multiple QC metrics. **NOTE: plotBarcode only works with snap file generated by snaptools.**
+Note that we no longer use reads in peak ratio as a metric for cell selection mainly for two reasons: First, we found the reads-in-peak ratio is highly cell type specific. For instance, according to the published single cell ATAC-seq (Schep Nature Method 2017), human fibroblast (BJ) cells have significantly higher reads-in-peak ratio (40-60%) versus (20-40%) for GM12878 cells. Similarly, we found Glia cells have very different reads in peak ratio distribution compared to neuronal cells. We suspect this may reflect the nucleus size or global chromatin accessibility. Second, accessibility peaks identified from aggregate signal are usually incomplete and are biased to the dominant populations in a complex tissue. To guide the selection of barcodes, `plotBarcode` plots the distribution of multiple QC metrics. In this example, we only use fragment.num and UMI > 1000 as creteria for cell selection. **NOTE: plotBarcode only works with snap file generated by snaptools.**
 
 ```R
 > library(SnapATAC);
@@ -183,19 +188,19 @@ Note that we no longer use reads in peak ratio as a metric for cell selection ma
 ```
 
 **Step 2. Bin size selection (SnapATAC)**        
-Using the remaining cells, we next deteremine the optimal bin size based on the correlation between replicates using function (`calBmatCor`). If there are no biological replicates, the cells are evenly split into two pseudo-replicates. We recommend chosing the smallest bin size that yields correlation greater than 0.95. In this example, the `CEMBA180306_2B.snap` file only contains 5kb cell-by-bin matrix and its correlation is 0.97. 
+Using the remaining cells, we next deteremine the optimal bin size based on the correlation between replicates using function (`calBmatCor`). If there are no biological replicates, the cells are evenly split into two pseudo-replicates. We recommend chosing the smallest bin size that yields correlation greater than 0.95. In this example, the `atac_v1_adult_brain_fresh_5k.snap` file only contains 5kb cell-by-bin matrix and its correlation is 0.97. 
 
 ```R
 # show what bin sizes exist in atac_v1_adult_brain_fresh_5k.snap file
 > showBinSizes("atac_v1_adult_brain_fresh_5k.snap");
-[1] 5000
+[1] 1000 5000 10000
 > x.sp = addBmatToSnap(x.sp, bin.size=5000, num.cores=1);
 > calBmatCor(x.sp);
 [1] 0.9786751
 ```
 
 **Step 3. Fragments-in-promoter ratio**.               
-Insteading of using fragment-in-peak ratios, we next calculate fragments in promoter ratio and use it further filter cells (recommand [0.2-0.8]). In this case, very few cells are filtered. 
+Insteading of using read-in-peak ratios, we next calculate the reads in promoter ratio and use it to further filter cells (recommand [0.2-0.8]). In this case, very few cells are filtered. 
 
 ```R
 > library(GenomicRanges);
