@@ -38,3 +38,10 @@ $ R
 [<img src="./images/10X_Mouse_Brain_5k.png" width="280" height="318" />](./examples/10X_P50/README.md)
 [<img src="./images/Fang_2019.png" width="280" height="318" />](./examples/Fang_2019/Fang_2019.md)
 [<img src="./images/10X_15k.png" width="280" height="318" />](./examples/10X_15k/10X_15k.md)
+
+
+## FAQs
+
+* [What is a snap file anyway?](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)
+* [How to create a snap file from 10X fastq file?](https://github.com/r3fang/SnapATAC/wiki/FAQs#10X_snap)
+* [Can I run SnapATAC with CellRanger output?](https://github.com/r3fang/SnapATAC/wiki/FAQs#cellranger_output)
