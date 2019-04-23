@@ -6,8 +6,9 @@
 ## FAQs
 
 * [What is a snap file anyway?](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)
-* [How to create a snap file from 10X fastq file?](https://github.com/r3fang/SnapATAC/wiki/FAQs#10X_snap)
-* [Can I run SnapATAC with CellRanger output?](https://github.com/r3fang/SnapATAC/wiki/FAQs#cellranger_output)
+* [How to generate a snap file from fastq file?](https://github.com/r3fang/SnapATAC/wiki/FAQs#CEMBA_snap)
+* [How to create a snap file for 10X dataset?](https://github.com/r3fang/SnapATAC/wiki/FAQs#10X_snap)
+* [How to run SnapATAC with CellRanger output?](https://github.com/r3fang/SnapATAC/wiki/FAQs#cellranger_output)
 
 ## Requirements  
 * Python ( >= 2.7)
