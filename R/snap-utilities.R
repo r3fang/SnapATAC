@@ -1258,13 +1258,14 @@ calBmatCor.default <- function(obj1, obj2=NULL){
 	return(cor(cov1, cov2, method="pearson"));
 }
 
-# Combine snap objects
-#
-# Takes two snap objects and combines them.
-#
-# @param obj1 a snap object
-# @param obj2 a snap object
-# @return a combined snap object
+#' Combine snap objects
+#'
+#' Takes two snap objects and combines them.
+#'
+#' @param obj1 a snap object
+#' @param obj2 a snap object
+#' @return a combined snap object
+#' @export
 snapRbind <- function(obj1, obj2){
 	if(!is.snap(obj1)){stop(paste("Error @snapRbind: obj1 is not a snap object!", sep=""))};
 	if(!is.snap(obj2)){stop(paste("Error @snapRbind: obj2 is not a snap object!", sep=""))};
