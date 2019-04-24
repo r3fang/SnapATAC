@@ -13,8 +13,9 @@
 * [How to group reads from any subset of cells?](https://github.com/r3fang/SnapATAC/wiki/FAQs#group_reads)
 
 ## Requirements  
-* Python ( >= 2.7)
-* R (>= 3.4.0)
+* Linux/Unix
+* Python (>= 2.7) (SnapTools)
+* R (>= 3.4.0) (SnapATAC)
 
 ## Installation
 
