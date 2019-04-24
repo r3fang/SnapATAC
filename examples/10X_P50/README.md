@@ -143,12 +143,12 @@ CM - Total number of chrM fragments:         0
 ```
 
 **Step 6. Cell-by-bin matrix (snaptools)**        
-Using snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, cell-by-bin matrix is created with bin size of 1,000, 5,000 and 10,000. (**Note that this does not create a new file, cell-by-bin matrix is stored in `atac_v1_adult_brain_fresh_5k.snap`**)
+Using snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, as a demonstration, we create two cell-by-bin matrices with bin size of 5,000 and 10,000. But we find 5,000 is usually a good bin size, recommand to only generate cell-by-bin matrix of 5,000 in the future. (**Note that this does not create a new file, cell-by-bin matrix is stored in `atac_v1_adult_brain_fresh_5k.snap`**) 
 
 ```bash
 $ snaptools snap-add-bmat	\
 	--snap-file=atac_v1_adult_brain_fresh_5k.snap \
-	--bin-size-lis 1000 5000 100000	\
+	--bin-size-lis 5000 100000	\
 	--verbose=True
 ```
 
