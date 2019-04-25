@@ -109,6 +109,7 @@ runViz.default <- function(
 				rand_seed=seed.use,
 				nthreads=num.cores,
 				initialization=Y.init,
+				tmp.folder=tmp.folder,
 				...
 			);	
 		colnames(obj@tsne) = c("tsne-1", "tsne-2")				
