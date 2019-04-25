@@ -41,11 +41,11 @@ runJaccard.default <- function(
 	obj, 
 	tmp.folder,
 	mat = c("bmat", "pmat", "gmat"),
-	max.var = 2000, 
+	max.var = 1000, 
 	ncell.chunk = 1000, 
-	do.par=TRUE,
+	do.par=FALSE,
 	num.cores=1,
-	seed.use = 10
+	seed.use=10
 	){
 	
 	if(missing(obj)){
