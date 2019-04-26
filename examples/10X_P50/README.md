@@ -188,7 +188,8 @@ Note that we no longer use reads in peak ratio as a metric for cell selection ma
 ```
 
 **Step 2. Bin size selection (SnapATAC)**        
-Using the remaining cells, we next deteremine the optimal bin size based on the correlation between replicates using function (`calBmatCor`). If there are no biological replicates, the cells are evenly split into two pseudo-replicates. We recommend chosing the smallest bin size that yields correlation greater than 0.95. In this example, the `atac_v1_adult_brain_fresh_5k.snap` file only contains 5kb cell-by-bin matrix and its correlation is 0.97. 
+
+Here we use cell-by-bin matrix of 5kb resolution as input for clustering. See [How to choose the bin size?](https://github.com/r3fang/SnapATAC/wiki/FAQs#bin_size)
 
 ```R
 # show what bin sizes exist in atac_v1_adult_brain_fresh_5k.snap file
