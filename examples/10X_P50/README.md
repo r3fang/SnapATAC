@@ -371,19 +371,14 @@ We next Determine how many PCs to include for downstream analysis. We use an ad 
 <img src="./PCA_elbow_plot.png" width="330" height="330" />  <img src="./PCA_scatter_plot.png" width="330" height="330" /> 
 
 **Step 10. KNN Graph Construction (SnapATAC)**          
-Using selected significant PCs, we next construct a K Nearest Neighbor (KNN) Graph. In the PC space, each cell is a node and the k-nearest neighbors of each cell are identified according to the Euclidian distance and edges are draw between neighbors in the graph. The resulting KNN graph can be further refined to SNN (Shared Nearest Neighbor) graph when `snn=TRUE` by adding edge weight between cells as shared overlap in their local neighborhoods using Jaccard similarity. Edges with weight less than `snn.prune` will be removed in the graph. For large dataset, instead of storing the resulting graph in the memory, one can choose to save the graph in a file by setting `save.knn=TRUE` and specify the `filename`. **This function is inspired and modified from Seurat package.** 
+Using selected significant PCs, we next construct a K Nearest Neighbor (KNN) Graph. In the PC space, each cell is a node and the k-nearest neighbors of each cell are identified according to the Euclidian distance and edges are draw between neighbors in the graph. For large dataset, instead of storing the resulting graph in the memory, one can choose to save the graph in a file by setting `save.knn=TRUE` and specify the `filename`. **This function is inspired and modified from Seurat package.** 
 
 ```R
 > x.sp = runKNN(
     obj=x.sp,
     pca.dims=1:40,
     weight.by.sd=FALSE,
-    k=15,
-    nn.eps=0.0,
-    snn=TRUE,
-    snn.prune=1/15,
-    save.knn=FALSE,
-    filename=NULL
+    k=15
     );
 ```
 

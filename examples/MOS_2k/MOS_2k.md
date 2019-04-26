@@ -102,11 +102,7 @@ Using selected significant components, we next construct a K Nearest Neighbor (K
     pca.dims=1:20,
     weight.by.sd=TRUE,
     k=15,
-    nn.eps=0.0,
-    snn=TRUE,
-    snn.prune=1/15,
-    save.knn=FALSE,
-    filename=NULL
+    snn=FALSE
     );
 ```
 
