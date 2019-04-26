@@ -1,9 +1,9 @@
-##Single Cell ATAC-seq Technology Timeline
+## Single Cell ATAC-seq Technology Timeline
 ![](experiemnt_timeline.png)
 
 Note: timeline only includes technology development or data production, pure computational methods are not included          
 
-##References (\*contributed equally)
+## References (\*contributed equally)
 Cusanovich DA, Daza R, Adey A, Pliner HA, Christiansen L, Gunderson KL, Steemers FJ, Trapnell C, Shendure J. **Multiplex single cell profiling of chromatin accessibility by combinatorial cellular indexing**. *Science*. 2015 May 22. [link](https://science.sciencemag.org/content/348/6237/910.long)
 
 Buenrostro JD, Wu B\*, Litzenburger UM\*, Ruff D, Gonzales ML, Snyder MP, Chang HY, Greenleaf WJ. **Single-cell chromatin accessibility reveals principles of regulatory variation**. *Nature*. 2015 Jul 23. [link](https://www.nature.com/articles/nature14590)
