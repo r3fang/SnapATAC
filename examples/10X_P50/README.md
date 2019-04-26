@@ -880,12 +880,7 @@ Tcf21(bHLH)/ArterySmoothMuscle-Tcf21-ChIP-Seq(GSE61369)/Homer	-116.7
     obj=x.pv.xp,
     pca.dims=1:10,
     weight.by.sd=TRUE,
-    k=15,
-    nn.eps=0.0,
-    snn=TRUE,
-    snn.prune=1/15,
-    save.knn=FALSE,
-    filename=NULL
+    k=15
     );
 > x.pv.xp = runCluster(
 	obj=x.pv.xp,
