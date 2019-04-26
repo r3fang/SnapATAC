@@ -352,8 +352,11 @@ runMACSForAll <- function(
 		   keep.minimal=keep.minimal,
 		   num.cores=1
 		   );
-       peaks.gr = GenomicRanges::GRanges(peaks.df[,1], IRanges(peaks.df[,2], peaks.df[,3]));
-       peaks.gr;
+	   if((x=nrow(peaks.df)) > 0L){
+	       peaks.gr = GenomicRanges::GRanges(peaks.df[,1], IRanges(peaks.df[,2], peaks.df[,3]));
+	   }else{
+	   	   peaks.gr = GenomicRanges::GRanges();
+	   }
      }, mc.cores=num.cores)
 	
 	peaks.gr = GenomicRanges::reduce(do.call(c, peak.ls));
