@@ -22,11 +22,11 @@ Mezger A\*, Klemm S\*, Mann I\*, Brower K, Mir A, Bostick M, Farmer A, Fordyce P
 
 Chen X, Miragaia RJ, Natarajan KN, Teichmann SA. **A rapid and robust method for single cell chromatin accessibility profiling**. *Nat Commun*. 2018 Dec 17. [link](https://www.nature.com/articles/s41467-018-07771-0)
 
-Satpathy A\*, Granja JM\*, Yost KE, Qi Y,
-Meschi F, McDermott GP, Olsen BN, Mumbach MR,
-Pierce SE, Corces MR, Shah P, Bell JC, Jhutty D,
-Nemec CM, Wang J, Wang L, Yin Y, Giresi PG, 
-Chang AL, Zheng G, Greenleaf WJ, Chang HY. **Massively parallel single-cell chromatin landscapes of human immune cell development and intratumoral T cell exhaustion**. *BioRxiv*. 2019 Apr. 18. [link](https://www.biorxiv.org/content/biorxiv/early/2019/04/18/610550.full.pdf)
+Ludwig LS\*, Lareau CA\*, Ulirsch JC, Christian E, Muus C, Li LH, Pelka K, Ge W, Oren Y, Brack A, Law T, Rodman C, Chen JH, Boland GM, Hacohen N, Rozenblatt-Rosen O, Aryee MJ, Buenrostro JD, Regev A, Sankaran VG. **Lineage Tracing in Humans Enabled by Mitochondrial Mutations and Single-Cell Genomics**. *Cell*. 2019 Mar 7. [link](https://linkinghub.elsevier.com/retrieve/pii/S0092-8674(19)30055-8)
+
+Xu J, Nuno K, Litzenburger UM, Qi Y, Corces MR, Majeti R, Chang HY. **Single-cell lineage tracing by endogenous mutations enriched in transposase accessible mitochondrial DNA**. *eLife*. Apr 8, 2019. [link](https://elifesciences.org/articles/45105)
+
+Satpathy A\*, Granja JM\*, Yost KE, Qi Y, Meschi F, McDermott GP, Olsen BN, Mumbach MR, Pierce SE, Corces MR, Shah P, Bell JC, Jhutty D, Nemec CM, Wang J, Wang L, Yin Y, Giresi PG, Chang AL, Zheng G, Greenleaf WJ, Chang HY. **Massively parallel single-cell chromatin landscapes of human immune cell development and intratumoral T cell exhaustion**. *BioRxiv*. 2019 Apr. 18. [link](https://www.biorxiv.org/content/biorxiv/early/2019/04/18/610550.full.pdf)
 
 Lareau CA\*, Duarte FM\*, Chew JG\*, Kartha VK, Burkett ZD, Kohlway AS, Pokholok D, Aryee MJ, Steemers FJ, Lebofsky R, Buenrostro JD. **Droplet-based combinatorial indexing for massive scale single-cell epigenomics**. *BioRxiv*. 2019 Apr. 18. [link](https://www.biorxiv.org/content/biorxiv/early/2019/04/18/612713.full.pdf)
 
