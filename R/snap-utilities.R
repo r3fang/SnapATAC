@@ -1,5 +1,16 @@
+#' Create an empty snap object
+#'
+#' This function creates an empty snap object
+#'
+#' @examples
+#' x.sp = newSnap();
+#' 
+#' @return An empty snap object
+#'
 #' @importFrom methods new
-#' @import Matrix
+#' @importFrom GenomicRanges GRanges
+#' @export
+#' 
 newSnap <- function () {
 	metaData=data.frame();
 	des = character()
@@ -1819,73 +1830,73 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	return(obj);
 }
 
-#' @importFrom methods is
-#' @import Matrix
-addBmatToSnapSingleDev <- function(obj, file, bin.size=5000){	
-	# close the previously opened H5 file
-	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
-		rhdf5::h5closeAll();		
-	}else{
-		rhdf5::H5close();
-	}
-	
-	if(missing(obj)){
-		stop("obj is missing")
-	}else{
-		if(!is(obj, "snap")){
-			stop("obj is not a snap object")
-		}
-	}
-
-	if(!file.exists(file)){stop(paste("Error @addBmatToSnapSingle: ", file, " does not exist!", sep=""))};
-	if(!isSnapFile(file)){stop(paste("Error @addBmatToSnapSingle: ", file, " is not a snap-format file!", sep=""))};
-	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmatToSnapSingle: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
-
-
-	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
-	bin.sizeList = showBinSizes(file);
-	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
-	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
-	
-	bins = readBins(file, bin.size);
-	obj@feature = bins;
-	
-	nBin = length(obj@feature);
-	nBarcode = length(obj@barcode);
-
-	obj@feature = bins;
-	obj@bmat = Matrix(0, nrow=nBarcode, ncol=nBin);
-	
-	a = h5ls(file, all=TRUE);
-	dim = as.numeric(a["dim"][which(a["group"] == paste("/AM", bin.size, sep="/") & a["name"] == "idx"),])
-	max.vec.size = 1000000
-	id.ls = split(seq(dim), ceiling(seq(dim)/max.vec.size));
-	for(in in seq(id.ls)){
-		idx.arr = id.ls[[i]]
-		idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
-		idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
-		count = as.numeric(tryCatch(count <- h5read(file, paste("AM", bin.size, "count", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/count' not found in ",file))}));	
-		if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}	
-		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-		if((x=length(ind.sel)) == 0L){
-			next;
-		}
-		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-		idy = idy[ind.sel];
-		count = count[ind.sel];
-		obj@bmat[idx,idy] = count;
-		rm(idx, idy, count);
-		gc();
-	}
-	
-	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
-		rhdf5::h5closeAll();		
-	}else{
-		rhdf5::H5close();
-	}
-	gc();
-	return(obj);
-}
+####' @importFrom methods is
+####' @import Matrix
+###addBmatToSnapSingleDev <- function(obj, file, bin.size=5000){	
+###	# close the previously opened H5 file
+###	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+###		rhdf5::h5closeAll();		
+###	}else{
+###		rhdf5::H5close();
+###	}
+###	
+###	if(missing(obj)){
+###		stop("obj is missing")
+###	}else{
+###		if(!is(obj, "snap")){
+###			stop("obj is not a snap object")
+###		}
+###	}
+###
+###	if(!file.exists(file)){stop(paste("Error @addBmatToSnapSingle: ", file, " does not exist!", sep=""))};
+###	if(!isSnapFile(file)){stop(paste("Error @addBmatToSnapSingle: ", file, " is not a snap-format file!", sep=""))};
+###	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmatToSnapSingle: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
+###
+###
+###	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
+###	bin.sizeList = showBinSizes(file);
+###	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
+###	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
+###	
+###	bins = readBins(file, bin.size);
+###	obj@feature = bins;
+###	
+###	nBin = length(obj@feature);
+###	nBarcode = length(obj@barcode);
+###
+###	obj@feature = bins;
+###	obj@bmat = Matrix(0, nrow=nBarcode, ncol=nBin);
+###	
+###	a = h5ls(file, all=TRUE);
+###	dim = as.numeric(a["dim"][which(a["group"] == paste("/AM", bin.size, sep="/") & a["name"] == "idx"),])
+###	max.vec.size = 1000000
+###	id.ls = split(seq(dim), ceiling(seq(dim)/max.vec.size));
+###	for(in in seq(id.ls)){
+###		idx.arr = id.ls[[i]]
+###		idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
+###		idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
+###		count = as.numeric(tryCatch(count <- h5read(file, paste("AM", bin.size, "count", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/count' not found in ",file))}));	
+###		if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}	
+###		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
+###		if((x=length(ind.sel)) == 0L){
+###			next;
+###		}
+###		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
+###		idy = idy[ind.sel];
+###		count = count[ind.sel];
+###		obj@bmat[idx,idy] = count;
+###		rm(idx, idy, count);
+###		gc();
+###	}
+###	
+###	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
+###		rhdf5::h5closeAll();		
+###	}else{
+###		rhdf5::H5close();
+###	}
+###	gc();
+###	return(obj);
+###}
 
 #' @importFrom methods is
 addGmatToSnapSingle <- function(obj, file){
