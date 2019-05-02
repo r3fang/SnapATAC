@@ -296,11 +296,7 @@ We next convert the filtered genome-wide cell-by-bin matrix into a cell-by-cell 
 	obj = x.sp,
 	tmp.folder=tempdir(),
 	mat = "bmat",
-	max.var=2000,
-	ncell.chunk=1000,
-	do.par=FALSE,
-	num.cores=1,
-	seed.use=10
+	max.var=2000
 	);
 ``` 
 
@@ -837,6 +833,30 @@ Tcf21(bHLH)/ArterySmoothMuscle-Tcf21-ChIP-Seq(GSE61369)/Homer	-116.7
        Oct6(POU,Homeobox)/NPC-Pou3f1-ChIP-Seq(GSE35496)/Homer	-103.8	
            Tcf12(bHLH)/GM12878-Tcf12-ChIP-Seq(GSE32465)/Homer	-102.2	
  
+```
+
+Alternatively, we can create a motif variability matrix using chromVAR. This requires `chromVAR`, `BSgenome.Mmusculus.UCSC.mm10`, `motifmatchr` and `SummarizedExperiment` to be pre-installed.
+
+```R
+> library(chromVAR);
+> library(BSgenome.Mmusculus.UCSC.mm10);
+> library(motifmatchr);
+> library(SummarizedExperiment);
+> peaks.gr = x.sp@peak;
+> mat = x.sp@pmat;
+# filter regions have less than 10 reads
+> idy = which(Matrix::colSums(mat) > 10);
+# create a chromVAR object
+> rse <- SummarizedExperiment(assays = list(counts = t(mat[,idy])), rowRanges = peaks.gr[idy], colData = DataFrame(Cell_Type=1:nrow(mat), depth=Matrix::rowSums(mat)));
+# calculate GC bias
+> rse <- addGCBias(rse, genome = BSgenome.Mmusculus.UCSC.mm10);
+# get jaspar motifs
+> motifs <- getJasparMotifs(collection = "CORE", species="Mus musculus");
+# identify motif matches
+> motif_mm <- matchMotifs(motifs, rse, genome = BSgenome.Mmusculus.UCSC.mm10);
+# calculate motif variability
+> dev <- computeDeviations(object = rse, annotations = motif_mm);
+> dev_mat = t(assay(dev));
 ```
 
 **Step 22. Subclustering of Pvalb**       
