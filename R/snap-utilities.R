@@ -576,12 +576,12 @@ addBmatToSnap.default <- function(obj, bin.size=5000, do.par=FALSE, num.cores=1)
 	if(do.par){
 		obj.ls = mclapply(fileList, function(file){
 			idx = which(obj@file == file)
-			addBmatToSnapSingleDev(obj[idx,], file, bin.size=bin.size);
+			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 		}, mc.cores=num.cores);		
 	}else{
 		obj.ls = lapply(fileList, function(file){
 			idx = which(obj@file == file)
-			addBmatToSnapSingleDev(obj[idx,], file, bin.size=bin.size);
+			addBmatToSnapSingle(obj[idx,], file, bin.size=bin.size);
 		});		
 	}
 	

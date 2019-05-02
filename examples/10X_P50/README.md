@@ -1,6 +1,7 @@
 ## 10X Adult Brain Fresh 5K
 
-In this example, we will be analyzing a dataset of 5K adult mouse brain cells freely available from 10X. The raw data can be downloaded from [here](https://support.10xgenomics.com/single-cell-atac/datasets/1.1.0/atac_v1_adult_brain_fresh_5k).
+In this example, we will be analyzing a dataset of 5K adult mouse brain cells freely available from 10X. The raw data can be downloaded from [here](https://support.10xgenomics.com/single-cell-atac/datasets/1.1.0/atac_v1_adult_brain_fresh_5k). Please see * [How to start with Cell-Ranger output?](https://github.com/r3fang/SnapATAC/wiki/FAQs#cellranger_output)
+
 
 **Step 0. Download the raw data**.      
 
@@ -196,8 +197,6 @@ Here we use cell-by-bin matrix of 5kb resolution as input for clustering. See [H
 > showBinSizes("atac_v1_adult_brain_fresh_5k.snap");
 [1] 1000 5000 10000
 > x.sp = addBmatToSnap(x.sp, bin.size=5000, num.cores=1);
-> calBmatCor(x.sp);
-[1] 0.9786751
 ```
 
 **Step 3. Fragments-in-promoter ratio**.               
