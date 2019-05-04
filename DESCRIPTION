@@ -55,6 +55,7 @@ Collate:
     'plottings.R'
     'runClusters.R'
     'runDimReduct.R'
+    'runHarmony.R'
     'runHomer.R'
     'runJaccard.R'
     'snap-class.R'

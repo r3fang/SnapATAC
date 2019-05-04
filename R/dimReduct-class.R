@@ -7,7 +7,8 @@ NULL
 #' @slot dmat a matrix object that contains reduced dimentions
 #' @slot sdev variance for each principal conponents
 #' @slot iter iterations used for running dimentionality reduction 
-#' @slot character a character object indicates the method used for dimentionality reduction
+#' @slot method a character object indicates the method used for dimentionality reduction
+#' 
 #' @examples
 #' data(demo.sp);
 #' demo.sub.sp = demo.sp[1:5,]
@@ -109,7 +110,6 @@ weightDimReduct <- function(obj, pca.dims, weight.by.sd=TRUE){
 			stop("obj is not a dim.reduct")
 		}
 	}
-	
 	
 	if(weight.by.sd){
 		data.use = obj@dmat[,pca.dims] %*% diag(sqrt(obj@sdev[pca.dims])) ;

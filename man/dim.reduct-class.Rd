@@ -17,7 +17,7 @@ Class defines a dim.reduct object.
 
 \item{\code{iter}}{iterations used for running dimentionality reduction}
 
-\item{\code{character}}{a character object indicates the method used for dimentionality reduction}
+\item{\code{method}}{a character object indicates the method used for dimentionality reduction}
 }}
 
 \examples{
