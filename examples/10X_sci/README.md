@@ -2,6 +2,8 @@
 
 In this example, we will be combining two datasets of 10X and sciATAC-seq for adult mouse brain. The snap file can be downloaded from here: [10X](http://renlab.sdsc.edu/r3fang/share/Fang_2019/published_scATAC/atac_v1_adult_brain_fresh_5k_fastqs/atac_v1_adult_brain_fresh_5k.snap) and [sciATAC](http://renlab.sdsc.edu/r3fang/share/Fang_2019/published_scATAC/Fang_2019/CEMBA180305_2B.snap).
 
+<img src="./10X_sci.png" />
+
 Step 1. Create snap object for each sample seperately
 
 ```R

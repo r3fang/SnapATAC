@@ -3,8 +3,11 @@
 ## SnapATAC (Development)
 **SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) overcomes the limitation of reliance on population-level peak annotation, 2) improves the clustering accuracy by integrating "off-peak" reads, 3) controls for the major bias using a regression-based normalization method and 4) substantially outperforms current methods in scalability.
 
-## FAQs
+## Latest News
+* [SnapATAC enables batch effect correction](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_sci)
+* [SnapATAC enables motif analysis using chromVAR](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_P50)
 
+## FAQs
 * [How to run SnapATAC on 10X dataset?](https://github.com/r3fang/SnapATAC/wiki/FAQs#10X_snap)
 * [I already ran CellRanger, can I use its output for SnapATAC?](https://github.com/r3fang/SnapATAC/wiki/FAQs#cellranger_output)
 * [How can I analyze combine multiple samples together?](https://github.com/r3fang/SnapATAC/wiki/FAQs#multi_snap)
@@ -41,4 +44,4 @@ $ R
 ## Galleries & Tutorials (click on the image for details)
 [<img src="./images/10X_Mouse_Brain_5k.png" width="280" height="318" />](./examples/10X_P50/README.md)
 [<img src="./images/Fang_2019.png" width="280" height="318" />](./examples/Fang_2019/Fang_2019.md)
-[<img src="./images/10X_15k.png" width="280" height="318" />](./examples/10X_15k/10X_15k.md)
+[<img src="./images/10X_sci.png" width="280" height="318" />](./examples/10X_sci/README.md)
