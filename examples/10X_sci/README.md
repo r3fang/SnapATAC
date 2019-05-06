@@ -40,17 +40,20 @@ Step 3. Add cell-by-bin matrix
 ```R
 > x1.sp = addBmatToSnap(obj=x1.sp, bin.size=5000, num.cores=1);
 > x2.sp = addBmatToSnap(obj=x2.sp, bin.size=5000, num.cores=1);
+> x.sp.list = list(x1.sp, x2.sp);
 ```
 
 Step 4. Combine two snap objects.
 
 ```R
-> bin.shared = intersect(x1.sp@feature$name, x2.sp@feature$name);
-> idy1 = match(bin.shared, x1.sp@feature$name);
-> idy2 = match(bin.shared, x2.sp@feature$name);
-> x1.sp = x1.sp[,idy1, mat="bmat"];
-> x2.sp = x2.sp[,idy2, mat="bmat"];
-> x.sp = snapRbind(x1.sp, x2.sp);
+> bin.shared = Reduce(intersect, lapply(x.sp.list, function(x.sp) x.sp@feature$name));
+> x.sp.list <- lapply(x.sp.list, function(x.sp){
+	idy = match(bin.shared, x.sp@feature$name);
+	x.sp[,idy, mat="bmat"];
+	})
+> x.sp = Reduce(snapRbind, x.sp.list);
+> rm(x.sp.list);
+> gc();
 ```
 
 Step 5. Matrix binarization
@@ -58,7 +61,6 @@ Step 5. Matrix binarization
 ```R
 > x.sp = makeBinary(x.sp, mat="bmat", outlier.filter=1e-3);
 ```
-
 
 Step 6. Feature selection
 
