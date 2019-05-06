@@ -20,6 +20,9 @@
 * Python (>= 2.7) (SnapTools)
 * R (>= 3.4.0) (SnapATAC)
 
+## Pre-print  
+Rongxin Fang, Sebastian Preissl, Xiaomeng Hou, Jacinta Lucero, Xinxin Wang, Amir Motamedi, Andrew K. Shiau, Eran A. Mukamel, Yanxiao Zhang, M. Margarita Behrens, Joseph Ecker, Bing Ren. Fast and Accurate Clustering of Single Cell Epigenomes Reveals Cis-Regulatory Elements in Rare Cell Types. bioRxiv 615179; doi: https://doi.org/10.1101/615179
+
 ## Installation
 
 SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) and [SnapATAC](https://github.com/r3fang/SnapATAC). 
