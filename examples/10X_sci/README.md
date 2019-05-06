@@ -43,7 +43,7 @@ Step 3. Add cell-by-bin matrix
 > x.sp.list = list(x1.sp, x2.sp);
 ```
 
-Step 4. Combine two snap objects.
+Step 4. Combine multiple snap objects.
 
 ```R
 > bin.shared = Reduce(intersect, lapply(x.sp.list, function(x.sp) x.sp@feature$name));
