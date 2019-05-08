@@ -379,15 +379,27 @@ Using selected significant PCs, we next construct a K Nearest Neighbor (KNN) Gra
 ```
 
 **Step 11. Clustering (SnapATAC)**                  
-Using the resulting KNN graph, we next apply community finding algorithm Louvain to identify the clusters which represent groups of cells sharing similar ATAC-seq profiles, potentially originating from the same cell type. Two Louvain methods are included, one is using the `R-igraph` package and the other applies a `pyhon-louvain` implementation. `R-igraph` is faster but does not support different resolution. `pyhon-louvain` is slower and requires ` snaptools` but it does allows for multiple resolutions.
+Using the resulting KNN graph, we next apply community finding algorithm Louvain/leiden to identify the clusters which represent groups of cells sharing similar ATAC-seq profiles, potentially originating from the same cell type. Two methods are included here, one is using `cluster_louvain` in the `R-igraph` package and the other applies a `leiden`. 
 
 ```R
 > x.sp = runCluster(
 	obj=x.sp,
 	tmp.folder=tempdir(),
 	louvain.lib="R-igraph",
-	path.to.snaptools=NULL,
 	seed.use=10
+	);
+```
+
+Alternative, we can also use leiden for clustering which allows for choosing different resolution resulting different clustering results. It requires R package `leiden` to be pre-installed but highly recommended.
+
+```R
+> library(leiden);
+> x.sp = runCluster(
+	obj=x.sp,
+	tmp.folder=tempdir(),
+	louvain.lib="leiden",
+	seed.use=10,
+	resolution=1
 	);
 ```
 
