@@ -34,8 +34,8 @@ Imports:
 	utils
 Suggests:
 	umap,
-	cicero,
-	chromVAR
+	chromVAR,
+	leiden
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true

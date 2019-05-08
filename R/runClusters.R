@@ -1,17 +1,15 @@
-#' Find Clusters Using Louvain Algorithm
+#' Find Clusters Using Louvain/Leiden Algorithm
 #'
-#' Using the constructed knn graph returned by function runKNN, we next applied community finding algorithm Louvain 
+#' Using the constructed knn graph returned by function runKNN, we next applied community finding algorithm 
 #' to identify the ‘communities’ in the resulting graph which represents groups of
 #' cells sharing similar accessibility profiles.
 #' 
 #' @param obj A snap object.
 #' @param tmp.folder Directory to store temporary files.
-#' @param louvain.lib Louvain implementation method to use ["R-igraph", "python-louvain"].
-#' "R-igraph" uses "cluster_louvain" implemented by igraph package in R. "python-louvain" uses louvain method implemented in "python-louvain" package. 
-#' "R-igraph" is signficantly faster but does not support different resolutions. "python-louvain" supports
-#' multiple resolutions, but requires "snaptools" and runs significantly slower.
-#' @param resolution A numeric value that indicates the resolution for louvain clustering [1]. This is effective only when path.to.snaptools is set.
-#' @param path.to.snaptools Path to snaptools excutable file [NULL]. Install snaptools by 'pip install snaptools'.
+#' @param louvain.lib Louvain implementation method to use ["R-igraph", "leiden"].
+#' "R-igraph" uses "cluster_louvain" implemented by igraph package in R. "Leiden" uses "Leiden" algorithm for finding clusters (recommanded). 
+#' Leiden allows for multiple resolutions, but requires "leiden" to be pre-installed seperately. see how to install "leiden" (https://github.com/TomKellyGenetics/leiden).
+#' @param resolution A numeric value that indicates the resolution for louvain clustering [1].
 #' @param seed.use Random seed [10]. 
 #' 
 #' @examples
@@ -24,8 +22,7 @@
 #' @importFrom utils file_test write.table read.table
 #' @importFrom methods as
 #' @export
-
-runCluster <- function(obj, tmp.folder, louvain.lib, resolution, path.to.snaptools, seed.use) {
+runCluster <- function(obj, tmp.folder, louvain.lib, resolution, seed.use) {
   UseMethod("runCluster", obj);
 }
 
@@ -33,9 +30,8 @@ runCluster <- function(obj, tmp.folder, louvain.lib, resolution, path.to.snaptoo
 runCluster.default <- function(
 	obj, 
 	tmp.folder, 
-	louvain.lib=c("R-igraph", "python-louvain"),
+	louvain.lib=c("R-igraph", "leiden"),
 	resolution=1.0,
-	path.to.snaptools=NULL,
 	seed.use=10
 ){
 	cat("Epoch: checking input parameters\n", file = stderr())
@@ -57,32 +53,10 @@ runCluster.default <- function(
 	}
 	
 	louvain.lib = match.arg(louvain.lib);
-	# louvain.lib is python-louvain only if 
-	# 1) louvain.lib == "python-louvain";
-	# 2) path.to.snaptools exists;
-	# 3) path.to.snaptools excutable;
-	if(louvain.lib == "python-louvain"){
-		flag1 = (louvain.lib == "python-louvain");
-		flag2 = tryCatch({
-			file.exists(path.to.snaptools);		
-		},
-		error=function(cond){
-			warning("path.to.snaptools does not exist, switch louvain.lib to R-igraph\n")
-			return(FALSE)
-		})
 	
-		flag3 = tryCatch({
-			file_test('-x', path.to.snaptools);	
-		},
-		error=function(cond){
-			warning("path.to.snaptools is not an excutable file, switch louvain.lib to R-igraph")
-			return(FALSE)
-		})
-	
-		if(flag1 && flag2 && flag3){
-			louvain.lib = "python-louvain"
-		}else{
-			louvain.lib = "R-igraph";						
+	if(louvain.lib == "leiden"){
+		if (!requireNamespace("leiden", quietly = TRUE)) {
+		      stop("Please install leiden - learn more at https://github.com/TomKellyGenetics/leiden")
 		}
 	}
 	
@@ -95,39 +69,21 @@ runCluster.default <- function(
 	}
 	
 	if(louvain.lib == "R-igraph"){
-		data.use = getGraph(obj@graph);
-		g = graph_from_adjacency_matrix(data.use, weighted=TRUE, mode="undirected");
+		data.use = getGraph(obj@graph);		
+		g = graph_from_adjacency_matrix(forceSymmetric(data.use), weighted=TRUE, mode="undirected");
 		cat("Epoch: finding clusters using R-igraph\n", file = stderr())		
 		set.seed(seed.use);
 		cl = cluster_louvain(g);
 		obj@cluster = factor(cl$membership);		
-	}else if(louvain.lib == "python-louvain"){
-		if((x=nrow(obj@graph@mat)) > 0L){
-			data_path <- tempfile(pattern='community_data_', tmpdir=tmp.folder, fileext='.dat');
-			adj = obj@graph@mat;
-			i = adj@i + 1;
-			j = findInterval(seq(adj@x)-1,adj@p[-1])+1; 
-			w = adj@x;
-			edgeList = data.frame(v1=i, v2=j, w=w);
-			writeEdgeListToFile(edgeList, data_path);						
-		}else{
-			data_path = obj@graph@file;
-		}
-		cat("Epoch: finding clusters using python-louvain\n", file = stderr())		
-		result_path <- tempfile(pattern='community_result_', tmpdir=tmp.folder, fileext='.dat')
-		flag = system2(command=path.to.snaptools, args=c("louvain", "--edge-file", data_path, "--output-file", result_path, "--resolution", resolution));		
-		if (flag != 0) {
-		   	stop("'runCluster' call failed");
-		}				
-		cluster = read.table(result_path);		
-		file.remove(result_path);
-		obj@cluster = factor(cluster[order(cluster[,1]),2]);		
-		file.remove(result_path);
+	}else if(louvain.lib == "leiden"){
+		cat("Epoch: finding clusters using leiden\n", file = stderr())		
+		data.use = getGraph(obj@graph);		
+		set.seed(seed.use);
+		obj@cluster <- factor(leiden(data.use, resolution=resolution));	
 	}else{
 		stop("unrecognized louvain.lib option")
 	}
 	gc();
 	return(obj);
 }
-
 

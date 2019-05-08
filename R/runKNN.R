@@ -146,8 +146,7 @@ runKNN.default <- function(
 		obj@graph = newKgraph(file=filename, k=k, snn=snn, snn.prune=snn.prune);
 	}else{
 		kmat = Matrix(0, ncell, ncell, sparse=TRUE);
-		kmat[cbind(edgeList[,1], edgeList[,2])] = edgeList[,3]
-		kmat[cbind(edgeList[,2], edgeList[,1])] = edgeList[,3]
+		kmat = sparseMatrix(i = edgeList[,1], j = edgeList[,2], x = edgeList[,3]);
 		obj@graph = newKgraph(mat=kmat, k=k, snn=snn, snn.prune=snn.prune);
 	}
 	gc();
