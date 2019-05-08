@@ -58,6 +58,7 @@ runKNN.default <- function(
   snn = FALSE,
   snn.prune = 1/15
 ){
+	
 	cat("Epoch: checking input parameters\n", file = stderr())
 	if(missing(obj)){
 		stop("obj is missing")
@@ -117,26 +118,20 @@ runKNN.default <- function(
 	
 	cat("Epoch: computing nearest neighbor graph\n", file = stderr())
 	
+	# exclude self neibours
     nn.ranked <- nn2(
         data = data.use,
-        k = k+1,
+        k = k,
         searchtype = 'standard',
         eps = nn.eps)$nn.idx;
 
-	# exclude self neibours
-	nn.ranked = nn.ranked[,2:(k+1)];	
-	edgeList <- t(matrix(unlist(sapply(1:ncell,function(i) { rbind(rep(i,k),nn.ranked[i,])})),nrow=2));
-	edgeList.1 <- edgeList[which(edgeList[,1] <= edgeList[,2]),]
-	edgeList.2 <- edgeList[which(edgeList[,1] > edgeList[,2]),]	
-	edgeList.2 <- cbind(edgeList.2[,2], edgeList.2[,1])
-	edgeList = rbind(edgeList.1, edgeList.2);
-	edgeList <- data.frame(v1=edgeList[,1], v2=edgeList[,2]);
-	edgeList = count(edgeList, vars = c("v1", "v2"));
-	
+	j <- as.numeric(x = t(x = nn.ranked))
+	i <- ((1:length(x = j)) - 1) %/% k + 1	
+	edgeList = data.frame(i, j, 1);
+		
 	if(snn){
-		cat("Epoch: converting knn graph into snn graph\n", file = stderr())		
+		cat("Epoch: converting knn graph into snn graph\n", file = stderr())	
 		g = graph_from_edgelist(as.matrix(edgeList[,c(1,2)]), directed=FALSE);
-		igraph::E(g)$weight = edgeList[,3];
 		adj = as(similarity(g), "sparseMatrix");
 		i = adj@i+1;
 		j = findInterval(seq(adj@x)-1,adj@p[-1])+1;
