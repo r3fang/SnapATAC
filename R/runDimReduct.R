@@ -164,8 +164,6 @@ runDimReduct.default <- function(
 		obj@smat@iter = maxit;
 		obj@smat@method = "pca";
 	}
+	obj@smat@imat = input.mat;
 	return(obj);
 }
-
-
-

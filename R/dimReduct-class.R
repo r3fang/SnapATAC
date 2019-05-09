@@ -4,6 +4,7 @@ NULL
 #'
 #' Class defines a dim.reduct object.
 #'
+#' @slot imat name of the input matrix (i.e. bmat, jmat, pmat, gmat)
 #' @slot dmat a matrix object that contains reduced dimentions
 #' @slot sdev variance for each principal conponents
 #' @slot iter iterations used for running dimentionality reduction 
@@ -17,6 +18,7 @@ NULL
 dim.reduct <- setClass(
   Class = "dim.reduct",
   slots = list(
+    imat = "character",
     dmat = "matrix",
     sdev = "numeric",
 	iter = "numeric",
@@ -29,8 +31,9 @@ setMethod(
   signature = 'dim.reduct',
   definition = function(object) {
     cat(
-      'Dimentionality reduction method:', object@method, '\n',
-      'Number of dimensions:', ncol(x = object@dmat), '\n'
+      'Input matrix:', object@imat, '\n',
+      'Number of dimensions:', ncol(x = object@dmat), '\n',
+      'Dimentionality reduction method:', object@method, '\n'
     )
   }
 )
@@ -69,7 +72,6 @@ setMethod("[", "dim.reduct",
 	   return(x);
 })
 
-
 #' @importFrom methods new
 newDimReduct <- function () {
 	res = new("dim.reduct", 
@@ -81,8 +83,7 @@ newDimReduct <- function () {
 	return(res)
 }
 
-
-isDimReductComplete <- function (obj) {
+isDimReductComplete <- function(obj) {
 	if(missing(obj)){
 		stop("obj is missing")
 	}else{
@@ -112,7 +113,7 @@ weightDimReduct <- function(obj, pca.dims, weight.by.sd=TRUE){
 	}
 	
 	if(weight.by.sd){
-		data.use = obj@dmat[,pca.dims] %*% diag(sqrt(obj@sdev[pca.dims])) ;
+		data.use = obj@dmat[,pca.dims] %*% diag(obj@sdev[pca.dims]) ;
 	}else{
 		data.use = obj@dmat[,pca.dims];
 	}

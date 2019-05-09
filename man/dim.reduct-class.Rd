@@ -11,6 +11,8 @@ Class defines a dim.reduct object.
 \section{Slots}{
 
 \describe{
+\item{\code{imat}}{name of the input matrix (i.e. bmat, jmat, pmat, gmat)}
+
 \item{\code{dmat}}{a matrix object that contains reduced dimentions}
 
 \item{\code{sdev}}{variance for each principal conponents}

@@ -35,7 +35,8 @@ Imports:
 Suggests:
 	umap,
 	chromVAR,
-	leiden
+	leiden,
+	lda
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true
@@ -60,6 +61,8 @@ Collate:
     'runJaccard.R'
     'snap-class.R'
     'runKNN.R'
+    'runLDA.R'
+    'runLSA.R'
     'runMACS.R'
     'runSnapAddPmat.R'
     'runViz.R'
