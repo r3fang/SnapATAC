@@ -4,7 +4,7 @@
 **SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) overcomes the limitation of reliance on population-level peak annotation, 2) improves the clustering accuracy by integrating "off-peak" reads, 3) controls for the major bias using a regression-based normalization method and 4) substantially outperforms current methods in scalability.
 
 ## Latest News
-* [SnapATAC enables other dimentionality reduction methods (LSA, LSA-logTF, LDA)](https://github.com/r3fang/SnapATAC/tree/master/examples/Fang_2019/Fang_2019.md)
+* [SnapATAC enables other dimentionality reduction (LSA, LSA-logTF, LDA)](https://github.com/r3fang/SnapATAC/tree/master/examples/Fang_2019/Fang_2019.md)
 * [SnapATAC enables clustering using leiden algorithm](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_P50)
 * [SnapATAC enables batch effect correction](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_sci)
 * [SnapATAC enables motif analysis using chromVAR](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_P50)
