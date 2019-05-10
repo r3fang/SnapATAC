@@ -146,7 +146,6 @@ runNormJaccard.default <- function(
 	
 		method = match.arg(method);
 	
-		message("Epoch: splitting obj into chunks ...");
 		# step 2) slice the orginal obj into list
 		id = seq(nrow(obj));
 		id.ls = split(id, ceiling(seq(id)/ncell.chunk ));
@@ -169,11 +168,9 @@ runNormJaccard.default <- function(
 						  );
 
 	
-		message("Epoch: scheduling CPUs ...");
 		cl <- makeCluster(num.cores);
 		registerDoParallel(cl);	
 
-		message("Epoch: normalizing jaccard index for each chunk ...");
 		nmat <- foreach(i=1:length(id.ls), .verbose=FALSE, .export="normJaccard", .packages="bigmemory", .combine = "rbind") %dopar% {
 		    t_mat <- attach.big.matrix(descriptorfile_tmp);
 			return(normJaccard(jmat=t_mat[id.ls[[i]],], b1=b1[id.ls[[i]]], b2=b2, method, k));
@@ -181,7 +178,6 @@ runNormJaccard.default <- function(
 		stopCluster(cl);
 		closeAllConnections();
 		
-		message("Epoch: cleaning up ...");
 		rm(x);
 		file.remove(backingfile_tmp);
 		file.remove(descriptorfile_tmp);
@@ -190,16 +186,13 @@ runNormJaccard.default <- function(
 		nmat <- normJaccard(jmat=obj@jmat@jmat, b1=b1, b2=b2, method, k);
 	}
 	
-	message("Epoch: scaling normalized jaccard index ...");
 	if(row.center || row.scale){
 		nmat = t(scale(t(nmat), center=row.center, scale=row.scale));
 	}
 	
-	message("Epoch: removing values beyond low.threshold and high.threshold ...");
 	nmat[nmat >= high.threshold] = high.threshold;
 	nmat[nmat <= low.threshold]  = low.threshold;
 
-	message("Epoch: updating jaccard object ...");
 	obj@jmat@jmat = nmat;
 	obj@jmat@method = method;
 	obj@jmat@norm = TRUE;	

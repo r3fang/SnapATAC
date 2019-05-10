@@ -103,7 +103,6 @@ runJaccard.default <- function(
 		id = seq(nrow(mat.use));
 		id.ls = split(id, ceiling(seq(id)/ncell.chunk));
 	
-		message("Epoch: splitting obj into chunks ...");
 		if(length(id.ls) > 1){
 			id.ls[[length(id.ls) - 1]] = c(id.ls[[length(id.ls) - 1]], id.ls[[length(id.ls)]]);
 			# remove the last item of the list
@@ -112,11 +111,9 @@ runJaccard.default <- function(
 	
 		mat.list = splitBmat(mat.use, id.ls, num.cores, tmp.folder);
 	
-		message("Epoch: scheduling CPUs ...");
 		cl <- makeCluster(num.cores);
 		registerDoParallel(cl);	
 	
-		message("Epoch: calculating jaccard index for each chunk ...");
 		jmat <- foreach(i=seq(mat.list), .verbose=FALSE,  .export=c("calJaccardSingle", "calJaccard"), .combine = "rbind") %dopar% {
 			calJaccardSingle(mat.list[[i]], mat.ref)
 		}
@@ -124,7 +121,6 @@ runJaccard.default <- function(
 		closeAllConnections();
 		gc();	
 		
-		message("Epoch: cleaning up ...");
 		rm(id.ls);
 		lapply(mat.list, function(x){
 			file.remove(x);

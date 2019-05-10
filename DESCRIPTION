@@ -58,6 +58,7 @@ Collate:
     'runDimReduct.R'
     'runHarmony.R'
     'runHomer.R'
+    'runJDA.R'
     'runJaccard.R'
     'snap-class.R'
     'runKNN.R'

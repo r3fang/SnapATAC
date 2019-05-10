@@ -4,7 +4,7 @@
 \alias{runLSA}
 \title{Latent Semantic Analysis}
 \usage{
-runLSA(obj, input.mat = c("bmat", "pmat"), pc.num = 50, logTF = TRUE,
+runLSA(obj, input.mat = c("bmat", "pmat"), pc.num = 50, logTF = FALSE,
   scale.factor = 1e+05, min.cell = 10, seed.use = 10)
 }
 \arguments{

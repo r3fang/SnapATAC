@@ -69,8 +69,9 @@ runCluster.default <- function(
 	}
 	
 	if(louvain.lib == "R-igraph"){
-		data.use = getGraph(obj@graph);		
-		g = graph_from_adjacency_matrix(forceSymmetric(data.use), weighted=TRUE, mode="undirected");
+		data.use = getGraph(obj@graph);
+		data.use = data.use + t(data.use);
+		g = graph_from_adjacency_matrix(data.use, weighted=TRUE, mode="undirected");
 		cat("Epoch: finding clusters using R-igraph\n", file = stderr())		
 		set.seed(seed.use);
 		cl = cluster_louvain(g);

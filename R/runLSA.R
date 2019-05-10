@@ -38,7 +38,7 @@ runLSA <- function(
 	obj, 
 	input.mat=c("bmat", "pmat"), 
 	pc.num=50, 
-	logTF=TRUE, 
+	logTF=FALSE, 
 	scale.factor=100000,
 	min.cell=10,
 	seed.use=10
@@ -117,7 +117,7 @@ runLSA <- function(
     tf@x <- tf@x * rep.int(idf, diff(tf@p));
     tf = t(tf);
 	
-	message("Epoch: running SVD ...");
+	message("Epoch: running dimensionality reduction ...");
 	set.seed(seed.use);
 	pca.results = irlba(t(tf), nv=pc.num);
 	obj@smat@dmat = pca.results$u;
