@@ -4,7 +4,7 @@
 \alias{runCluster}
 \title{Find Clusters Using Louvain/Leiden Algorithm}
 \usage{
-runCluster(obj, tmp.folder, louvain.lib, resolution, seed.use)
+runCluster(obj, tmp.folder, louvain.lib, resolution, seed.use, ...)
 }
 \arguments{
 \item{obj}{A snap object.}
@@ -18,6 +18,8 @@ Leiden allows for multiple resolutions, but requires "leiden" to be pre-installe
 \item{resolution}{A numeric value that indicates the resolution for louvain clustering [1].}
 
 \item{seed.use}{Random seed [10].}
+
+\item{...}{Paramters passed to leiden.}
 }
 \value{
 Returns a snap obj with the cluster stored in obj@cluster

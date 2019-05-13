@@ -11,6 +11,7 @@
 #' Leiden allows for multiple resolutions, but requires "leiden" to be pre-installed seperately. see how to install "leiden" (https://github.com/TomKellyGenetics/leiden).
 #' @param resolution A numeric value that indicates the resolution for louvain clustering [1].
 #' @param seed.use Random seed [10]. 
+#' @param ... Paramters passed to leiden.
 #' 
 #' @examples
 #' data(demo.sp);
@@ -22,7 +23,7 @@
 #' @importFrom utils file_test write.table read.table
 #' @importFrom methods as
 #' @export
-runCluster <- function(obj, tmp.folder, louvain.lib, resolution, seed.use) {
+runCluster <- function(obj, tmp.folder, louvain.lib, resolution, seed.use, ...) {
   UseMethod("runCluster", obj);
 }
 
@@ -32,7 +33,8 @@ runCluster.default <- function(
 	tmp.folder, 
 	louvain.lib=c("R-igraph", "leiden"),
 	resolution=1.0,
-	seed.use=10
+	seed.use=10,
+	...
 ){
 	cat("Epoch: checking input parameters\n", file = stderr())
 	
@@ -80,7 +82,7 @@ runCluster.default <- function(
 		cat("Epoch: finding clusters using leiden\n", file = stderr())		
 		data.use = getGraph(obj@graph);		
 		set.seed(seed.use);
-		obj@cluster <- factor(leiden(data.use, resolution=resolution));	
+		obj@cluster <- factor(leiden(data.use, resolution=resolution, ...));	
 	}else{
 		stop("unrecognized louvain.lib option")
 	}
