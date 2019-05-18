@@ -2,7 +2,8 @@
 
 In this example, we will be analyzing a dataset of 5K adult mouse brain cells freely available from 10X. The raw data can be downloaded from [here](https://support.10xgenomics.com/single-cell-atac/datasets/1.1.0/atac_v1_adult_brain_fresh_5k).
 
-**Step 1. Download the data**.      
+**Step 0. Download the data**.      
+In this exampe, we will start from fragments.tsv.gz file created by cell-ranger ATAC.
 
 ```bash
 $ wget http://cf.10xgenomics.com/samples/cell-atac/1.1.0/atac_v1_adult_brain_fresh_5k/atac_v1_adult_brain_fresh_5k_fragments.tsv.gz
@@ -45,16 +46,17 @@ CM - Total number of chrM fragments:         0
 ```
 
 **Step 2. Create cell-by-bin matrix (snaptools)**        
-Using snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, as a demonstration, we create two cell-by-bin matrices with bin size of 5,000. But we find 5,000 is usually a good bin size, recommand to only generate cell-by-bin matrix of 5,000 in the future. (**Note that this does not create a new file, cell-by-bin matrix is stored in `atac_v1_adult_brain_fresh_5k.snap`**) 
+Using snap file, we next create the cell-by-bin matrix. Snap file allows for storing cell-by-bin matrices of different resolutions. In the below example, as a demonstration, we create two cell-by-bin matrices with bin size of 1,000 and 5,000. But we find 5,000 is usually a good bin size, recommand to only generate cell-by-bin matrix of 5,000 in the future. (**Note that this does not create a new file, cell-by-bin matrix is stored in `atac_v1_adult_brain_fresh_5k.snap`**) 
 
 ```bash
 $ snaptools snap-add-bmat	\
 	--snap-file=atac_v1_adult_brain_fresh_5k.snap \
-	--bin-size-lis 5000	\
+	--bin-size-lis 1000 5000	\
 	--verbose=True
 ```
 
-**Step 3. Barcode selection (SnapATAC)**        
+**Step 3. Barcode selection**        
+We select high-quality barcodes based on two criteria: 1) number of filtered fragments; 2) fragments in promoter ratio (FRiP); 
 
 ```R
 > library(SnapATAC);
@@ -80,13 +82,13 @@ number of peaks: 0
 
 <img src="./UMI_dist.png" width="330" height="330" />  <img src="./FRIP_UMI.png" width="330" height="330" />  
 
-**Step 4. Bin size selection (SnapATAC)**        
+**Step 4. Add cell-by-bin matrix to existing snap object**        
 Here we use cell-by-bin matrix of 5kb resolution as input for clustering. See [How to choose the bin size?](https://github.com/r3fang/SnapATAC/wiki/FAQs#bin_size)
 
 ```R
 # show what bin sizes exist in atac_v1_adult_brain_fresh_5k.snap file
 > showBinSizes("atac_v1_adult_brain_fresh_5k.snap");
-[1] 5000
+[1] 1000 5000
 > x.sp = addBmatToSnap(x.sp, bin.size=5000, num.cores=1);
 ```
 
@@ -98,7 +100,7 @@ We next convert the cell-by-bin count matrix to a binary matrix. We found some i
 ```
 
 **Step 6. Bin filtration (SnapATAC)**           
-We next filter out any bins overlapping with the [ENCODE blacklist](http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/) and bins belonging to chrM or random chromsomes to prevent from any potential artifacts. 
+We next filter out any bins overlapping with the [ENCODE blacklist](http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/) and bins belonging to unwanted chromsomes such as chrM, random chromsomes or sex chromsomes to prevent from any potential artifacts. 
 
 ```R
 > system("wget http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/mm10-mouse/mm10.blacklist.bed.gz");
@@ -184,7 +186,6 @@ Using selected significant PCs, we next construct a K Nearest Neighbor (KNN) Gra
 ```
 
 **Step 10. Clustering**                  
-
 Next, we use leiden for clustering which allows for choosing different resolution resulting different clustering results. It requires R package `leiden` to be pre-installed [instruction](https://cran.r-project.org/web/packages/leiden/vignettes/run_leiden.html).
 
 ```R
@@ -219,7 +220,6 @@ SnapATAC visualize the datausing  tSNE, UMAP and FIt-sne. In the following examp
 ```
 
 **Step 12. Visulization**              
-SnapATAC provides flexible visualization. 
 
 ```R
 > plotViz(
@@ -245,7 +245,7 @@ SnapATAC provides flexible visualization.
 
 <img src="./Viz_tsne.png" width="350" height="330" />    
 
-**Step 12. Gene-body based annotation for expected cell types (SnapATAC)**        
+**Step 13. Gene-body based annotation for expected cell types (SnapATAC)**        
 To help annotate identified cell clusters, SnapATAC next creates the cell-by-gene matrix and visualize the enrichment of marker genes.
 
 ```R
@@ -305,7 +305,7 @@ To help annotate identified cell clusters, SnapATAC next creates the cell-by-gen
 
 <img src="./gene_plot.png" width="700" height="700" />
 
-**Step 13. Heretical clustering of the clusters (SnapATAC)**        
+**Step 14. Heretical clustering of the clusters (SnapATAC)**        
 
 ```R
 # calculate the ensemble signals for each cluster
@@ -319,7 +319,7 @@ To help annotate identified cell clusters, SnapATAC next creates the cell-by-gen
 
 <img src="./cluster_tree.png" width="800" height="400" />
 
-**Step 16. Gene-body based annotation for excitatory neurons**        
+**Step 15. Gene-body based annotation for excitatory neurons**        
 We next extracted the clusters belonging to excitatory neurons based on the gene accessibility level for Slc17a7 and plot layer-specific marker genes enrichment.
 
 ```R
@@ -372,7 +372,7 @@ We next extracted the clusters belonging to excitatory neurons based on the gene
 
 <img src="./gene_plot_exc.png" width="700" height="700" />
 
-**Step 17. Identify cis-elements for each cluster seperately**        
+**Step 16. Identify cis-elements for each cluster seperately**        
 This will create `nrrowPeak` and `.bedGraph` file that contains the peak and track for the given cluster. In the below example, SnapATAC creates `atac_v1_adult_brain_fresh_5k.1_peaks.narrowPeak` and `atac_v1_adult_brain_fresh_5k_treat_pileup.bdg`. `atac_v1_adult_brain_fresh_5k_treat_pileup.bdg` can later be converted to `bigWig` file for visulization using (`bedGraphToBigWig`)(https://anaconda.org/bioconda/ucsc-bedgraphtobigwig).
 
 ```R
@@ -397,7 +397,7 @@ After converting the `bedGraph` file to `bigWig` file, we next visulize the cell
 
 <img src="./tracks.png" />
 
-**Step 18. Create a cell-by-peak matrix**     
+**Step 17. Create a cell-by-peak matrix**     
 Using merged peaks as a reference, we next create a cell-by-peak matrix using the original snap file.
 
 ```R
@@ -416,7 +416,7 @@ Using merged peaks as a reference, we next create a cell-by-peak matrix using th
 ```
 
 
-**Step 19. Identify Differentially Accessible Regions (DARs)**       
+**Step 18. Identify Differentially Accessible Regions (DARs)**       
 SnapATAC can help find differentially accessible regions (DARs) that define clusters via differential analysis. By default, it identifes positive peaks of a single cluster (specified in `cluster.pos`), compared to a group of negative control cells.
 
 ```R
