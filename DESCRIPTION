@@ -36,7 +36,8 @@ Suggests:
 	umap,
 	chromVAR,
 	leiden,
-	lda
+	lda,
+	doSNOW
 License: GPL-3 | file LICENSE
 Encoding: UTF-8
 LazyData: true

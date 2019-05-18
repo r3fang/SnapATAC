@@ -156,13 +156,13 @@ runJDA <- function(
 	if(any(Matrix::rowSums(data.use) == 0)){
 		stop("input matrix contains empty rows, remove empty rows first")	
 	}
-	rm(data.use);
 
 	message("Epoch: filtering bins ..");
 	obj = filterBins(
 		obj=obj, 
 		low.threshold=bin.cov.zscore.lower,
-		high.threshold=bin.cov.zscore.upper
+		high.threshold=bin.cov.zscore.upper,
+		mat = input.mat
 	);
 		
 	message("Epoch: running jaccard index matrix ...");
@@ -202,6 +202,15 @@ runJDA <- function(
 		seed.use=seed.use
 	);	
 	obj@jmat = newJaccard();
+	
+	if(input.mat == "bmat"){
+		obj@bmat = data.use;
+	}else if(input.mat == "pmat"){
+		obj@pmat = data.use;
+	}else{
+		stop("input.mat does not exist in obj")
+	}
+	
 	message("Epoch: Done");
 	return(obj);
 }
