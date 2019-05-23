@@ -139,8 +139,10 @@ runJDA <- function(
 	input.mat = match.arg(input.mat);	
 	if(input.mat == "bmat"){
 		data.use = obj@bmat;
+		peak.use = obj@feature;
 	}else if(input.mat == "pmat"){
 		data.use = obj@pmat;
+		peak.use = obj@feature;
 	}else{
 		stop("input.mat does not exist in obj")
 	}
@@ -205,8 +207,10 @@ runJDA <- function(
 	
 	if(input.mat == "bmat"){
 		obj@bmat = data.use;
+		obj@feature = peak.use;
 	}else if(input.mat == "pmat"){
 		obj@pmat = data.use;
+		obj@peak = peak.use;
 	}else{
 		stop("input.mat does not exist in obj")
 	}
