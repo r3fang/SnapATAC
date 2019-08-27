@@ -8,10 +8,37 @@ In detail, we will be performing the following analysis:
 2. Randomly sample 10,000 cells as landmarks;
 3. Unsupervised clustering of landmarks;
 4. Projecting the remaining (query) cells onto the landmarks;
-5. Supervised annotation of scATAC cells using PBMC scRNA dataset;
+5. Supervised annotation of scATAC clusters using scRNA dataset;
 6. Downstream analysis including peak calling, differential analysis, prediction of gene-enhancer pairing. 
 
-**Step 0. Download the data**.      
+## Table of Contents
+
+- [Step 0. Data Download](#data_download)
+- [Step 1. Create snap file](#create_snap_file)
+- [Step 2. Create cell-by-bin matrix](#create_bmat)
+- [Step 3. Barcode selection](#barcode_selection)
+- [Step 4. Sample landmarks](#sample_landmark)
+- [Step 5. Add cell-by-bin matrix](#add_bmat)
+- [Step 6. Matrix binarization](#make_binary)
+- [Step 7. Bin filtering](#bin_filter)
+- [Step 8. Dimensionality reduction of landmarks](#diffusion_maps)
+- [Step 9. Porject query cells to landmarks](#projection)
+- [Step 10. Combine landmark and query cells](#combine)
+- [Step 11. Determine significant components](#pc_select)
+- [Step 12. Graph-based clustering](#cluster)
+- [Step 13. Visualization](#viz)
+- [Step 14. scRNA-seq based annotation](#annotation)
+- [Step 15. Create psudo multiomics cells](#psudo_cell)
+- [Step 16. Remove cells of low prediction score](#cell_filter)
+- [Step 17. Gene expression projected into UMAP](#gene_umap)
+- [Step 18. Identify peak](#peak_call)
+- [Step 19. Create a cell-by-peak matrix](#add_pmat)
+- [Step 20. Identify differentially accessible regions](#diff_analysis)
+- [Step 21. Motif variability analysis](#chromVAR)
+- [Step 22. De novo motif discovery](#homer)
+- [Step 23. Predict gene-enhancer pairs](#gene_peak_pair)
+
+<a name="data_download"></a>**Step 0. Data Download**          
 We will start from `fragments.tsv.gz` and quality control file `singlecell.csv` created by cell-ranger ATAC pipeline.
 
 ```bash
@@ -21,7 +48,7 @@ $ wget http://cf.10xgenomics.com/samples/cell-atac/1.1.0/atac_pbmc_5k_nextgem/at
 $ wget http://cf.10xgenomics.com/samples/cell-atac/1.1.0/atac_pbmc_5k_nextgem/atac_pbmc_5k_nextgem_singlecell.csv
 ```
 
-**Step 1. Create snap file**.         
+<a name="create_snap_file"></a>**Step 1. Create snap file**                
 Create snap file for PBMC 5k. See how to install [snaptools](https://github.com/r3fang/SnapTools). You can skip step 1-2 by downloading the snap file from [here](http://renlab.sdsc.edu/r3fang/share/github/PBMC_ATAC_RNA/).
 
 ```bash
@@ -91,7 +118,7 @@ UQ - Total number of unique fragments:       138606824
 CM - Total number of chrM fragments:         0
 ```
 
-**Step 2. Create cell-by-bin matrix**        
+<a name="create_bmat"></a>**Step 2. Create cell-by-bin matrix**                 
 After preprocessing, we next created the cell-by-bin matrix of 1kb and 5kb resolution for each sample seperately.  
 
 ```bash
@@ -105,7 +132,7 @@ $ snaptools snap-add-bmat	\
 	--verbose=True
 ```
 
-**Step 3. Barcode selection**        
+<a name="barcode_selection"></a>**Step 3. Barcode selection**                 
 Next, we select the high-quality barcodes based on two major criteria: 1) number of unique fragments; 2) fragments in promoter ratio; 
 
 ```R
@@ -190,7 +217,7 @@ number of genes: 0
 number of peaks: 0
 ```
 
-**Step 4. Sampling Landmarks**        
+<a name="sample_landmark"></a>**Step 4. Sample landmarks**                 
 SnapATAC applies diffusion maps algorithm, a nonlinear dimensionality reduction technique that discovers low dimensional manifolds by performing random walk on the data and is highly robust to noise and perturbation.  
 
 The computational cost of the diffusion maps algorithm scales exponentially with the increase of number of cells. To overcome this limitation, here we combine the Nyström method (a sampling technique) and diffusion maps to present Nyström Landmark diffusion map to generate the low-dimentional embedding for large-scale dataset.
@@ -215,21 +242,21 @@ In this example, we will sample 10,000 cells as landmarks and project the remain
 > x.query.sp = x.sp[-idx.landmark.ds,];
 ```
 
-**Step 5. Add cell-by-bin matrix to existing snap object**        
+<a name="add_bmat"></a>**Step 5. Add cell-by-bin matrix**                 
 Next, we add the cell-by-bin matrix of 5kb resolution to the snap object. This function will automatically read the cell-by-bin matrix from two snap files and add it to `bmat` attribute of snap object.
 
 ```R
 > x.landmark.sp = addBmatToSnap(x.landmark.sp, bin.size=5000);
 ```
 
-**Step 6. Matrix binarization**       
+<a name="make_binary"></a>**Step 6. Matrix binarization**                  
 We will convert the cell-by-bin count matrix to a binary matrix. Some items in the count matrix have abnormally high coverage perhaps due to the alignment errors. Therefore, we next remove top 0.1% items in the count matrix and then convert the remaining non-zero values to 1.
 
 ```R
 > x.landmark.sp = makeBinary(x.landmark.sp, mat="bmat");
 ```
 
-**Step 7. Bin filtration**           
+<a name="bin_filter"></a>**Step 7. Bin filtering**                  
 First, we filter out any bins overlapping with the [ENCODE blacklist](http://mitra.stanford.edu/kundaje/akundaje/release/blacklists/) to prevent from potential artifacts. 
 
 ```R
@@ -301,7 +328,7 @@ number of genes: 0
 number of peaks: 0
 ```
 
-**Step 8. Dimentionality reduction using diffusion maps algorithm**             
+<a name="diffusion_maps"></a>**Step 8. Dimensionality reduction of landmarks**                  
 We compute diffusion maps embedding for landmark cells.
 
 ```R
@@ -313,7 +340,7 @@ We compute diffusion maps embedding for landmark cells.
 > x.landmark.sp@metaData$landmark = 1;
 ```
 
-**Step 9. Predicting the query cells to landmarks**          
+<a name="projection"></a>**Step 9. Porject query cells to landmarks**                  
 Next, we project the query cells to the diffusion maps embedding of the landmarks.
 
 ```R
@@ -332,7 +359,7 @@ Next, we project the query cells to the diffusion maps embedding of the landmark
 > x.query.sp@metaData$landmark = 0;
 ```
 
-**Step 10. Combine landmark and other cells**          
+<a name="combine"></a>**Step 10. Combine landmark and query cells**                  
 
 ```R
 > x.sp = snapRbind(x.landmark.sp, x.query.sp);
@@ -341,7 +368,7 @@ Next, we project the query cells to the diffusion maps embedding of the landmark
 
 Note: To merge snap objects, all the matrix (bmat, gmat, pmat) and metaData must be of the same number of columns between snap objects.
 
-**Step 11. Determine statistically significant eigen vectors**          
+<a name="pc_select"></a>**Step 11. Determine significant components**                  
 We next determine the number of eigen-vectors to include for downstream analysis. We use an ad hoc method by simply looking at a pairwise plot and select the number of eigen vectors that the scatter plot starts looking like a blob. In the below example, we choose the first 15 eigen vectors.  
 
 ```R
@@ -361,7 +388,7 @@ We next determine the number of eigen-vectors to include for downstream analysis
 
 <img src="./eigs_scatter_plot.png" width="400" height="400" /> 
 
-**Step 11. Clustering**         
+<a name="cluster"></a>**Step 12. Graph-based clustering**                  
 Using the selected significant components, we next construct a K Nearest Neighbor (KNN) Graph. Each cell is a node and the k-nearest neighbors of each cell are identified according to the Euclidian distance and edges are draw between neighbors in the graph.
 
 ```R
@@ -380,10 +407,11 @@ Using the selected significant components, we next construct a K Nearest Neighbo
   );
 ```
 
-**Step 12. Visualization**         
-SnapATAC visualizes and explores the data using tSNE (FI-tsne) and UMAP. In this example, we compute the t-SNE embedding using `Rtsne` function. 
+<a name="viz"></a>**Step 13. Visualization**                  
+SnapATAC visualizes and explores the data using tSNE (FI-tsne) and UMAP. In this example, we compute the UMAP embedding. 
 
 ```R
+> library(umap);
 > x.sp = runViz(
     obj=x.sp, 
     tmp.folder=tempdir(),
@@ -446,7 +474,7 @@ SnapATAC visualizes and explores the data using tSNE (FI-tsne) and UMAP. In this
 
 <img src="./Viz_UMAP.png" width="800" height="800" /> 
 
-**Step 13. scRNA-seq based annotation**        
+<a name="annotation"></a>**Step 14. scRNA-seq based annotation**                  
 In this example, we will annotate the single cell ATAC-seq clusters based on corresponding scRNA-seq dataset. Seurat object for 10X PBMC single cell RNA-seq (`pbmc_10k_v3.rds`) can be downloaded [here](https://www.dropbox.com/s/3f3p5nxrn5b3y4y/pbmc_10k_v3.rds?dl=1).
 
 ```R
@@ -466,7 +494,7 @@ In this example, we will annotate the single cell ATAC-seq clusters based on cor
   );
 ```
 
-We next create a Seurat object to integrate with scRNA-seq.
+We next convert the snap object to Seurat object in preparation of integration.
 
 ```R
 > pbmc.atac <- snapToSeurat(
@@ -494,7 +522,7 @@ We next create a Seurat object to integrate with scRNA-seq.
 > x.sp@cluster = as.factor(x.sp@metaData$predicted.id);
 ```
 
-**Step 14. Create psudo multiomics cells**          
+<a name="psudo_cell"></a>**Step 15. Create psudo multiomics cells**                  
 Now each single cell in the snap object `x.sp` contains information of both chromatin accessibility `@bmat` and gene expression `@gmat`.
 
 ```R
@@ -515,7 +543,7 @@ Now each single cell in the snap object `x.sp` contains information of both chro
 > rm(pbmc.rna);   # free memory
 ```
 
-**Step 15. Removing cells of low prediction score**             
+<a name="cell_filter"></a>**Step 16. Remove cells of low prediction score**                  
 
 ```R
 > hist(
@@ -550,8 +578,8 @@ number of peaks: 0
 
 <img src="./predict_score.png" width="350" height="350" /> <img src="./Viz_umap_type.png" width="350" height="350" />
 
-**Step 16. Projecting gene expression level to t-SNE embedding**          
-We next project the expression level of marker genes onto the the t-SNE embedding.
+<a name="gene_umap"></a>**Step 17. Gene expression projected into UMAP**                  
+We next project the expression level of marker genes onto the the UMAP embedding.
 
 ```R
 > marker.genes = c(
@@ -582,7 +610,7 @@ We next project the expression level of marker genes onto the the t-SNE embeddin
 <img src="./gene_exp_plot.png" width="600" height="600" /> 
 
 
-**Step 17. Identify cis-elements for each cell type seperately**        
+<a name="peak_call"></a>**Step 18. Identify peaks**                  
 Next we aggregate reads from the each cluster to create an ensemble track for peak calling and visualization. This step will generate a `narrowPeak` that contains the identified peak and `.bedGraph` file for visualization. To obtain the most robust result, we don't recommend to perform this step for clusters with cell number less than 100. In the below example, SnapATAC creates `PBMC.CD4_Naive_peaks.narrowPeak` and `PBMC.CD4_Naive_treat_pileup.bdg`. `bdg` file can be compressed to `bigWig` file using [`bedGraphToBigWig`](https://anaconda.org/bioconda/ucsc-bedgraphtobigwig) for IGV or Genome Browser visulization.
 
 ```R
@@ -636,7 +664,7 @@ This will create a `bdg` file for each cluster for visilizations using IGV or ot
 <img src="./IGV_track.png" width="700" height="250" /> 
 
 
-**Step 18. Create a cell-by-peak matrix**     
+<a name="add_pmat"></a>**Step 19. Create a cell-by-peak matrix**                   
 Using merged peaks as a reference, we next create the cell-by-peak matrix and add it to the snap object. We will first write down combined peak list as `peaks.combined.bed`. 
 
 ```R
@@ -664,9 +692,8 @@ We then add the cell-by-peak matrix to the existing snap object in R.
 > x.sp = addPmatToSnap(x.sp);
 ```
 
-**Step 19. Identify differentially accessible regulatory modules (DARs) for each cell type**         
-
-For a given group of cells Ci, we first look for their neighboring cells Cj (|Ci|=|Cj|) in the diffusion component space as “background” cells to compare to. If Ci accounts for more than half of the total cells, we use the remaining cells as local background. Next, we aggregate Ci and Cj to create two raw-count vectors as V_ci and V_cj. We then perform differential analysis between V_ci and V_cj using exact test as implemented in R package edgeR (v3.18.1) with BCV=0.1 for mouse and BCV for human. P-value is then adjusted into False Discovery Rate (FDR) using Benjamini-Hochberg correction. Peaks with FDR less than 0.05 are selected as significant DARs. 
+<a name="diff_analysis"></a>**Step 20. Identify differentially accessible regions**                   
+For a given group of cells Ci, we first look for their neighboring cells Cj (|Ci|=|Cj|) in the diffusion component space as “background” cells to compare to. If Ci accounts for more than half of the total cells, we use the remaining cells as local background. Next, we aggregate Ci and Cj to create two raw-count vectors as Vci and Vcj. We then perform differential analysis between Vci and Vcj using exact test as implemented in R package edgeR (v3.18.1) with BCV=0.1 for mouse and BCV for human. P-value is then adjusted into False Discovery Rate (FDR) using Benjamini-Hochberg correction. Peaks with FDR less than 0.05 are selected as significant DARs. 
 
 We recognize the limitation of this approach is that the statically significance may be under power for small clusters. For clusters that failed to identify significant differential elements, we rank the elements based on the pvalue and pick the top 2,000 peaks a representative elements for motif analysis.  
 
@@ -758,7 +785,7 @@ Next, we identify DARs for each of the clusters.
 
 <img src="./DARs.png" width="600" height="600" /> 
 
-**Step 20. Motif variability analysis using chromVAR**       
+<a name="chromVAR"></a>**Step 21. Motif variability analysis**                    
 SnapATAC incorporates chromVAR (Schep et al) for motif variability analysis.
 
 ```R
@@ -792,7 +819,7 @@ SnapATAC incorporates chromVAR (Schep et al) for motif variability analysis.
 ```
 <img src="./motif_var_plot.png" width="700" height="350" /> 
 
-**Step 21. De novo Motif discovery using Homer.**      
+<a name="homer"></a>**Step 22. De novo motif discovery**                    
 SnapATAC can help identify master regulators that are enriched in the differentially accessible regions (DARs). This will creates a homer motif report `knownResults.html` in the folder `./homer/C2`.
 
 ```R
@@ -822,7 +849,7 @@ SnapATAC can help identify master regulators that are enriched in the differenti
 
 <img src="./motif_homer_plot.png" width="700" height="200" /> 
 
-**Step 22. Link distal regulatory elements to putative target genes**           
+<a name="gene_peak_pair"></a>**Step 23. Predict gene-enhancer pairs**                          
 Finally, using the "pseudo" cells, we next develop a method to link the distal regulatory elements to the target genes based on the association between expression of a gene and chromatin accessibility at its distal elements in single cells. For a given marker gene, we first identify peaks within a flanking window the target gene. For each flanking peak, we perform logistic regression using gene expression as input varaible to predict the binarized chromatin state. The resulting model estimates the significance of the association between chromatin accessibility and gene expression.
 
 ```R
