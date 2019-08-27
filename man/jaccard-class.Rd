@@ -11,13 +11,15 @@ Class jaccard defines a jaccard object.
 \describe{
 \item{\code{jmat}}{a matrix object that contains the jaccard index similarity matrix}
 
+\item{\code{nmat}}{a matrix object that contains the normalized similarity matrix}
+
 \item{\code{p1}}{an array of numeric values indicates the coverage for rows}
 
 \item{\code{p2}}{an array of numeric values indicates the coverage for columns}
 
 \item{\code{norm}}{a logical variable indicates whether jaccard index matrix has been normalized}
 
-\item{\code{method}}{normalization method used to normalize jaccard index matrix}
+\item{\code{input.mat}}{a character variable indicates what matrix is used as input (i.e. "bmat", "pmat", "gmat")}
 }}
 
 \examples{

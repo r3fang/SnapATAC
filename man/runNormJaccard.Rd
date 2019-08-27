@@ -4,21 +4,17 @@
 \alias{runNormJaccard}
 \title{Normalize Jaccard Index Matrix}
 \usage{
-runNormJaccard(obj, tmp.folder, ncell.chunk, method, k, row.center, row.scale,
-  low.threshold, high.threshold, do.par, num.cores, seed.use)
+runNormJaccard(obj, tmp.folder, method, row.center, row.scale, low.threshold,
+  high.threshold, do.par, ncell.chunk, num.cores, seed.use)
 }
 \arguments{
 \item{obj}{A snap obj}
 
-\item{tmp.folder}{A non-empty character vector giving the directory name to save temp files}
+\item{tmp.folder}{A non-empty character vector giving the directory name to save temp files.}
 
-\item{ncell.chunk}{A numeric class that indicates number of cells to process per CPU node}
+\item{method}{A character class that indicates the normalization method to be used. This must be one of c("residual", "zscore").}
 
-\item{method}{A character class that indicates the normalization method to be used. This must be one of c("normOVN", "normOVE")}
-
-\item{k}{A numeric class that indicate number of neibouring cells to use for OVN (used only if method="OVN") (default k = 15)}
-
-\item{row.center}{A logical value indicating whether rows of the normalized jaccard inex matrix should be centered by subtracting the layer means (omitting 'NA's)}
+\item{row.center}{A logical value indicating whether rows of the normalized jaccard inex matrix should be centered by subtracting the layer means (omitting 'NA's).}
 
 \item{row.scale}{A logical value indicating whether rows of the normalized jaccard index matrix should be scaled by dividing the (centered) layers of 'x' by their standard deviations if 'center' is 'TRUE'.}
 
@@ -27,6 +23,8 @@ runNormJaccard(obj, tmp.folder, ncell.chunk, method, k, row.center, row.scale,
 \item{high.threshold}{A numeric class that indicates the max value for normalized jaccard index [5].}
 
 \item{do.par}{A logical variable indicates if to run this in parallel using multiple processors [TRUE].}
+
+\item{ncell.chunk}{A numeric class that indicates number of cells to process per CPU node}
 
 \item{num.cores}{A numeric class that indicates the number of cores to use for calculation [1].}
 
@@ -37,34 +35,13 @@ This function takes a Snap obj as input with jmat slot and normalize
 for read depth effect.
 }
 \details{
-In theory, the entry in the jaccard index calculated by calJaccard() should 
+In theory, the entries in the jaccard index calculated by calJaccard() should 
 reflects the true similarity between two cells, however, that is not the case. 
 We observed that a cell of higher coverage tends to have a higher similarity 
 with another cell regardless whether these two cells are similar or not.
 These biases, we termed as “coverage bias” also observed in other studies, 
 can later result in misleading cell grouping. Therefore, it is cruicial to 
 normalize the bias.
-
-Here we propose three different normalization methods.
-
-1. Observe Over Neighbours (OVN)
-2. Observe Over Expected   (OVE)
-
-1. Observe Over Neighbours (OVN)
-For each pair of cells i and j, we first identify their neibours Ni and Nj based
-on the coverage. Second, we calcualted the pair-wise jaccard index between Ni 
-Nj as Eij. The average mean(Eij) is considered to be the expected jaccard index 
-between cell i and j. The normalized jaccard index between i and j is Oij - mean(Eij).
-
-2. Observe Over Expected (OVE)
-Alternatively, one can calcualte the theoritical expected jaccard index between 
-cell i and j if the "1"s are completely random. However, we found the theoretically
-estimated expected jaccard index is usually lower than that estimated from the neibours.
-This is also expected because the accessible sites are not completely random. For instance,
-we previously found the promoters of housekeeping genes are more often occupied between
-different cells. To solve this under-estimate problem for OVE, we found that OVE is highly
-correlated with OVN (r>0.99), therefore, we can estimate a scale factor alpha to scale 
-OVE to similar level with OVN. The scale factor is estimated from the data.
 }
 \examples{
 data(demo.sp);

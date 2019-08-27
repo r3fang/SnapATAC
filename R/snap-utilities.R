@@ -23,9 +23,11 @@ newSnap <- function () {
 	bmat=Matrix(nrow=0, ncol=0, sparse=TRUE);		
 	pmat=Matrix(nrow=0, ncol=0, sparse=TRUE);
 	gmat=Matrix(nrow=0, ncol=0, sparse=TRUE);
+	mmat=matrix(0,0,0);
 	jmat=newJaccard();
 	smat=newDimReduct();	
 	graph=newKgraph();
+	regModel=c();
 	tsne=matrix(nrow=0, ncol=0);	
 	umap=matrix(nrow=0, ncol=0);	
 	cluster=factor();
@@ -39,7 +41,8 @@ newSnap <- function () {
 			  metaData=metaData, 
 			  bmat=bmat, 
 			  pmat=pmat, 
-			  gmat=gmat, 
+			  gmat=gmat,
+			  mmat=mmat, 
 			  jmat=jmat, 
 			  smat=smat, 
 			  graph=graph, 
@@ -271,6 +274,7 @@ setMethod("[", "snap",
 		.bmat = x@bmat;
 		.pmat = x@pmat;
 		.gmat = x@gmat;
+		.mmat = x@mmat;
 		.jmat = x@jmat;
 		.smat = x@smat;
 		.graph = x@graph;
@@ -286,6 +290,7 @@ setMethod("[", "snap",
 		   if(nrow(.bmat) > 0){.bmat <- .bmat[i,,drop=FALSE]}
 		   if(nrow(.pmat) > 0){.pmat <- .pmat[i,,drop=FALSE]}
 		   if(nrow(.gmat) > 0){.gmat <- .gmat[i,,drop=FALSE]}	   
+		   if(nrow(.mmat) > 0){.mmat <- .mmat[i,,drop=FALSE]}	   
 		   if(nrow(.jmat@jmat) > 0){.jmat <- .jmat[i,,drop=FALSE]}
 		   if(nrow(.smat@dmat) > 0){.smat <- .smat[i,,drop=FALSE]}
 		   if(nrow(.tsne) > 0){.tsne <- .tsne[i,,drop=FALSE]}
@@ -312,6 +317,7 @@ setMethod("[", "snap",
 	   x@bmat = .bmat;
 	   x@pmat = .pmat;
 	   x@gmat = .gmat;
+	   x@mmat = .mmat;
 	   x@barcode = .barcode;
 	   x@file = .file;
 	   x@sample = .sample;
@@ -700,10 +706,13 @@ addPmatToSnap.default <- function(obj, do.par=FALSE, num.cores=1){
 		res = Reduce(snapRbind, obj.ls);		
 	}
 	
+	# re-order the matrix
+	o1 = paste(obj@file, obj@barcode, sep=".");
+	o2 = paste(res@file, res@barcode, sep=".");
 	obj@peak = res@peak;
-	obj@pmat = res@pmat;
-	rm(res, obj.ls);
-	gc()
+	obj@pmat = res@pmat[match(o1, o2),];
+	rm(obj.ls, res, o1, o2);
+	gc();
 	return(obj);
 }
 
@@ -797,8 +806,10 @@ addGmatToSnap.default <- function(obj, do.par=FALSE, num.cores=1){
 	}else{
 		res = Reduce(snapRbind, obj.ls);		
 	}
-	obj@gmat = res@gmat;
-	rm(obj.ls, res);
+	o1 = paste(obj@file, obj@barcode, sep=".");
+	o2 = paste(res@file, res@barcode, sep=".");
+	obj@gmat = res@gmat[match(o1, o2),];
+	rm(obj.ls, res, o1, o2);
 	gc();
 	return(obj);
 }
@@ -1367,6 +1378,19 @@ snapRbind <- function(obj1, obj2){
 	rm(pmat1, pmat2)
 	gc()
 
+
+	# check gmat	
+	dmat1 = obj1@smat@dmat;
+	dmat2 = obj2@smat@dmat;
+	
+	if((length(dmat1) == 0) != (length(dmat2) == 0)){
+		stop("dmat has different dimentions in obj1 and obj2!")
+	}else{
+		dmat = Matrix::rBind(dmat1, dmat2);
+	}
+	rm(dmat1, dmat2)
+	gc()
+
 	res = newSnap();
 	res@feature = feature;
 	res@barcode = c(obj1@barcode, obj2@barcode);
@@ -1377,6 +1401,8 @@ snapRbind <- function(obj1, obj2){
 	res@pmat = pmat;
 	res@peak = peak;
 	res@gmat = gmat;
+	res@smat@dmat = dmat;
+	res@smat@sdev = obj1@smat@sdev;
 	return(res)
 }
 
@@ -1812,15 +1838,12 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	count = as.numeric(tryCatch(count <- h5read(file, paste("AM", bin.size, "count", sep="/")), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/count' not found in ",file))}));	
 
 	if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}	
-	
-	ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-	idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-	idy = idy[ind.sel];
-	count = count[ind.sel];
-	nBarcode = length(obj@barcode);
+	nBarcode = length(barcode);
 	nBin = length(obj@feature);
-	obj@bmat = 	sparseMatrix(i=idx, j =idy, x=count, dims = c(nBarcode, nBin));
-	rm(idx, idy, count);
+	M = sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nBin));
+	rownames(M) = barcode;
+	obj@bmat = M[match(obj@barcode, rownames(M)),]
+	rm(idx, idy, count, M);
 	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
 		rhdf5::h5closeAll();		
 	}else{
@@ -1829,74 +1852,6 @@ addBmatToSnapSingle <- function(obj, file, bin.size=5000){
 	gc();
 	return(obj);
 }
-
-####' @importFrom methods is
-####' @import Matrix
-###addBmatToSnapSingleDev <- function(obj, file, bin.size=5000){	
-###	# close the previously opened H5 file
-###	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
-###		rhdf5::h5closeAll();		
-###	}else{
-###		rhdf5::H5close();
-###	}
-###	
-###	if(missing(obj)){
-###		stop("obj is missing")
-###	}else{
-###		if(!is(obj, "snap")){
-###			stop("obj is not a snap object")
-###		}
-###	}
-###
-###	if(!file.exists(file)){stop(paste("Error @addBmatToSnapSingle: ", file, " does not exist!", sep=""))};
-###	if(!isSnapFile(file)){stop(paste("Error @addBmatToSnapSingle: ", file, " is not a snap-format file!", sep=""))};
-###	if(!(bin.size %in% showBinSizes(file))){stop(paste("Error @addBmatToSnapSingle: bin.size ", bin.size, " does not exist in ", file, "\n", sep=""))};
-###
-###
-###	barcode = as.character(tryCatch(barcode <- h5read(file, '/BD/name'), error = function(e) {print(paste("Warning @addBmat: 'BD/name' not found in ",file)); return(vector(mode="character", length=0))}));	
-###	bin.sizeList = showBinSizes(file);
-###	if(length(bin.sizeList) == 0){stop("Error @addBmat: bin.sizeList is empty! Does not support reading empty snap file")}
-###	if(!(bin.size %in% bin.sizeList)){stop(paste("Error @addBmat: ", bin.size, " does not exist in bin.sizeList, valid bin.size includes ", toString(bin.sizeList), "\n", sep=""))}
-###	
-###	bins = readBins(file, bin.size);
-###	obj@feature = bins;
-###	
-###	nBin = length(obj@feature);
-###	nBarcode = length(obj@barcode);
-###
-###	obj@feature = bins;
-###	obj@bmat = Matrix(0, nrow=nBarcode, ncol=nBin);
-###	
-###	a = h5ls(file, all=TRUE);
-###	dim = as.numeric(a["dim"][which(a["group"] == paste("/AM", bin.size, sep="/") & a["name"] == "idx"),])
-###	max.vec.size = 1000000
-###	id.ls = split(seq(dim), ceiling(seq(dim)/max.vec.size));
-###	for(in in seq(id.ls)){
-###		idx.arr = id.ls[[i]]
-###		idx = as.numeric(tryCatch(idx <- h5read(file, paste("AM", bin.size, "idx", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idx' not found in ",file))}));
-###		idy = as.numeric(tryCatch(idy <- h5read(file, paste("AM", bin.size, "idy", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/idy' not found in ",file))}));
-###		count = as.numeric(tryCatch(count <- h5read(file, paste("AM", bin.size, "count", sep="/"), index=list(idx.arr)), error = function(e) {stop(paste("Warning @addBmat: 'AM/bin.size/count' not found in ",file))}));	
-###		if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}	
-###		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-###		if((x=length(ind.sel)) == 0L){
-###			next;
-###		}
-###		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-###		idy = idy[ind.sel];
-###		count = count[ind.sel];
-###		obj@bmat[idx,idy] = count;
-###		rm(idx, idy, count);
-###		gc();
-###	}
-###	
-###	if(exists('h5closeAll', where='package:rhdf5', mode='function')){
-###		rhdf5::h5closeAll();		
-###	}else{
-###		rhdf5::H5close();
-###	}
-###	gc();
-###	return(obj);
-###}
 
 #' @importFrom methods is
 addGmatToSnapSingle <- function(obj, file){
@@ -1924,15 +1879,14 @@ addGmatToSnapSingle <- function(obj, file){
         count = as.numeric(tryCatch(count <- h5read(file, "GM/count"), error = function(e) {stop(paste("Warning @addGmat: 'GM/count' not found in ",file))}))
 
         if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap GM session")}		
-		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-		idy = idy[ind.sel];
-		count = count[ind.sel];
-		nBarcode = nrow(obj);
+		nBarcode = length(barcode);
 		nGene = length(geneName);
-		obj@gmat = 	sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nGene));
+		M = sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nGene));
+		rownames(M) = barcode;
+		obj@gmat = 	M[match(obj@barcode, rownames(M)),]
 		colnames(obj@gmat) = geneName;
-		rm(idx, idy, count);
+		rm(idx, idy, count, M);
+
 		if(exists('h5closeAll', where='package:rhdf5', mode='function')){
 			rhdf5::h5closeAll();		
 		}else{
@@ -1978,14 +1932,12 @@ addPmatToSnapSingle <- function(obj, file){
         count = as.numeric(tryCatch(count <- h5read(file, "PM/count"), error = function(e) {stop(paste("Warning @readSnap: 'PM/count' not found in ",file))}))
 
         if(!all(sapply(list(length(idx),length(idy),length(count)), function(x) x == length(count)))){stop("Error: idx, idy and count has different length in the snap file")}
-		ind.sel = which(idx %in% which(barcode %in% obj@barcode));		
-		idx = match(idx[ind.sel], sort(unique(idx[ind.sel])));	
-		idy = idy[ind.sel];
-		count = count[ind.sel];
-		nBarcode = nrow(obj);
+		nBarcode = length(barcode);
 		nPeak = length(obj@peak);
-		obj@pmat = 	sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nPeak));
-		rm(idx, idy, count);
+		M = sparseMatrix(i=idx, j =idy, x=count, dims=c(nBarcode, nPeak));
+		rownames(M) = barcode;
+		obj@pmat = 	M[match(obj@barcode, rownames(M)),]
+		rm(idx, idy, count, M);
 		if(exists('h5closeAll', where='package:rhdf5', mode='function')){
 			rhdf5::h5closeAll();		
 		}else{
@@ -2046,96 +1998,3 @@ createSnapSingle <- function(file, sample, metaData=TRUE, description=NULL){
 	return(res);	
 }
 
-
-
-### Calculate cell-by-gene count matrix
-###
-### This function takes a snap obj and converts the cell-by-bin 
-### matrix into the cell-by-gene count matrix.
-###
-### @param obj A snap object.
-### @param gene A GRanges object that contains the genomic intervals of genes.
-### @param num.cores Number of CPU processers for computation [1].
-### @param mat Matrix slot is used to calculatd the cell-by-gene matrix c("bmat", "pmat").
-###
-### @importFrom GenomicRanges GRanges findOverlaps
-### @importFrom parallel mclapply
-### @importFrom methods slot
-### @return Returns a Snap obj with the cell-by-gene matrix stored in obj@gmat
-### 
-### @export
-##calCellGeneTable <- function(obj, gene, num.cores, mat){
-##  UseMethod("calCellGeneTable", obj);
-##}
-##
-###' @export
-##calCellGeneTable.default <- function(
-##	obj, 
-##	gene, 
-##	num.cores=1, 
-##	mat=c("bmat", "pmat")
-##){
-##	if(missing(obj)){
-##		stop("obj is missing")
-##	}else{
-##		if(class(obj) != "snap"){
-##			stop("obj is not a snap obj")
-##		}
-##	}
-##	mat = match.arg(mat);
-##	data.use = methods::slot(obj, mat);
-##	if((x=nrow(data.use)) == 0L){
-##		stop("mat is empty")
-##	}
-##	
-##	if(mat == "bmat"){
-##		feature.use = obj@feature;
-##	}else if(mat == "pmat"){
-##		feature.use = obj@peak;
-##	}
-##	
-##	if((x=length(feature.use)) == 0L){
-##		stop("column feature for mat is empty")
-##	}
-##	
-##	if(missing(gene)){
-##		stop("gene is missing");
-##	}else{
-##		if(class(gene) != "GRanges"){
-##			stop("'gene' is not a GenomicRanges obj");
-##		}
-##		if((x==length(gene)) == 0L){
-##			stop("gene is empty");
-##		}		
-##	}
-##		
-##	if(any(duplicated(gene$gene_name))){
-##		stop("'gene' contains duplicate gene names, remove duplicate first");
-##	}
-##
-##	# find overlap between feature and genes
-##	ov = data.frame(findOverlaps(feature.use, gene));
-##	if(nrow(ov) > 0){
-##		# calculate gene count vector per cell in parallel;
-##		ov.ls <- split(ov, ov$subjectHits);
-##		# generate the count vector per cell in parallel;
-##		count.ls <- mclapply(ov.ls, function(x){
-##			if(nrow(x) > 1){
-##				return(Matrix::rowSums(mat[,x[,1]]))
-##			}else{
-##				return(mat[,x[,1]])
-##			}
-##		}, mc.cores=num.cores);
-##		# combine vectors and create a count matrix;
-##		count.mt = t(as.matrix(do.call(rbind, count.ls)));
-##		count_table = Matrix(0, nrow=nrow(obj), ncol=length(gene), sparse=TRUE);
-##		count_table[,as.numeric(names(ov.ls))] = count.mt;
-##		count_table = count_table;		
-##	}else{
-##		count_table = Matrix(0, nrow(obj), ncol=length(gene), sparse=TRUE);
-##	}
-##	obj@gmat = count_table;
-##	colnames(obj@gmat) = gene$gene_name;
-##	return(obj);
-##}
-##

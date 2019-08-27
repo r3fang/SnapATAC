@@ -4,23 +4,18 @@
 \alias{runJaccard}
 \title{Calcualte Jaccard Index Matrix}
 \usage{
-runJaccard(obj, tmp.folder, mat, max.var, ncell.chunk, do.par, num.cores,
-  seed.use)
+runJaccard(obj, bin.downsample, tmp.folder, mat, max.var, seed.use)
 }
 \arguments{
 \item{obj}{A Snap obj}
+
+\item{bin.downsample}{Percentage of bins to be downsampled to [1].}
 
 \item{tmp.folder}{A non-empty character vector giving the directory name that saves the temp files}
 
 \item{mat}{A character class that indicates what matrix slot is used to calculate jaccard index c("bmat", "pmat", "gmat")}
 
 \item{max.var}{A numeric variable indicates the how many dimentions for jaccard index to be calcualted}
-
-\item{ncell.chunk}{A numeric class that indicates the number of cells to calculate per processing core}
-
-\item{do.par}{A logic variable indicates weather to run this in parallel with multiple processors.}
-
-\item{num.cores}{Number of processors to use.}
 
 \item{seed.use}{A numeric variable indicates the random seed to use [10].}
 }
@@ -33,13 +28,17 @@ in which each entry Jij equals the intersection over the union between cell i an
 }
 \details{
 Calculating jaccard index becomes exponentially time-consuming and also memory 
-intense with the increase of cell number. To solve this problem, we divide
-the cells into groups and calculated a sub jaccard index matrix, which are later combined
-to create the full jaccard index matrix.
+intense with the increase of cell number.
+
+The most memory and time consuming step of our procedure is the calculation of jaccard index matrix. 
+This step increases exponentially with the increase of cell number. Here, we calculate a partial jaccard 
+index matrix against a random subset of reference cells in lieu of the full spectrum of features. 
+Here we tested if we can perform the calculation of partial jaccard index matrix using a random 
+subset of max.var reference cells.
 }
 \examples{
 data(demo.sp);
 demo.sp = makeBinary(demo.sp, mat="bmat");
-demo.sp = runJaccard(obj=demo.sp, mat="bmat", tmp.folder=tempdir(), do.par=FALSE);
+demo.sp = runJaccard(obj=demo.sp, mat="bmat", bin.downsample=1, tmp.folder=tempdir())
 
 }

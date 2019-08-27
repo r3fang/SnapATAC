@@ -4,13 +4,13 @@
 \alias{findDAR}
 \title{Identifiy Differential Accessible Regions (DARs)}
 \usage{
-findDAR(obj, mat, cluster.pos, cluster.neg, bcv, fdr, pvalue, test.method,
-  seed.use)
+findDAR(obj, input.mat, cluster.pos, cluster.neg, cluster.neg.method, bcv, fdr,
+  pvalue, test.method, seed.use)
 }
 \arguments{
 \item{obj}{A snap object.}
 
-\item{mat}{Matrix to use for finding differential features c("bmat", "pmat", "gmat").}
+\item{input.mat}{Matrix to use for finding differential features c("bmat", "pmat", "gmat").}
 
 \item{cluster.pos}{Cluster to identify DAR markers.}
 
@@ -18,14 +18,12 @@ findDAR(obj, mat, cluster.pos, cluster.neg, bcv, fdr, pvalue, test.method,
 If cluster.neg is NULL, runFindDARs will automatically identifies background cells 
 by finding those that are closest to cluster.pos cells as a local background.}
 
+\item{cluster.neg.method}{Method to find negative control cells if cluster.neg==NULL. ["knn", "random"]}
+
 \item{bcv}{Biological coefficient of variation. Typical values for the common BCV 
 (square-rootdispersion) for datasets arising from well-controlled experiments are 
 0.4 for human data, 0.1 for data on genetically identical model organisms or 0.01 
 for technical replicates.}
-
-\item{fdr}{False discovery rate (FDR) [5e-2].}
-
-\item{pvalue}{Pvalue [1e-2].}
 
 \item{test.method}{Test method for differential analysis c("exactTest", "LRT", "QLF").}
 
@@ -39,10 +37,9 @@ accessible regions (DARs) that define clusters.
 data(demo.sp);
 idy = findDAR(
 obj=demo.sp, 
- mat="pmat", 
+ input.mat="pmat", 
  cluster.pos=1, 
  bcv=0.1, 
- fdr=0.01, 
  test.method="exactTest", 
  seed.use=10
  );

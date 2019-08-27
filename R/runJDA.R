@@ -16,33 +16,13 @@
 #' can later result in misleading cell grouping. Therefore, it is cruicial to 
 #' normalize the bias. 
 #' 
-#' #' Here we propose three different normalization methods.
-#'	
-#' 1. Observe Over Neighbours (OVN)
-#' 2. Observe Over Expected   (OVE)
-#'
-#' 1. Observe Over Neighbours (OVN)
-#' For each pair of cells i and j, we first identify their neibours Ni and Nj based
-#' on the coverage. Second, we calcualted the pair-wise jaccard index between Ni 
-#' Nj as Eij. The average mean(Eij) is considered to be the expected jaccard index 
-#' between cell i and j. The normalized jaccard index between i and j is Oij - mean(Eij).
-#'
-#' 2. Observe Over Expected (OVE)
-#' Alternatively, one can calcualte the theoritical expected jaccard index between 
-#' cell i and j if the "1"s are completely random. However, we found the theoretically
-#' estimated expected jaccard index is usually lower than that estimated from the neibours.
-#' This is also expected because the accessible sites are not completely random. For instance,
-#' we previously found the promoters of housekeeping genes are more often occupied between
-#' different cells. To solve this under-estimate problem for OVE, we found that OVE is highly
-#' correlated with OVN (r>0.99), therefore, we can estimate a scale factor alpha to scale 
-#' OVE to similar level with OVN. The scale factor is estimated from the data.
-#' 
 #' @param obj A snap obj
 #' @param input.mat Input matrix to be used for LSA c("bmat", "pmat", "gmat").
 #' @param bin.cov.zscore.lower Bin coverage is coverted to zscore and bins with zscore lower than bin.cov.zscore.lower will be filtered
 #' @param bin.cov.zscore.upper Bin coverage is coverted to zscore and bins with zscore higher than bin.cov.zscore.upper will be filtered
+#' @param bin.downsample Percentage of bins to be downsampled to [1].
 #' @param pc.num An integer number of dimetions to return [50].
-#' @param norm.method A character class that indicates the normalization method to be used. This must be one of c("normOVE", "normOVN")
+#' @param norm.method A character class that indicates the normalization method to be used. This must be one of c("residual", "zscore", "None")
 #' @param tmp.folder A non-empty character vector giving the directory name that saves the temp files
 #' @param max.var A numeric variable indicates the how many dimentions for jaccard index to be calcualted
 #' @param row.center A logical value indicating whether rows of the normalized jaccard inex matrix should be centered by subtracting the layer means (omitting 'NA's)
@@ -51,8 +31,9 @@
 #' @param low.threshold A numeric class that indicates the min value for normalized jaccard index [-5].
 #' @param do.par A logic variable indicates weather to run this in parallel with multiple processors.
 #' @param num.cores Number of processors to use.
-#' @param ncell.chunk A numeric class that indicates the number of cells to calculate per processing core 
+#' @param ncell.chunk A numeric class that indicates the number of cells to calculate per processing core.
 #' @param seed.use A numeric variable indicates the random seed to use [10].
+#' @param keep.jmat A logical variable indicates whether to keep the jaccard index matrix [FALSE].
 #'
 #' @examples
 #' data(demo.sp);
@@ -62,8 +43,9 @@
 #'	input.mat="bmat", 
 #'  bin.cov.zscore.lower=-2,
 #'  bin.cov.zscore.upper=2,
+#'	bin.downsample=1,
 #'	pc.num=50,
-#'	norm.method="normOVE",
+#'	norm.method="residual",
 #'	tmp.folder=tempdir(),
 #'	max.var=2000,
 #'	do.par=TRUE,
@@ -71,17 +53,17 @@
 #'	num.cores=5,
 #'	seed.use=10
 #'	);
-#' 
 #' @import Matrix
 #' @export
 
 runJDA <- function(
 	obj,
 	input.mat = c("bmat", "pmat"),
-	bin.cov.zscore.lower=-2,
-	bin.cov.zscore.upper=2,
+	bin.cov.zscore.lower=-Inf,
+	bin.cov.zscore.upper=Inf,
+	bin.downsample=1,
 	pc.num=50,
-	norm.method=c("normOVE", "normOVN"),
+	norm.method=c("residual", "zscore", "None"),
 	tmp.folder,
 	max.var=2000,
 	row.center=TRUE,
@@ -89,9 +71,10 @@ runJDA <- function(
 	low.threshold=-5, 
 	high.threshold=5,
 	do.par=TRUE,
-	ncell.chunk=1000,
+	ncell.chunk=2000,
 	num.cores = 1,
-	seed.use=10
+	seed.use=10,
+	keep.jmat=FALSE
 ){
 	message("Epoch: checking the inputs ...");
 	if(missing(obj)){
@@ -110,7 +93,6 @@ runJDA <- function(
 		}
 	}
 	
-	
 	if(!is.logical(row.center)){
 		stop("row.center is not a logical")
 	}
@@ -118,11 +100,7 @@ runJDA <- function(
 	if(!is.logical(row.scale)){
 		stop("row.scale is not a logical")
 	}
-	
-	if(ncell.chunk < 1000){
-		stop("ncell.chunk must be larger than 1000")
-	}
-		
+			
 	if(low.threshold > high.threshold){
 		stop("low.threshold must be smaller than high.threshold");
 	}
@@ -135,6 +113,7 @@ runJDA <- function(
 		stop("bin.cov.zscore.lower must be smaller than bin.cov.zscore.upper");
 	}
 	
+	norm.method = match.arg(norm.method);
 	# 2. check if input matrix exists
 	input.mat = match.arg(input.mat);	
 	if(input.mat == "bmat"){
@@ -158,7 +137,12 @@ runJDA <- function(
 	if(any(Matrix::rowSums(data.use) == 0)){
 		stop("input matrix contains empty rows, remove empty rows first")	
 	}
-
+	
+	# check if bin.downsample is valid
+	if(bin.downsample <= 0 | bin.downsample > 1){
+		stop("bin.downsample must be between 0 and 1")
+	}
+	
 	message("Epoch: filtering bins ..");
 	obj = filterBins(
 		obj=obj, 
@@ -173,25 +157,26 @@ runJDA <- function(
 		tmp.folder=tmp.folder, 
 		mat=input.mat, 
 		max.var=max.var, 
-		do.par=FALSE,
-		seed.use=seed.use
-	);	
-	
-	message("Epoch: normalizing jaccard index matrix ...");
-	obj = runNormJaccard(
-		obj=obj, 
-		tmp.folder=tmp.folder,
-		do.par=do.par,
-		ncell.chunk=ncell.chunk, 
-		method=norm.method,
-		k=15,
-		row.center=row.center,
-		row.scale=row.scale, 
-		low.threshold=low.threshold, 
-		high.threshold=high.threshold, 
-		num.cores =num.cores,
-		seed.use=seed.use
+		seed.use=seed.use,
+		bin.downsample=bin.downsample
 	);
+	
+	if(norm.method != "None"){
+		message("Epoch: normalizing jaccard index matrix ...");
+		obj = runNormJaccard(
+			obj=obj, 
+			tmp.folder=tmp.folder,
+			do.par=do.par,
+			ncell.chunk=ncell.chunk, 
+			method=norm.method,
+			row.center=row.center,
+			row.scale=row.scale, 
+			low.threshold=low.threshold, 
+			high.threshold=high.threshold, 
+			num.cores=num.cores,
+			seed.use=seed.use
+		);		
+	}
 	
 	message("Epoch: running dimentionality reduction ...");
 	obj = runDimReduct(
@@ -203,7 +188,9 @@ runJDA <- function(
 		scale=FALSE, 
 		seed.use=seed.use
 	);	
-	obj@jmat = newJaccard();
+	if(keep.jmat == FALSE){
+		obj@jmat = newJaccard();		
+	}
 	
 	if(input.mat == "bmat"){
 		obj@bmat = data.use;

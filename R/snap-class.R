@@ -13,6 +13,7 @@
 #' @slot bmat A Matrix object contains cellxbin count matrix.
 #' @slot pmat A Matrix object contains cellxpeak count matrix.
 #' @slot gmat A matrix object contains cellxgene count matrix.
+#' @slot mmat A matrix object contains cellxmotif variability matrix.
 #' @slot jmat A jaccard object that contains jaccard index matrix.
 #' @slot smat A list object contains the linear dimentionality reduction result.
 #' @slot graph A kgraph object that contains the knn graph.
@@ -36,7 +37,9 @@ setClass("snap",
 	bmat = "Matrix",
 	pmat = "Matrix",
 	gmat = "Matrix",
+	mmat = "matrix",
 	jmat = "jaccard",
+	regModel = "numeric",
 	smat = "dim.reduct",
 	graph = "kgraph",
 	tsne = "MatrixOrmatrix",
@@ -87,6 +90,7 @@ setMethod("show", signature = "snap",
 		cat("number of bins: ", ncol(object@bmat), "\n", sep="");
 		cat("number of genes: ", ncol(object@gmat), "\n", sep="");
 		cat("number of peaks: ", ncol(object@pmat), "\n", sep="");
+		cat("number of motifs: ", ncol(object@mmat), "\n", sep="");
 	}                              
 )
 

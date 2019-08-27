@@ -29,6 +29,8 @@ Class snap defines a snap object.
 
 \item{\code{gmat}}{A matrix object contains cellxgene count matrix.}
 
+\item{\code{mmat}}{A matrix object contains cellxmotif variability matrix.}
+
 \item{\code{jmat}}{A jaccard object that contains jaccard index matrix.}
 
 \item{\code{smat}}{A list object contains the linear dimentionality reduction result.}

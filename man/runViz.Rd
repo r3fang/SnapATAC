@@ -4,17 +4,15 @@
 \alias{runViz}
 \title{Dimentionality Reduction for Visualization}
 \usage{
-runViz(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.init,
-  seed.use, num.cores, tmp.folder, ...)
+runViz(obj, dims, eigs.dims, method, fast_tsne_path, Y.init, seed.use,
+  num.cores, tmp.folder, ...)
 }
 \arguments{
 \item{obj}{A snap object.}
 
 \item{dims}{integer; Output dimensionality (default: 2)}
 
-\item{pca.dims}{integer vector; principal components used for running tsne or umap}
-
-\item{weight.by.sd}{Weight the cell embeddings by the sd of each PC}
+\item{eigs.dims}{integer vector; principal components used for running tsne or umap}
 
 \item{method}{character; A character variable indicates what t-sne method to use ("Rtsne", "fast_tsne", "umap").}
 
@@ -40,6 +38,6 @@ t-SNE (FIt-SNE) t-SNE, and UMAP
 }
 \examples{
 data(demo.sp);
-demo.sp = runViz(obj=demo.sp, tmp.folder=tempdir(), pca.dims=1:5, method="Rtsne");
+demo.sp = runViz(obj=demo.sp, tmp.folder=tempdir(), eigs.dims=1:5, method="Rtsne");
 
 }

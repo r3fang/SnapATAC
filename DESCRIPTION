@@ -31,7 +31,8 @@ Imports:
 	bigmemory,
 	grDevices, 
 	graphics, 
-	utils
+	utils,
+	viridis
 Suggests:
 	umap,
 	chromVAR,
@@ -55,6 +56,8 @@ Collate:
     'normJaccard.R'
     'plottings-utilities.R'
     'plottings.R'
+    'predictGenePeakPair.R'
+    'runChromVAR.R'
     'runClusters.R'
     'runDimReduct.R'
     'runHarmony.R'
@@ -64,9 +67,12 @@ Collate:
     'snap-class.R'
     'runKNN.R'
     'runLDA.R'
+    'runLDM.R'
     'runLSA.R'
     'runMACS.R'
+    'runMagic.R'
     'runSnapAddPmat.R'
     'runViz.R'
     'scaleCountMatrix.R'
     'snap-utilities.R'
+    'snapToSeurat.R'

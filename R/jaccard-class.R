@@ -5,10 +5,11 @@ NULL
 #' Class jaccard defines a jaccard object.
 #'
 #' @slot jmat a matrix object that contains the jaccard index similarity matrix
+#' @slot nmat a matrix object that contains the normalized similarity matrix
 #' @slot p1 an array of numeric values indicates the coverage for rows
 #' @slot p2 an array of numeric values indicates the coverage for columns
 #' @slot norm a logical variable indicates whether jaccard index matrix has been normalized
-#' @slot method normalization method used to normalize jaccard index matrix
+#' @slot input.mat a character variable indicates what matrix is used as input (i.e. "bmat", "pmat", "gmat")
 #' @examples
 #' data(demo.sp);
 #' demo.sub.sp = demo.sp[1:5,]
@@ -20,10 +21,11 @@ jaccard <- setClass(
   Class = "jaccard",
   slots = list(
     jmat = "MatrixOrmatrix",
+    nmat = "MatrixOrmatrix",
     p1 = "numeric",
 	p2 = "numeric",
 	norm = "logical",
-	method = "character"
+	input.mat="character"
   )
 )
 
@@ -34,8 +36,8 @@ setMethod(
     cat(
       'Number of cells:', nrow(object@jmat), '\n',
       'Number of dims: ', ncol(object@jmat), '\n',
-      'Normalization: ', object@norm, '\n',
-      'Normalization method: ', object@method, '\n'
+	  'Input matrix:', object@input.mat, "\n",
+      'Normalized: ', object@norm, '\n'
     )
   }
 )
@@ -56,14 +58,16 @@ setMethod(
     signature = 'jaccard',
 	function(x,i,j, drop="missing"){
 		.jmat = x@jmat;
+		.nmat = x@nmat;	
 		.p1 = x@p1;		
-		.p2 = x@p2;				
+		.p2 = x@p2;			
 		# a single row or column
        if(!missing(i)){
 		   if(max(i) > nrow(.jmat)){
 			   stop("idx exceeds number of cells");
 		   }
 		   if(nrow(.jmat) > 0){.jmat <- .jmat[i,,drop=FALSE]}
+		   if(nrow(.nmat) > 0){.nmat <- .nmat[i,,drop=FALSE]}
 		   if(length(.p1) > 0){.p1 <- .p1[i,drop=FALSE]}
 	   }
 	   if(!missing(j)){
@@ -71,11 +75,13 @@ setMethod(
 			   stop("idy exceeds number of dimentions");
 		   }
  	 	   if(ncol(.jmat) > 0){.jmat <- .jmat[,j,drop=FALSE]}
+		   if(ncol(.nmat) > 0){.nmat <- .nmat[,j,drop=FALSE]}
 		   if(length(.p2) > 0){.p2 <- .p2[j,drop=FALSE]}
 	   }
 	   x@jmat = .jmat;
 	   x@p1 = .p1;
 	   x@p2 = .p2;
+	   x@nmat = .nmat;
 	   return(x);
 })
 
@@ -86,7 +92,8 @@ newJaccard <- function () {
 			  p1=numeric(),
 			  p2=numeric(),
 			  norm=FALSE,
-			  method=character()
+			  nmat=matrix(0,0,0),
+			  input.mat="None"
 			  )	
 }
 

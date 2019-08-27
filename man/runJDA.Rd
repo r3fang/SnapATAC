@@ -4,11 +4,12 @@
 \alias{runJDA}
 \title{Jaccard Distance Analysis}
 \usage{
-runJDA(obj, input.mat = c("bmat", "pmat"), bin.cov.zscore.lower = -2,
-  bin.cov.zscore.upper = 2, pc.num = 50, norm.method = c("normOVE",
-  "normOVN"), tmp.folder, max.var = 2000, row.center = TRUE,
-  row.scale = TRUE, low.threshold = -5, high.threshold = 5,
-  do.par = TRUE, ncell.chunk = 1000, num.cores = 1, seed.use = 10)
+runJDA(obj, input.mat = c("bmat", "pmat"), bin.cov.zscore.lower = -Inf,
+  bin.cov.zscore.upper = Inf, bin.downsample = 1, pc.num = 50,
+  norm.method = c("residual", "zscore", "None"), tmp.folder, max.var = 2000,
+  row.center = TRUE, row.scale = TRUE, low.threshold = -5,
+  high.threshold = 5, do.par = TRUE, ncell.chunk = 2000, num.cores = 1,
+  seed.use = 10, keep.jmat = FALSE)
 }
 \arguments{
 \item{obj}{A snap obj}
@@ -19,9 +20,11 @@ runJDA(obj, input.mat = c("bmat", "pmat"), bin.cov.zscore.lower = -2,
 
 \item{bin.cov.zscore.upper}{Bin coverage is coverted to zscore and bins with zscore higher than bin.cov.zscore.upper will be filtered}
 
+\item{bin.downsample}{Percentage of bins to be downsampled to [1].}
+
 \item{pc.num}{An integer number of dimetions to return [50].}
 
-\item{norm.method}{A character class that indicates the normalization method to be used. This must be one of c("normOVE", "normOVN")}
+\item{norm.method}{A character class that indicates the normalization method to be used. This must be one of c("residual", "zscore", "None")}
 
 \item{tmp.folder}{A non-empty character vector giving the directory name that saves the temp files}
 
@@ -37,11 +40,13 @@ runJDA(obj, input.mat = c("bmat", "pmat"), bin.cov.zscore.lower = -2,
 
 \item{do.par}{A logic variable indicates weather to run this in parallel with multiple processors.}
 
-\item{ncell.chunk}{A numeric class that indicates the number of cells to calculate per processing core}
+\item{ncell.chunk}{A numeric class that indicates the number of cells to calculate per processing core.}
 
 \item{num.cores}{Number of processors to use.}
 
 \item{seed.use}{A numeric variable indicates the random seed to use [10].}
+
+\item{keep.jmat}{A logical variable indicates whether to keep the jaccard index matrix [FALSE].}
 }
 \description{
 This function takes a Snap obj as input with bmat/pmat slot and run 
@@ -60,27 +65,6 @@ with another cell regardless whether these two cells are similar or not.
 These biases, we termed as “coverage bias” also observed in other studies, 
 can later result in misleading cell grouping. Therefore, it is cruicial to 
 normalize the bias.
-
-#' Here we propose three different normalization methods.
-
-1. Observe Over Neighbours (OVN)
-2. Observe Over Expected   (OVE)
-
-1. Observe Over Neighbours (OVN)
-For each pair of cells i and j, we first identify their neibours Ni and Nj based
-on the coverage. Second, we calcualted the pair-wise jaccard index between Ni 
-Nj as Eij. The average mean(Eij) is considered to be the expected jaccard index 
-between cell i and j. The normalized jaccard index between i and j is Oij - mean(Eij).
-
-2. Observe Over Expected (OVE)
-Alternatively, one can calcualte the theoritical expected jaccard index between 
-cell i and j if the "1"s are completely random. However, we found the theoretically
-estimated expected jaccard index is usually lower than that estimated from the neibours.
-This is also expected because the accessible sites are not completely random. For instance,
-we previously found the promoters of housekeeping genes are more often occupied between
-different cells. To solve this under-estimate problem for OVE, we found that OVE is highly
-correlated with OVN (r>0.99), therefore, we can estimate a scale factor alpha to scale 
-OVE to similar level with OVN. The scale factor is estimated from the data.
 }
 \examples{
 data(demo.sp);
@@ -90,8 +74,9 @@ obj=demo.sp,
 input.mat="bmat", 
  bin.cov.zscore.lower=-2,
  bin.cov.zscore.upper=2,
+bin.downsample=1,
 pc.num=50,
-norm.method="normOVE",
+norm.method="residual",
 tmp.folder=tempdir(),
 max.var=2000,
 do.par=TRUE,
@@ -99,5 +84,4 @@ ncell.chunk=1000,
 num.cores=5,
 seed.use=10
 );
-
 }

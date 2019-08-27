@@ -6,8 +6,7 @@
 #'
 #' @param obj A snap object.
 #' @param dims integer; Output dimensionality (default: 2)
-#' @param pca.dims integer vector; principal components used for running tsne or umap
-#' @param weight.by.sd Weight the cell embeddings by the sd of each PC
+#' @param eigs.dims integer vector; principal components used for running tsne or umap
 #' @param method character; A character variable indicates what t-sne method to use ("Rtsne", "fast_tsne", "umap").
 #' @param fast_tsne_path character; A character variable indicates the path of the excutable FIt-sen located. Required only when method="fast_tsne"
 #' @param Y.init matrix; Initial locations of the objs. If NULL, random initialization will be used (default: NULL). Note that when using this, the initial stage with exaggerated perplexity values and a larger momentum term will be skipped.
@@ -18,14 +17,14 @@
 #' 
 #' @examples
 #' data(demo.sp);
-#' demo.sp = runViz(obj=demo.sp, tmp.folder=tempdir(), pca.dims=1:5, method="Rtsne");
+#' demo.sp = runViz(obj=demo.sp, tmp.folder=tempdir(), eigs.dims=1:5, method="Rtsne");
 #' 
 #' @return Returns a snap obj with the visulization
 #' @importFrom Rtsne Rtsne
 #' @importFrom utils installed.packages
 #' @export
 
-runViz<- function(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.init, seed.use, num.cores, tmp.folder, ...) {
+runViz<- function(obj, dims, eigs.dims, method, fast_tsne_path, Y.init, seed.use, num.cores, tmp.folder, ...) {
   UseMethod("runViz", obj);
 }
 
@@ -33,15 +32,15 @@ runViz<- function(obj, dims, pca.dims, weight.by.sd, method, fast_tsne_path, Y.i
 runViz.default <- function(
 	obj, 
 	dims=2,
-	pca.dims=NULL, 
-	weight.by.sd=FALSE,
+	eigs.dims=NULL, 
 	method=c("Rtsne", "umap", "fast_tsne"), 
 	fast_tsne_path = NULL, 
 	Y.init=NULL,
 	seed.use=10,
 	num.cores=1,
 	tmp.folder,
-	...){
+	...
+	){
 		
 	# check input
 	if(!is(obj, "snap")){
@@ -60,23 +59,15 @@ runViz.default <- function(
 	# check PCA dimentions
 	ncell = nrow(obj);
 	nvar = ncol(obj@smat@dmat);	
-	if(is.null(pca.dims)){
-		pca.dims=1:nvar;	
+	if(is.null(eigs.dims)){
+		eigs.dims=1:nvar;	
 	}else{
-		if(any(pca.dims > nvar) ){
-			stop("'pca.dims' exceeds reduced dimentions variables number");
+		if(any(eigs.dims > nvar) ){
+			stop("'eigs.dims' exceeds reduced dimentions variables number");
 		}		
 	}
-	
-	if(!is.logical(weight.by.sd)){
-		stop("weight.by.sd must be a logical variable")
-	}
-	
-	if(weight.by.sd){
-		data.use = obj@smat@dmat[,pca.dims] %*% diag(sqrt(obj@smat@sdev[pca.dims])) ;
-	}else{
-		data.use = obj@smat@dmat[,pca.dims];
-	}
+		
+	data.use = obj@smat@dmat[,eigs.dims];
 	
 	if(missing(tmp.folder)){
 		stop("tmp.folder is missing")

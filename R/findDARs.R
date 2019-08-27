@@ -4,7 +4,7 @@
 #' accessible regions (DARs) that define clusters. 
 #'
 #' @param obj A snap object.
-#' @param mat Matrix to use for finding differential features c("bmat", "pmat", "gmat").
+#' @param input.mat Matrix to use for finding differential features c("bmat", "pmat", "gmat").
 #' @param cluster.pos Cluster to identify DAR markers.
 #' @param cluster.neg Cluster used as negative control compare with cluster.pos [NULL].
 #' If cluster.neg is NULL, runFindDARs will automatically identifies background cells 
@@ -13,19 +13,17 @@
 #' (square-rootdispersion) for datasets arising from well-controlled experiments are 
 #' 0.4 for human data, 0.1 for data on genetically identical model organisms or 0.01 
 #' for technical replicates.
+#' @param cluster.neg.method Method to find negative control cells if cluster.neg==NULL. ["knn", "random"]
 #' @param test.method Test method for differential analysis c("exactTest", "LRT", "QLF").
 #' @param seed.use Random seeds.
-#' @param fdr False discovery rate (FDR) [5e-2].
-#' @param pvalue Pvalue [1e-2].
 #' 
 #' @examples
 #' data(demo.sp);
 #' idy = findDAR(
 #'	obj=demo.sp, 
-#'  mat="pmat", 
+#'  input.mat="pmat", 
 #'  cluster.pos=1, 
 #'  bcv=0.1, 
-#'  fdr=0.01, 
 #'  test.method="exactTest", 
 #'  seed.use=10
 #'  );
@@ -35,19 +33,18 @@
 #' @importFrom stats model.matrix
 #' @export
 
-findDAR <- function(obj, mat, cluster.pos, cluster.neg, bcv, fdr, pvalue, test.method, seed.use) {
+findDAR <- function(obj, input.mat, cluster.pos, cluster.neg, cluster.neg.method, bcv, fdr, pvalue, test.method, seed.use) {
   UseMethod("findDAR", obj);
 }
 
 #' @export
 findDAR.default <- function(
 	obj,
-	mat=c("pmat", "bmat", "gmat"),
+	input.mat=c("pmat", "bmat", "gmat"),
 	cluster.pos,
 	cluster.neg=NULL,
+	cluster.neg.method=c("knn", "random"),
 	bcv=0.1,
-	fdr=5e-2,
-	pvalue=1e-2,
 	test.method=c("exactTest", "LRT", "QLF"),
 	seed.use=10
 	){
@@ -63,15 +60,17 @@ findDAR.default <- function(
 			}
 		}
 		ncell = nrow(obj);
+
+		cluster.neg.method = match.arg(cluster.neg.method);
 		
-		mat = match.arg(mat);
-		mat.use = methods::slot(obj, mat);
+		input.mat = match.arg(input.mat);
+		mat.use = methods::slot(obj, input.mat);
 		if((x=nrow(mat.use)) == 0L){
-			stop("mat is empty, add matrix to snap object first")
+			stop("input.mat is empty, add matrix to snap object first")
 		}
 		
 		if((x=nrow(mat.use)) != ncell){
-			stop("mat has different length with cell number, re-add this matrix to snap object");
+			stop("input.mat has different length with cell number, re-add this matrix to snap object");
 		}
 		
 		if(missing(cluster.pos)){
@@ -87,7 +86,7 @@ findDAR.default <- function(
 			if(isKgraphEmpty(obj@graph)){
 				stop("knn graph is empty, run runKNN first or reset cluster.neg")
 			}
-			idx.neg = findNegCells(obj, idx.pos, method="knn");
+			idx.neg = findNegCells(obj, idx.pos, method=cluster.neg.method);
 		}else{
 			if(!(cluster.neg %in% levels(obj@cluster))){
 				stop("cluster.neg does not exist in cluster")
@@ -98,7 +97,6 @@ findDAR.default <- function(
 		ncell.pos = length(idx.pos);
 		ncell.neg = length(idx.neg);
 		
-		##############################################################################
 		message("Epoch: identifying DARs for positive cluster ...")
 		test.method = match.arg(test.method);
 		
@@ -106,11 +104,11 @@ findDAR.default <- function(
 		mat.use.neg = mat.use[idx.neg,,drop=FALSE];
 		
 		# perform test
-		data.use = data.frame(Matrix::colSums(mat.use.pos), Matrix::colSums(mat.use.neg))
+		data.use = data.frame(Matrix::colSums(mat.use.neg), Matrix::colSums(mat.use.pos))
 		group <- factor(c(1,2));
 		design <- model.matrix(~group);
 		y <- DGEList(counts=data.use, group=group);
-
+		
 		if(test.method == "LRT"){
 			fit <- glmFit(y, design, dispersion=bcv^2);
 			tb.pos <- glmLRT(fit,coef=2)$table;
@@ -119,46 +117,5 @@ findDAR.default <- function(
 		}else{
 			tb.pos <- exactTest(y, dispersion=bcv^2)$table;
 		}
-		
-		##############################################################################
-		message("Epoch: identifying DARs for negative cluster ...")
-		set.seed(seed.use);
-		idx.pos = sample(seq(ncell), ncell.pos);
-		idx.neg = findNegCells(obj, idx.pos, method="random");
-		
-		mat.use.pos = mat.use[idx.pos,,drop=FALSE];
-		mat.use.neg = mat.use[idx.neg,,drop=FALSE];
-		
-		# perform test
-		data.use = data.frame(Matrix::colSums(mat.use.pos), Matrix::colSums(mat.use.neg))
-		group <- factor(c(1,2));
-		design <- model.matrix(~group);
-		y <- DGEList(counts=data.use, group=group);
-
-		if(test.method == "LRT"){
-			fit <- glmFit(y, design, dispersion=bcv^2);
-			tb.neg <- glmLRT(fit,coef=2)$table;
-		}else if(test.method == "QLF"){
-			tb.neg <- glmQLFit(y, design, dispersion=bcv^2)$table;
-		}else{
-			tb.neg <- exactTest(y, dispersion=bcv^2)$table;
-		}
-		
-		message("Epoch: converting p-value to FDR ...")
-		p1 = tb.pos$PValue;
-		p1[which(tb.pos$logFC > 0)] = 1;
-
-		p2 = tb.neg$PValue;
-		p2[which(tb.neg$logFC > 0)] = 1;
-		
-		fdr_table = pvalue2fdr(p1, p2);
-		if((x=length(which(fdr_table[,2] <= fdr))) > 0L){
-			fdr.idx = max(which(fdr_table[,2] <= fdr));
-			pvalue = min(pvalue, fdr_table[fdr.idx,1]);
-			tb.pos$label = 0;
-			tb.pos$label[which(p1 <= pvalue)] = 1;
-			return(tb.pos);
-		}
-		tb.pos$label = 0;
 		return(tb.pos);
-}
+	}

@@ -47,6 +47,6 @@ $ R
 ```
 
 ## Galleries & Tutorials (click on the image for details)
-[<img src="./images/10X_Mouse_Brain_5k.png" width="280" height="318" />](./examples/10X_P50/README.md)
+[<img src="./images/10X_Mouse_Brain_5k.png" width="280" height="318" />](./examples/10X_PBMC_15K/README.md)
 [<img src="./images/Fang_2019.png" width="280" height="318" />](./examples/Fang_2019/Fang_2019.md)
 [<img src="./images/10X_sci.png" width="280" height="318" />](./examples/10X_sci/README.md)

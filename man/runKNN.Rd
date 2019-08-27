@@ -4,15 +4,15 @@
 \alias{runKNN}
 \title{K Nearest Neighbour Graph Construction}
 \usage{
-runKNN(obj, pca.dims, weight.by.sd, k, nn.eps, save.knn, filename, snn,
+runKNN(obj, eigs.dims, weight.by.lambda, k, nn.eps, save.knn, filename, snn,
   snn.prune)
 }
 \arguments{
 \item{obj}{A snap object}
 
-\item{pca.dims}{A vector of the dimensions to use in construction of the KNN graph.}
+\item{eigs.dims}{A vector of the dimensions to use in construction of the KNN graph.}
 
-\item{weight.by.sd}{Weight the cell embeddings by the sd of each PC}
+\item{weight.by.lambda}{Weight the cell embeddings by the sd of each PC}
 
 \item{k}{K for the k-nearest neighbor algorithm.}
 
@@ -50,6 +50,6 @@ overlap in their local neighborhoods using Jaccard similarity (snn).
 }
 \examples{
 data(demo.sp);
-demo.sp = runKNN(obj=demo.sp, pca.dims=1:5, k=15, snn=TRUE, save.knn=FALSE);
+demo.sp = runKNN(obj=demo.sp, eigs.dims=1:5, k=15, snn=FALSE, save.knn=FALSE);
 
 }

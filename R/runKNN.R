@@ -13,8 +13,8 @@ NULL
 #' overlap in their local neighborhoods using Jaccard similarity (snn).
 #'
 #' @param obj A snap object
-#' @param pca.dims A vector of the dimensions to use in construction of the KNN graph.
-#' @param weight.by.sd Weight the cell embeddings by the sd of each PC
+#' @param eigs.dims A vector of the dimensions to use in construction of the KNN graph.
+#' @param weight.by.lambda Weight the cell embeddings by the sd of each PC
 #' @param k K for the k-nearest neighbor algorithm.
 #' @param nn.eps Error bound when performing nearest neighbor seach using RANN.
 #' default of 0.0 implies exact nearest neighbor search
@@ -31,7 +31,7 @@ NULL
 #' 
 #' @examples
 #' data(demo.sp);
-#' demo.sp = runKNN(obj=demo.sp, pca.dims=1:5, k=15, snn=TRUE, save.knn=FALSE);
+#' demo.sp = runKNN(obj=demo.sp, eigs.dims=1:5, k=15, snn=FALSE, save.knn=FALSE);
 #' 
 #' @importFrom RANN nn2
 #' @importFrom igraph similarity graph_from_edgelist E
@@ -42,15 +42,15 @@ NULL
 #' @return Returns the object with object@kmat filled
 #' @export
 
-runKNN <- function(obj, pca.dims, weight.by.sd, k, nn.eps, save.knn, filename, snn, snn.prune) {
+runKNN <- function(obj, eigs.dims, weight.by.lambda, k, nn.eps, save.knn, filename, snn, snn.prune) {
   UseMethod("runKNN", obj);
 }
 
 #' @export
 runKNN.default <- function(
   obj,
-  pca.dims,
-  weight.by.sd = FALSE,
+  eigs.dims,
+  weight.by.lambda = FALSE,
   k = 15,
   nn.eps = 0,
   save.knn = FALSE,
@@ -75,14 +75,14 @@ runKNN.default <- function(
 	ncell = nrow(obj);
 	nvar = dimReductDim(obj@smat);
 	
-	if(missing(pca.dims)){
-		stop("pca.dims is missing")
+	if(missing(eigs.dims)){
+		stop("eigs.dims is missing")
 	}else{
-		if(is.null(pca.dims)){
-			pca.dims=1:nvar;	
+		if(is.null(eigs.dims)){
+			eigs.dims=1:nvar;	
 		}else{
-			if(any(pca.dims > nvar) ){
-				stop("'pca.dims' exceeds PCA dimentions number");
+			if(any(eigs.dims > nvar) ){
+				stop("'eigs.dims' exceeds PCA dimentions number");
 			}		
 		}
 	}
@@ -97,11 +97,11 @@ runKNN.default <- function(
 		}
 	}
 	
-	if(!is.logical(weight.by.sd)){
-		stop("weight.by.sd must be a logical variable")
+	if(!is.logical(weight.by.lambda)){
+		stop("weight.by.lambda must be a logical variable")
 	}
 	
-	data.use = weightDimReduct(obj@smat, pca.dims, weight.by.sd);
+	data.use = weightDimReduct(obj@smat, eigs.dims, weight.by.lambda);
 	
     if (ncell < k) {
       warning("k set larger than number of cells. Setting k to number of cells - 1.")

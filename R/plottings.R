@@ -202,7 +202,7 @@ plotViz.default <- function(obj,
 		point.size=1, 
 		point.shape=19, 
 		point.alpha=0.8, 
-		point.color=c("cluster", "sample"),
+		point.color=NULL,
 		text.add=TRUE,
 		text.size=1, 
 		text.color="black",
@@ -234,16 +234,23 @@ plotViz.default <- function(obj,
 	
 	method = match.arg(method);
 	data.use = as.data.frame(slot(obj, method));
+	if(method=="tsne"){
+		colnames(data.use) = c("TSNE-1", "TSNE-2")
+	}else{
+		colnames(data.use) = c("UMAP-1", "UMAP-2")
+	}
 	if((x=nrow(data.use)) == 0L){
 		stop("visulization method does not exist, run runViz first!")
 	}
-
-	cluster = slot(obj, point.color);
-	if(length(cluster) == 0L){
+	xlims = c(-max(abs(data.use[,1])) * 1.05, max(abs(data.use[,1])) * 1.2);
+	ylims = c(-max(abs(data.use[,2])) * 1.05, max(abs(data.use[,2])) * 1.05);
+	
+	cluster = point.color;
+	if(((x=length(cluster)) == 0L) | (is.null(point.color))){
 		warning("cluster does not exist, text.add is ignored")
 		text.add = FALSE;
 	}
-	point.color = match.arg(point.color);
+	
 	if(length(cluster) != 0L){	
 		data.use$col = factor(cluster);
 	}else{
@@ -269,29 +276,28 @@ plotViz.default <- function(obj,
 	data.use = data.use[idx.ds,,drop=FALSE]
 										
 	colPanel = createColorPanel(length(unique(data.use$col)));
-	graphics::plot(x=data.use[,1],
-				   y=data.use[,2],
+	graphics::plot(
+				   data.use[,c(1,2)],
 		 		   cex=point.size, 
 		 		   pch=point.shape, 
 		 		   col=scales::alpha(colPanel[factor(data.use$col)], point.alpha),
-		 		   xlab="",
-		 		   ylab="",
-		 		   yaxt='n',
-		 		   xaxt='n',
-		 		   axes=FALSE,
+				   bty="l",
+				   font.lab=2,
+				   col.axis = 'darkgrey',
+				   xlim=xlims,
+				   ylim=ylims,
 		 		   ...
 				   );
-	graphics::title(ylab="Dim-2", line=0.5, cex.lab=1.2, font.lab=2)
-	graphics::title(xlab="Dim-1", line=0.5, cex.lab=1.2, font.lab=2)
-	graphics::box(lwd=2);		
-  	
+  	box(bty="l", lwd=2)
 	if(text.add){
 		xx = findCentrod(data.use[,c(1,2)], data.use$col);
 		textHalo(x=xx[,1], y=xx[,2], labels = xx[,3], col=text.color, bg=text.halo.color, r=text.halo.width, cex=text.size);
   	}
 	
 	if(legend.add){
-		legend(legend.pos, 
+		legend.ncol = as.integer(length(levels(data.use$col)) / 25) +1;
+		legend(
+		  "topright", 
 		  legend = levels(factor(data.use$col)), 
 		  col = colPanel,
 		  pch = point.shape,
@@ -299,7 +305,8 @@ plotViz.default <- function(obj,
 		  bty = "n", 
 		  cex = legend.text.size, 
 		  text.col = legend.text.color,
-		  horiz = FALSE
+		  horiz = FALSE,
+		  ncol=legend.ncol
 		  )		
 	}
 
@@ -308,18 +315,18 @@ plotViz.default <- function(obj,
 	}
 }
 
-#' PlotFeatureSingle
+#' plotFeatureSingle
 #'
 #' @param obj A snap object.
 #' @param feature.value Feature enrichment value for each cell. Value will be normalized betweeen 0 and 1.
 #' @param method Visulization method c("tsne", "umap").
 #' @param point.size Point size [1].
 #' @param point.shape Point shape type [19].
-#' @param point.color Color of point ["red"]. 
 #' @param down.sample Downsample the original cells to down.sample cells to ovoid large dataset [10,000].
 #' @param pdf.file.name pdf file name to save the plot [NULL].
-#' @param pdf.width the width of the graphics region in inches [7].
-#' @param pdf.height the height of the graphics region in inches [7].
+#' @param pdf.width Width of the graphics region in inches [7].
+#' @param pdf.height Height of the graphics region in inches [7].
+#' @param quantiles Feature value outside this range will be removed [c(0.01, 0.99)]
 #' @param ... Arguments passed to plot method.
 #'
 #' @examples
@@ -332,7 +339,6 @@ plotViz.default <- function(obj,
 #' 	method="tsne", 
 #' 	point.size=1, 
 #' 	point.shape=19, 
-#' 	point.color="red", 
 #' 	down.sample=10000, 
 #' 	pdf.file.name=NULL, 
 #' 	pdf.width=7, 
@@ -343,35 +349,37 @@ plotViz.default <- function(obj,
 #' @importFrom methods slot
 #' @importFrom scales alpha
 #' @importFrom graphics plot text title legend
+#' @importFrom plot3D scatter2D
+#' @importFrom viridis viridis
 #' @export
-PlotFeatureSingle <- function(
+plotFeatureSingle <- function(
 	obj, 
 	feature.value,
 	method, 
 	point.size, 
 	point.shape, 
-	point.color, 
 	down.sample, 
 	pdf.file.name, 
 	pdf.width, 
 	pdf.height, 
+	quantiles,
 	...
 ){
-  UseMethod("PlotFeatureSingle", obj);
+  UseMethod("plotFeatureSingle", obj);
 }
 
 #' @export
-PlotFeatureSingle.default <- function(
+plotFeatureSingle.default <- function(
 	obj, 
 	feature.value,
 	method=c("tsne", "umap"), 
 	point.size=1, 
 	point.shape=19, 
-	point.color="red",
 	down.sample=10000,
 	pdf.file.name=NULL,
 	pdf.width=7, 
 	pdf.height=7,
+	quantiles=c(0.01, 0.99),
 	...
 ){	
 	if(missing(obj)){
@@ -385,8 +393,6 @@ PlotFeatureSingle.default <- function(
 	
 	if(missing(feature.value)){
 		stop("feature.value is missing")
-	}else{
-		feature.value = (feature.value-min(feature.value))/(max(feature.value)-min(feature.value));
 	}
 	
 	if(is.integer(down.sample)){
@@ -395,9 +401,27 @@ PlotFeatureSingle.default <- function(
 	
 	method = match.arg(method);
 	data.use = as.data.frame(slot(obj, method));
+	
+	if(method=="tsne"){
+		colnames(data.use) = c("TSNE-1", "TSNE-2")
+		lab.names = c("TSNE-1", "TSNE-2");
+	}else{
+		colnames(data.use) = c("UMAP-1", "UMAP-2")
+		lab.names = c("UMAP-1", "UMAP-2");
+	}
+	
 	if((x=nrow(data.use)) == 0L){
 		stop("visulization method does not exist, run runViz first!")
 	}
+	
+	if(nrow(data.use) != length(feature.value)){
+		stop("feature.value has different length with number of cells in obj")
+	}
+	
+	quantiles.low = quantile(feature.value, quantiles[1]);
+	quantiles.high = quantile(feature.value, quantiles[2]);
+	feature.value[feature.value > quantiles.high] = quantiles.high;
+	feature.value[feature.value < quantiles.low ] = quantiles.low;
 	
 	if(!is.null(pdf.file.name)){
 		if(file.exists(pdf.file.name)){
@@ -414,24 +438,29 @@ PlotFeatureSingle.default <- function(
 	
 	down.sample = min(down.sample, ncell);
 	idx.ds = sort(sample(seq(ncell), down.sample));
-	data.use = data.use[idx.ds,,drop=FALSE]
-										
-	graphics::plot(x=data.use[,1],
+	data.use = data.use[idx.ds,,drop=FALSE];
+	feature.value = feature.value[idx.ds];
+	xlims = c(-max(abs(data.use[,1])) * 1.05, max(abs(data.use[,1])) * 1.2);
+	ylims = c(-max(abs(data.use[,2])) * 1.05, max(abs(data.use[,2])) * 1.05);
+	
+	plot3D::scatter2D(
+				   x=data.use[,1],
 				   y=data.use[,2],
+				   colvar=feature.value,
 		 		   cex=point.size, 
 		 		   pch=point.shape, 
-		 		   col=scales::alpha(point.color, feature.value),
-		 		   xlab="",
-		 		   ylab="",
-		 		   yaxt='n',
-		 		   xaxt='n',
-		 		   axes=FALSE,
+				   bty="l",
+				   font.lab=2,
+				   col.axis = 'darkgrey',
+				   xlim=xlims, 
+				   ylim=ylims, 
+				   xlab=lab.names[1],
+				   ylab=lab.names[2],
+				   col=viridis(256, option = "D"),
 		 		   ...
 				   );
-	graphics::title(ylab="Dim-2", line=0.5, cex.lab=1.2, font.lab=2)
-	graphics::title(xlab="Dim-1", line=0.5, cex.lab=1.2, font.lab=2)
-	graphics::box(lwd=2);		
-  	
+  	box(bty="l", lwd=2)
+										
 	if(!is.null(pdf.file.name)){
 		dev.off()		
 	}
@@ -511,7 +540,7 @@ plotDimReductElbow.default <- function(
 #' Pairwise plot for Dimentionality Reduction Result
 #'
 #' @param obj A snap object
-#' @param pca.dims PC dimetions to plot [1:30]
+#' @param eigs.dims Eigenvectors to plot [1:30]
 #' @param point.size Point size [2].
 #' @param point.shape Point shape type [19].
 #' @param point.color Point color ["grey"].
@@ -523,21 +552,21 @@ plotDimReductElbow.default <- function(
 #' 
 #' @examples 
 #' data(demo.sp);
-#' plotDimReductPW(demo.sp, pca.dims=1:10);
+#' plotDimReductPW(demo.sp, eigs.dims=1:10);
 #' 
 #' @importFrom grDevices pdf dev.off
 #' @importFrom methods slot
 #' @importFrom scales alpha
 #' @importFrom graphics plot text title mtext
 #' @export
-plotDimReductPW <- function(obj, pca.dims, point.size, point.color, point.shape, point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width){
+plotDimReductPW <- function(obj, eigs.dims, point.size, point.color, point.shape, point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width){
   UseMethod("plotDimReductPW", obj);
 }
 
 #' @export
 plotDimReductPW.default <- function(
 	obj, 
-	pca.dims=1:50,
+	eigs.dims=1:50,
 	point.size=0.5,
 	point.color="grey",
 	point.shape=19,
@@ -564,12 +593,12 @@ plotDimReductPW.default <- function(
 	idx.ds = sort(sample(seq(ncell), down.sample));
 	obj = obj[idx.ds,,drop=FALSE];
 
-	if(max(pca.dims) > length(obj@smat@sdev)){
-		stop(paste("pca.dims exceeds PCA dimentions ", length(obj@smat@sdev)));
+	if(max(eigs.dims) > length(obj@smat@sdev)){
+		stop(paste("eigs.dims exceeds PCA dimentions ", length(obj@smat@sdev)));
 	}
 	
-	if((x=length(pca.dims)) > 50L){
-		stop("pca.dims must be within 1:50")
+	if((x=length(eigs.dims)) > 50L){
+		stop("eigs.dims must be within 1:50")
 	}
 	
 	
@@ -587,8 +616,8 @@ plotDimReductPW.default <- function(
 	}
 	
 	op <- par(mfrow = c(5,5), oma = c(3,3,1,1) + 0.2, mar = c(0,0,1,1) + 0.2);
-	PCA.plot <- split(sort(pca.dims), ceiling(seq(pca.dims)/2));
-	if((length(x = pca.dims)  %% 2) == 1){
+	PCA.plot <- split(sort(eigs.dims), ceiling(seq(eigs.dims)/2));
+	if((length(x = eigs.dims)  %% 2) == 1){
 		PCA.plot = PCA.plot[1:(length(PCA.plot) - 1)]
 	}
 	
@@ -599,7 +628,7 @@ plotDimReductPW.default <- function(
 			 y=data.use[,2],
 			 cex=point.size, 
 			 col=scales::alpha(point.color, point.alpha),
-			 mtext(paste(paste("PC", x[1]), x[2], sep=" vs "), side=3),
+			 mtext(paste(paste("eigs", x[1]), x[2], sep=" vs "), side=3),
 			 yaxt='n', 
 			 xaxt="n",
 			 xlab="", 

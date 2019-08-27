@@ -4,13 +4,13 @@
 \alias{plotDimReductPW}
 \title{Pairwise plot for Dimentionality Reduction Result}
 \usage{
-plotDimReductPW(obj, pca.dims, point.size, point.color, point.shape,
+plotDimReductPW(obj, eigs.dims, point.size, point.color, point.shape,
   point.alpha, down.sample, pdf.file.name, pdf.height, pdf.width)
 }
 \arguments{
 \item{obj}{A snap object}
 
-\item{pca.dims}{PC dimetions to plot [1:30]}
+\item{eigs.dims}{Eigenvectors to plot [1:30]}
 
 \item{point.size}{Point size [2].}
 
@@ -33,6 +33,6 @@ Pairwise plot for Dimentionality Reduction Result
 }
 \examples{
 data(demo.sp);
-plotDimReductPW(demo.sp, pca.dims=1:10);
+plotDimReductPW(demo.sp, eigs.dims=1:10);
 
 }
