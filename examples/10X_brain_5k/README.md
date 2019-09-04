@@ -20,6 +20,7 @@ In this example, we will be analyzing a dataset of 5K cells from the adult mouse
 - [Step 13. Add cell-by-peak matrix](#add_pmat)
 - [Step 14. Identify differentially accessible regions](#diff_analysis)
 - [Step 15. Motif analysis](#homer_chromVAR)
+- [Step 16. GREAT analysis](#great_analysis)
 
 
 <a name="data_download"></a>**Step 0. Data download**        
@@ -453,8 +454,15 @@ Next we add the cell-by-peak matrix to the existing snap object.
 > x.sp = readRDS("atac_v1_adult_brain_fresh_5k.snap.rds");
 > x.sp = addPmatToSnap(x.sp);
 > x.sp = makeBinary(x.sp, mat="pmat");
+> x.sp
 ```
-
+```
+## number of barcodes: 4100
+## number of bins: 546206
+## number of genes: 16
+## number of peaks: 242847
+## number of motifs: 0
+```
 <a name="diff_analysis"></a>**Step 14. Identify differentially accessible regions**       
 SnapATAC finds differentially accessible regions (DARs) that define clusters via differential analysis. By default, it identifies positive peaks of a single cluster (specified in `cluster.pos`), compared to a group of negative control cells. If by default `cluster.neg=NULL`, findDAR will look for a group of background cells closest to the positive cells. 
 
@@ -510,7 +518,7 @@ Next, we identify DARs for each of the clusters. For clusters, especially the sm
 		cluster.pos=cluster_i,
 		cluster.neg=NULL,
 		cluster.neg.method="knn",
-		bcv=0.4,
+		bcv=0.1,
 		test.method="exactTest",
 		seed.use=10
 		);
@@ -523,7 +531,7 @@ Next, we identify DARs for each of the clusters. For clusters, especially the sm
 			rm(PValues); # free memory
 	}
 	idy
- })
+  })
 > names(idy.ls) = levels(x.sp@cluster);
 > par(mfrow = c(3, 3));
 > for(cluster_i in levels(x.sp@cluster)){
@@ -626,3 +634,91 @@ SnapATAC also incorporates chromVAR (Schep et al) for motif variability analysis
 <img src="./chromVAR_2B.png" width="900" height="400" /> 
 <img src="./chromVAR_2C.png" width="900" height="400" /> 
 
+<a name="great_analysis"></a>**Step 16. GREAT analysis**       
+SnapATAC applies GREAT to identify biological pathways active in each of the cell cluster. In this example, we will first identify the differential elements in Microglia cells (cluster 13) and report the top 6 GO Ontologies enrichment inferred using GREAT analysis.
+
+```R
+## install R package rGREAT
+> if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+> BiocManager::install("rGREAT")
+## or install the latest version
+> library(devtools)
+> install_github("jokergoo/rGREAT")
+```
+```R
+> library(rGREAT);
+> DARs = findDAR(
+    obj=x.sp,
+    input.mat="pmat",
+    cluster.pos=13,
+    cluster.neg.method="knn",
+    test.method="exactTest",
+    bcv=0.1, #0.4 for human, 0.1 for mouse
+    seed.use=10
+  );
+> DARs$FDR = p.adjust(DARs$PValue, method="BH");
+> idy = which(DARs$FDR < 5e-2 & DARs$logFC > 0);
+> job = submitGreatJob(
+    gr                    = x.sp@peak[idy],
+    bg                    = NULL,
+    species               = "mm10",
+    includeCuratedRegDoms = TRUE,
+    rule                  = "basalPlusExt",
+    adv_upstream          = 5.0,
+    adv_downstream        = 1.0,
+    adv_span              = 1000.0,
+    adv_twoDistance       = 1000.0,
+    adv_oneDistance       = 1000.0,
+    request_interval = 300,
+    max_tries = 10,
+    version = "default",
+    base_url = "http://great.stanford.edu/public/cgi-bin"
+  );
+> job
+```
+```
+## Submit time: 2019-09-04 14:14:02
+## Version: default
+## Species: mm10
+## Inputs: 25120 regions
+## Background: wholeGenome
+## Model: Basal plus extension
+##   Proximal: 5 kb upstream, 1 kb downstream,
+##   plus Distal: up to 1000 kb
+## Include curated regulatory domains
+## 
+## Enrichment tables for following ontologies have been downloaded:
+##   None
+```
+
+With `job`, we can now retrieve results from GREAT. The first and the primary results are the tables which contain enrichment statistics for the analysis. By default it will retrieve results from three GO Ontologies and all pathway ontologies. All tables contains statistics for all terms no matter they are significant or not. Users can then make filtering by a self-defined cutoff.
+
+```R
+> tb = getEnrichmentTables(job);
+> names(tb);
+```
+```
+## [1] "GO Molecular Function" "GO Biological Process" "GO Cellular Component"
+```
+```
+> GBP = tb[["GO Biological Process"]];
+> head(GBP[order(GBP[,"Binom_Adjp_BH"]),1:5]);
+```
+
+```
+##           ID                                      name Binom_Genome_Fraction
+## 1 GO:0002376                     immune system process            0.12515840
+## 2 GO:0002682       regulation of immune system process            0.09012561
+## 3 GO:0009987                          cellular process            0.80870120
+## 4 GO:0048518 positive regulation of biological process            0.43002240
+## 5 GO:0050789          regulation of biological process            0.68873070
+## 6 GO:0050794            regulation of cellular process            0.66837300
+##   Binom_Expected Binom_Observed_Region_Hits
+## 1       3095.918                       5592
+## 2       2229.347                       4148
+## 3      20004.030                      22241
+## 4      10637.030                      13697
+## 5      17036.440                      19871
+## 6      16532.870                      19356
+```
