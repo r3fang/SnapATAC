@@ -1,16 +1,36 @@
-## 10X Adult Brain
+## 10X Adult Mouse Brain
 
-In this example, we will be analyzing a dataset of 5K cells from the adult mouse brain available from 10X genomics. All the data can be downloaded from [here](http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/).
+In this example, we will be analyzing a dataset of 5K cells from the adult mouse brain available from 10X genomics. All the data used in this analysis can be downloaded from [here](http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/).
 
-**Step 0. Download the snap file**.      
-First let's download the snap file first. See [here](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_PBMC_15K/README.md) for how to generate a snap file. In this example, the snap file already contains the cell-by-bin matrix.
+## Table of Contents
+
+- [Step 0. Data download](#data_download)
+- [Step 1. Barcode selection](#barcode_selection)
+- [Step 2. Add cell-by-bin matrix](#add_bmat)
+- [Step 3. Matrix binarization](#make_binary)
+- [Step 4. Bin filtering](#bin_filter)
+- [Step 5. Dimensionality reduction](#diffusion_maps)
+- [Step 6. Determine significant components](#pc_select)
+- [Step 7. Graph-based clustering](#cluster)
+- [Step 8. Visualization](#viz)
+- [Step 9. Gene based annotation](#gene_tsne)
+- [Step 10. Heretical clustering](#heretical_clustering)
+- [Step 11. Identify peak](#peak_call)
+- [Step 12. Create a cell-by-peak matrix](#create_pmat)
+- [Step 13. Add cell-by-peak matrix](#add_pmat)
+- [Step 14. Identify differentially accessible regions](#diff_analysis)
+- [Step 15. Motif analysis](#homer_chromVAR)
+
+
+<a name="data_download"></a>**Step 0. Data download**        
+In this example, we will skip the snap generation (See [here](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_PBMC_15K/README.md) for how to generate a snap file). Instead, we will download the snap file. The downloaded snap file already contains the cell-by-bin/cell-by-peak matrix.
 
 ```bash
 $ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/atac_v1_adult_brain_fresh_5k.snap
 $ http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/atac_v1_adult_brain_fresh_5k_singlecell.csv
 ```
 
-**Step 1. Barcode selection**        
+<a name="barcode_selection"></a>**Step 1. Barcode selection**     
 We select high-quality barcodes based on two criteria: 1) number of unique fragments; 2) fragments in promoter ratio; 
 
 ```R
@@ -41,8 +61,9 @@ We select high-quality barcodes based on two criteria: 1) number of unique fragm
     labs(x = "log10(UMI)", y="promoter ratio") 
 > p1 
 > barcodes.sel = barcodes[which(UMI >= 3 & UMI <= 5 & promoter_ratio >= 0.15 & promoter_ratio <= 0.6),];
+> rownames(barcodes.sel) = barcodes.sel$barcode;
 > x.sp = x.sp[which(x.sp@barcode %in% barcodes.sel$barcode),];
-> x.sp@metaData = barcodes.sel;
+> x.sp@metaData = barcodes.sel[x.sp@barcode,];
 > x.sp
 number of barcodes: 4100
 number of bins: 0
@@ -53,7 +74,7 @@ number of motifs: 0
 
 <img src="./QualityControl.png" width="400" height="400" />  
 
-**Step 2. Add cell-by-bin matrix**        
+<a name="add_bmat"></a>**Step 2. Add cell-by-bin matrix**     
 Next, we add the cell-by-bin matrix of 5kb resolution to the snap object. This function will automatically read the cell-by-bin matrix and add it to `bmat` slot of snap object.
 
 ```R
@@ -63,14 +84,14 @@ Next, we add the cell-by-bin matrix of 5kb resolution to the snap object. This f
 > x.sp = addBmatToSnap(x.sp, bin.size=5000, num.cores=1);
 ```
 
-**Step 3. Matrix binarization**       
-We will convert the cell-by-bin count matrix to a binary matrix. Some items in the count matrix have abnormally high coverage perhaps due to the alignment errors. Therefore, we next remove 0.1% items of the highest coverage in the count matrix and then convert the remaining non-zero values to 1.
+<a name="make_binary"></a>**Step 3. Matrix binarization**       
+We will convert the cell-by-bin count matrix to a binary matrix. Some items in the count matrix have abnormally high coverage perhaps due to the alignment errors. Therefore, we next remove 0.1% items of the highest coverage in the count matrix and then convert the remaining non-zero items to 1.
 
 ```R
 > x.sp = makeBinary(x.sp, mat="bmat");
 ```
 
-**Step 4. Bin filtration (SnapATAC)**           
+<a name="bin_filter"></a>**Step 4. Bin filtering**       
 First, we filter out any bins overlapping with the ENCODE blacklist to prevent from potential artifacts.
 
 ```R
@@ -81,12 +102,8 @@ First, we filter out any bins overlapping with the ENCODE blacklist to prevent f
     black_list[,1], 
     IRanges(black_list[,2], black_list[,3])
   );
-> idy = queryHits(
-    findOverlaps(x.sp@feature, black_list.gr)
-  );
-> if(length(idy) > 0){
-    x.sp = x.sp[,-idy, mat="bmat"];
-  };
+> idy = queryHits(findOverlaps(x.sp@feature, black_list.gr));
+> if(length(idy) > 0){x.sp = x.sp[,-idy, mat="bmat"]};
 > x.sp
 number of barcodes: 4100
 number of bins: 546103
@@ -100,9 +117,7 @@ Second, we remove unwanted chromosomes.
 ```R
 > chr.exclude = seqlevels(x.sp@feature)[grep("random|chrM", seqlevels(x.sp@feature))];
 > idy = grep(paste(chr.exclude, collapse="|"), x.sp@feature);
-> if(length(idy) > 0){
-    x.sp = x.sp[,-idy, mat="bmat"]
-  };
+> if(length(idy) > 0){x.sp = x.sp[,-idy, mat="bmat"]};
 > x.sp
 number of barcodes: 4100
 number of bins: 545183
@@ -135,18 +150,18 @@ number of motifs: 0
 
 <img src="./BinCovDist.png" width="400" height="400" />  
 
-**Step 5. Dimensionality Reduction**             
+<a name="diffusion_maps"></a>**Step 5. Dimensionality reduction**       
 We compute diffusion maps for dimentionality reduction. 
 
 ```R
 > x.sp = runDiffusionMaps(
-	obj=x.sp,
-	input.mat="bmat", 
-	num.eigs=50
-	);
+    obj=x.sp,
+    input.mat="bmat", 
+    num.eigs=50
+  );
 ```
 
-**Step 6. Determine significant components**     
+<a name="pc_select"></a>**Step 6. Determine significant components**                       
 We next determine the number of reduced dimensions to include for downstream analysis. We use an ad hoc method by simply looking at a pairwise plot and select the number of dimensions in which the scatter plot starts looking like a blob. In the below example, we choose the first 20 dimensions.
 
 ```R
@@ -166,7 +181,7 @@ We next determine the number of reduced dimensions to include for downstream ana
 
 <img src="./eigs_scatter_plot.png" width="900" height="900" />  
 
-**Step 7. Graph-based clustering**        
+<a name="cluster"></a>**Step 7. Graph-based clustering**        
 Using the selected significant dimensions, we next construct a K Nearest Neighbor (KNN) Graph (k=15). Each cell is a node and the k-nearest neighbors of each cell are identified according to the Euclidian distance and edges are draw between neighbors in the graph.
 
 ```R
@@ -184,7 +199,7 @@ Using the selected significant dimensions, we next construct a K Nearest Neighbo
 > x.sp@metaData$cluster = x.sp@cluster;
 ```
 
-**Step 8. Visualization**       
+<a name="viz"></a>**Step 8. Visualization**       
 SnapATAC visualizes and explores the data using tSNE (FI-tsne) or UMAP. In this example, we compute the t-SNE embedding. We next project the sequencing depth or other bias onto the t-SNE embedding.
 
 ```R
@@ -213,7 +228,7 @@ SnapATAC visualizes and explores the data using tSNE (FI-tsne) or UMAP. In this 
     text.halo.width=0.2,
     down.sample=10000,
     legend.add=FALSE
-    );
+  );
 > plotFeatureSingle(
     obj=x.sp,
     feature.value=log(x.sp@metaData[,"passed_filters"]+1,10),
@@ -223,7 +238,7 @@ SnapATAC visualizes and explores the data using tSNE (FI-tsne) or UMAP. In this 
     point.shape=19, 
     down.sample=10000,
     quantiles=c(0.01, 0.99)
-    ); 
+  ); 
 > plotFeatureSingle(
     obj=x.sp,
     feature.value=x.sp@metaData$peak_region_fragments / x.sp@metaData$passed_filters,
@@ -233,7 +248,7 @@ SnapATAC visualizes and explores the data using tSNE (FI-tsne) or UMAP. In this 
     point.shape=19, 
     down.sample=10000,
     quantiles=c(0.01, 0.99) # remove outliers
-    );
+  );
 > plotFeatureSingle(
     obj=x.sp,
     feature.value=x.sp@metaData$duplicate / x.sp@metaData$total,
@@ -243,12 +258,12 @@ SnapATAC visualizes and explores the data using tSNE (FI-tsne) or UMAP. In this 
     point.shape=19, 
     down.sample=10000,
     quantiles=c(0.01, 0.99) # remove outliers
-    );
+  );
 ```
 
 <img src="./Visulization.png" width="900" height="900" />  
 
-**Step 9. Gene-body based annotation**        
+<a name="gene_tsne"></a>**Step 9. Gene based annotation**        
 To help annotate identified cell clusters, SnapATAC next creates the cell-by-gene matrix and visualize the enrichment of marker genes.
 
 ```R
@@ -301,7 +316,7 @@ To help annotate identified cell clusters, SnapATAC next creates the cell-by-gen
 
 <img src="./gene_plot.png" width="900" height="900" />
 
-**Step 10. Heretical clustering**        
+<a name="heretical_clustering"></a>**Step 10. Heretical clustering**        
 Next, cells belonging to the same cluster are pooled to create the aggregate signal for heretical clustering.
 
 ```R
@@ -335,7 +350,7 @@ In this case, from cluster 20 to 25 are excitatory neuron; cluster 19 to 5 are i
 
 <img src="./Visulization_tsne.png" width="400" height="400" /> <img src="./cluster_tree.png" width="400" height="400" />
 
-**Step 11. Identify peaks**         
+<a name="peak_call"></a>**Step 11. Identify peaks**         
 Next we aggregate cells from the each cluster to create an ensemble track for peak calling and visualization. This step will generate a .narrowPeak file that contains the identified peak and .bedGraph file for visualization. To obtain the most robust result, we don't recommend to perform this step for clusters with cell number less than 100. In the below example, SnapATAC creates `atac_v1_adult_brain_fresh_5k.1_peaks.narrowPeak` and `atac_v1_adult_brain_fresh_5k.1_treat_pileup.bdg`. bdg file can be compressed to bigWig file using bedGraphToBigWig for IGV or Genome Browser visulization.
 
 ```R
@@ -363,7 +378,7 @@ Next, we provide a short script that performs this step for all clusters.
 > clusters.sel = names(table(x.sp@cluster))[which(table(x.sp@cluster) > 200)];
 > peaks.ls = mclapply(seq(clusters.sel), function(i){
     print(clusters.sel[i]);
-    peaks = runMACS(
+    runMACS(
         obj=x.sp[which(x.sp@cluster==clusters.sel[i]),], 
         output.prefix=paste0("atac_v1_adult_brain_fresh_5k.", gsub(" ", "_", clusters.sel)[i]),
         path.to.snaptools="/home/r3fang/anaconda2/bin/snaptools",
@@ -374,8 +389,7 @@ Next, we provide a short script that performs this step for all clusters.
         macs.options="--nomodel --shift 100 --ext 200 --qval 5e-2 -B --SPMR",
         tmp.folder=tempdir()
    );
-	peaks
- 	}, mc.cores=5);
+ }, mc.cores=5);
 # assuming all .narrowPeak files in the current folder are generated from the clusters
 > peaks.names = system("ls | grep narrowPeak", intern=TRUE);
 > peak.gr.ls = lapply(peaks.names, function(x){
@@ -403,7 +417,7 @@ GRanges object with 242847 ranges and 0 metadata columns:
 ```
 
 
-**Step 12. Create a cell-by-peak matrix**     
+<a name="create_pmat"></a>**Step 12. Create a cell-by-peak matrix**     
 Using merged peak list as a reference, we next create a cell-by-peak matrix using the original snap file.
 
 ```R
@@ -423,15 +437,16 @@ $ snaptools snap-add-pmat \
 	--peak-file peaks.combined.bed
 ```
 
-**Step 13. Add cell-by-peak matrix**     
+<a name="add_pmat"></a>**Step 13. Add cell-by-peak matrix**     
 Next we add the cell-by-peak matrix to the existing snap object. 
 
 ```R
 > x.sp = readRDS("atac_v1_adult_brain_fresh_5k.snap.rds");
 > x.sp = addPmatToSnap(x.sp);
+> x.sp = makeBinary(x.sp, mat="pmat");
 ```
 
-**Step 14. Identify differentially accessible regions**       
+<a name="diff_analysis"></a>**Step 14. Identify differentially accessible regions**       
 SnapATAC finds differentially accessible regions (DARs) that define clusters via differential analysis. By default, it identifies positive peaks of a single cluster (specified in `cluster.pos`), compared to a group of negative control cells. If by default `cluster.neg=NULL`, findDAR will look for a group of background cells closest to the positive cells. 
 
 ```R
@@ -523,7 +538,7 @@ Next, we identify DARs for each of the clusters. For clusters, especially the sm
 <img src="./DARs_all.png" width="900" height="900" /> 
 
 
-**Step 15. Motif analysis identifies master regulators**       
+<a name="homer_chromVAR"></a>**Step 15. Motif analysis identifies master regulators**       
 SnapATAC employs Homer to identify master regulators that are enriched in the differentially accessible regions (DARs). This will creates a homer motif report `knownResults.html` in the folder `./homer/C5`. This requires Homer to be pre-installed. See [here](http://homer.ucsd.edu/homer/introduction/install.html) for the instruction about how to install Homer.
 
 ```R

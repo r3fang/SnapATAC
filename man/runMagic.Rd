@@ -4,7 +4,7 @@
 \alias{runMagic}
 \title{Affinity Graph-based Smoothing}
 \usage{
-runMagic(obj, input.mat = c("bmat", "pmat", "gmat", "mmat"), step.size = 3)
+runMagic(obj, input.mat = c("gmat", "pmat", "bmat", "mmat"), step.size = 3)
 }
 \arguments{
 \item{obj}{A snap obj}
@@ -14,6 +14,6 @@ runMagic(obj, input.mat = c("bmat", "pmat", "gmat", "mmat"), step.size = 3)
 \item{step.size}{Number of steps for diffusion [3].}
 }
 \description{
-This function takes a snap obj as input with bmat/pmat/gmat slot and run 
-magic to smooth the signal.
+This function takes a snap object as input with bmat/pmat/gmat/mmat slot 
+and run magic - an affinity graph-based method - to smooth the signal.
 }
