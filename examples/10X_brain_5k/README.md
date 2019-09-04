@@ -65,11 +65,13 @@ We select high-quality barcodes based on two criteria: 1) number of unique fragm
 > x.sp = x.sp[which(x.sp@barcode %in% barcodes.sel$barcode),];
 > x.sp@metaData = barcodes.sel[x.sp@barcode,];
 > x.sp
-number of barcodes: 4100
-number of bins: 0
-number of genes: 0
-number of peaks: 0
-number of motifs: 0
+```
+```
+## number of barcodes: 4100
+## number of bins: 0
+## number of genes: 0
+## number of peaks: 0
+## number of motifs: 0
 ```
 
 <img src="./QualityControl.png" width="400" height="400" />  
@@ -105,11 +107,13 @@ First, we filter out any bins overlapping with the ENCODE blacklist to prevent f
 > idy = queryHits(findOverlaps(x.sp@feature, black_list.gr));
 > if(length(idy) > 0){x.sp = x.sp[,-idy, mat="bmat"]};
 > x.sp
-number of barcodes: 4100
-number of bins: 546103
-number of genes: 0
-number of peaks: 0
-number of motifs: 0
+```
+```
+## number of barcodes: 4100
+## number of bins: 546103
+## number of genes: 0
+## number of peaks: 0
+## number of motifs: 0
 ```
 
 Second, we remove unwanted chromosomes.
@@ -119,11 +123,13 @@ Second, we remove unwanted chromosomes.
 > idy = grep(paste(chr.exclude, collapse="|"), x.sp@feature);
 > if(length(idy) > 0){x.sp = x.sp[,-idy, mat="bmat"]};
 > x.sp
-number of barcodes: 4100
-number of bins: 545183
-number of genes: 0
-number of peaks: 0
-number of motifs: 0
+```
+```
+## number of barcodes: 4100
+## number of bins: 545183
+## number of genes: 0
+## number of peaks: 0
+## number of motifs: 0
 ```
 
 Third, the bin coverage roughly obeys a log normal distribution. We remove the top 5% bins that overlap with invariant features such as promoters of the house keeping genes.
@@ -141,11 +147,13 @@ Third, the bin coverage roughly obeys a log normal distribution. We remove the t
 > idy = which(bin.cov <= bin.cutoff & bin.cov > 0);
 > x.sp = x.sp[, idy, mat="bmat"];
 > x.sp
-number of barcodes: 4100
-number of bins: 474624
-number of genes: 0
-number of peaks: 0
-number of motifs: 0
+```
+```
+## number of barcodes: 4100
+## number of bins: 474624
+## number of genes: 0
+## number of peaks: 0
+## number of motifs: 0
 ```
 
 <img src="./BinCovDist.png" width="400" height="400" />  
@@ -398,22 +406,23 @@ Next, we provide a short script that performs this step for all clusters.
   })
 > peak.gr = reduce(Reduce(c, peak.gr.ls));
 > peak.gr
-> peak.gr
-GRanges object with 242847 ranges and 0 metadata columns:
-           seqnames               ranges strand
-              <Rle>            <IRanges>  <Rle>
-       [1]     chr1   [3094889, 3095629]      *
-       [2]     chr1   [3113499, 3114060]      *
-       [3]     chr1   [3118103, 3118401]      *
-       [4]     chr1   [3119689, 3120845]      *
-       [5]     chr1   [3121534, 3121786]      *
-       ...      ...                  ...    ...
-  [242843]     chrY [90797373, 90798136]      *
-  [242844]     chrY [90804709, 90805456]      *
-  [242845]     chrY [90808580, 90808819]      *
-  [242846]     chrY [90808850, 90809131]      *
-  [242847]     chrY [90810817, 90811057]      *
-  -------
+```
+``` 
+## GRanges object with 242847 ranges and 0 metadata columns:
+##           seqnames               ranges strand
+##              <Rle>            <IRanges>  <Rle>
+##       [1]     chr1   [3094889, 3095629]      *
+##       [2]     chr1   [3113499, 3114060]      *
+##       [3]     chr1   [3118103, 3118401]      *
+##       [4]     chr1   [3119689, 3120845]      *
+##       [5]     chr1   [3121534, 3121786]      *
+##       ...      ...                  ...    ...
+##  [242843]     chrY [90797373, 90798136]      *
+##  [242844]     chrY [90804709, 90805456]      *
+##  [242845]     chrY [90808580, 90808819]      *
+##  [242846]     chrY [90808850, 90809131]      *
+##  [242847]     chrY [90810817, 90811057]      *
+##  -------
 ```
 
 
@@ -514,7 +523,7 @@ Next, we identify DARs for each of the clusters. For clusters, especially the sm
 			rm(PValues); # free memory
 	}
 	idy
-	})
+ })
 > names(idy.ls) = levels(x.sp@cluster);
 > par(mfrow = c(3, 3));
 > for(cluster_i in levels(x.sp@cluster)){
@@ -536,7 +545,6 @@ Next, we identify DARs for each of the clusters. For clusters, especially the sm
 ```
 
 <img src="./DARs_all.png" width="900" height="900" /> 
-
 
 <a name="homer_chromVAR"></a>**Step 15. Motif analysis identifies master regulators**       
 SnapATAC employs Homer to identify master regulators that are enriched in the differentially accessible regions (DARs). This will creates a homer motif report `knownResults.html` in the folder `./homer/C5`. This requires Homer to be pre-installed. See [here](http://homer.ucsd.edu/homer/introduction/install.html) for the instruction about how to install Homer.
@@ -562,7 +570,7 @@ SnapATAC employs Homer to identify master regulators that are enriched in the di
 	cache = 100,
 	overwrite = TRUE,
 	keep.minimal = FALSE
-	);
+  );
 ```
 See [here](http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/homer/C5/knownResults.html) for the full list of motifs for cluster 5.
 
