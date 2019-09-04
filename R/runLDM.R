@@ -201,7 +201,7 @@ runDiffusionMapsExtension <- function(
 	obj2 = obj2[,idy,mat=input.mat]
 	# check the dimention of obj1 and obj2
 	
-	if(!identical(dim(obj1@bmat), dim(obj2@bmat))){
+	if(!identical(dim(obj1@bmat)[2], dim(obj2@bmat)[2])){
 		stop("dimentions of input matrix of obj1 and obj2 do not match")
 	}
 	
@@ -230,198 +230,190 @@ runDiffusionMapsExtension <- function(
 	return(obj2);
 }
 
-
-
-
-
-
-
-
-
-
-runLDM <- function(
-	obj,
-	norm=TRUE,
-	chr.exclude=NULL,
-	bin.filter.cutoff=0.95,
-	input.mat=c("bmat", "pmat", "gmat"), 
-	num.eigs=20,
-	num.landmarks=10000,
-	ncell.chunk=10000,
-	seed.use=10
-){
-	nmat.outlier = 0.99;
-	message("Epoch: checking the inputs ...");
-	if(missing(obj)){
-		stop("obj is missing");
-	}else{
-		if(!is(obj, "snap")){
-			stop("obj is not a snap obj")
-		}		
-	}
-		
-	if(!is.logical(norm)){
-		stop("norm is not a logical")
-	}
-	
-	# 2. check if input matrix exists
-	input.mat = match.arg(input.mat);	
-	if(input.mat == "bmat"){
-		data.use = obj@bmat;
-		peak.use = obj@feature;
-	}else if(input.mat == "pmat"){
-		data.use = obj@pmat;
-		peak.use = obj@peak;
-	}else if(input.mat == "gmat"){
-		data.use = obj@gmat;		
-		peak.use = GenomicRanges::GRanges();
-	}else{
-		stop("input.mat does not exist in obj")
-	}
-	
-	if((x = nrow(data.use)) == 0L){
-		stop("input matrix is empty");
-	}else{
-		if((x = max(data.use)) > 1L){
-			stop("input.mat is not a binary matrix")
-		}
-	}
-	
-	# check if empty rows exist in bmat;
-	if(any(Matrix::rowSums(data.use) == 0)){
-		stop("input matrix contains empty rows, remove empty rows first")	
-	}
-	
-	# exclude the chromsome;
-	idy.use = list();
-	if(!is.null(chr.exclude)){
-		message("Epoch: excluding unwanted chromsomes ...");
-		peak.use.copy = peak.use;
-		seqlevels(peak.use.copy, force=TRUE) <- setdiff(seqlevels(peak.use.copy), chr.exclude);
-		idy.use = append(idy.use, list(which(peak.use$name %in% peak.use.copy$name)));
-		rm(peak.use.copy);
-	}
-	
-	bin.cov = log10(Matrix::colSums(data.use)+1);
-	cutoff = quantile(bin.cov, bin.filter.cutoff);
-	idy.use = append(idy.use, list(which(bin.cov <= cutoff)));
-	if(length(idy.use) > 1L){
-		idy.use = sort(Reduce(intersect, idy.use));		
-	}else{
-		idy.use = sort(idy.use[[1]]);
-	}
-	obj = obj[,idy.use, mat=input.mat];
-	
-	num.total.cells = nrow(obj);
-	if(num.landmarks >= num.total.cells){
-		message("Epoch: computing jaccard similarity matrix ...");
-		obj = runJaccard2(obj, obj, input.mat=input.mat);
-		
-		if(norm == TRUE){
-			message("Epoch: fitting regression model ...");
-			obj = trainRegression(obj)
-			message("Epoch: performing normalization ...");
-			obj = normJaccard(obj, obj@regModel[1], obj@regModel[2], obj@regModel[3])			
-		}else{
-			obj@jmat@nmat = obj@jmat@jmat;
-		}
-
-		# remove the outliers
-		nmat.cutoff = quantile(obj@jmat@nmat, nmat.outlier);
-		obj@jmat@nmat[obj@jmat@nmat > nmat.cutoff] = nmat.cutoff;
-		
-		message("Epoch: computing eigen decomposition ...");
-		obj = runEigDecomp(obj, num.eigs);
-
-		# add landmark columns to the metaData
-		if(nrow(obj@metaData) == 0){
-			obj@metaData$landmark = rep(1, num.total.cells);			
-		}else{
-			obj@metaData = data.frame(landmark=rep(1, num.total.cells));						
-		}
-	}else{
-		message("Epoch: sampling landmarks ...");
-		# calcualte the log-scaled cell coverage
-		row.covs = log10(Matrix::rowSums(data.use)+1);
-		# estimate the density distribution
-		row.covs.dens <- density(x = row.covs, bw = 'nrd', adjust = 1);
-		sampling_prob <- 1 / (approx(x = row.covs.dens$x, y = row.covs.dens$y, xout = row.covs)$y + .Machine$double.eps);
-		set.seed(seed.use);
-		# sample landmarks
-		idx.landmark <- sort(sample(x = seq(num.total.cells), size = num.landmarks, prob = sampling_prob));
-		idx.other <- setdiff(seq(num.total.cells), idx.landmark);
-		obj.landmark = obj[idx.landmark,]
-
-		message("Epoch: computing jaccard similarity matrix for landmarks ...");
-		obj.landmark = runJaccard2(obj.landmark, obj.landmark, input.mat=input.mat);
-		
-		if(norm){
-			message("Epoch: fitting regression model ...");
-			obj.landmark = trainRegression(obj.landmark)
-			message("Epoch: performing normalization ...");
-			obj.landmark = normJaccard(obj.landmark, obj.landmark@regModel[1], obj.landmark@regModel[2], obj.landmark@regModel[3]);			
-		}else{
-			obj.landmark@jmat@nmat = obj.landmark@jmat@jmat;
-		}
-
-		# clap the max value for normalize similarity 
-		nmat.cutoff = quantile(obj.landmark@jmat@nmat, nmat.outlier);
-		obj.landmark@jmat@nmat[obj@jmat@nmat > nmat.cutoff] = nmat.cutoff;
-		
-		message("Epoch: computing eigen decomposition for landmarks ...");
-		obj.landmark = runEigDecomp(obj.landmark, num.eigs);
-
-		idx.other.ls = split(idx.other, ceiling(seq_along(seq(idx.other))/ncell.chunk))
-		eig.mat =list()
-
-		message("Epoch: projecting the remaining cells ...");
-		
-		for(i in seq(idx.other.ls)){
-			idx = idx.other.ls[[i]];
-			print(paste("Epoch: extending for chunk", i, "...", sep=" "))
-			obj.other.i = obj[idx,];
-			eig.mat[[i]] = runEigDecompExd(
-				obj.other.i, 
-				obj.landmark, 
-				norm, 
-				obj.landmark@regModel[1], 
-				obj.landmark@regModel[2], 
-				obj.landmark@regModel[3]
-			);
-			rm(obj.other.i); # free memory
-			rm(idx); # free memory
-		}
-		
-		# combine embeddings
-		obj@smat@dmat = matrix(0, nr=num.total.cells, nc=num.eigs);
-		obj@smat@dmat[idx.landmark,] = obj.landmark@smat@dmat;
-		obj@smat@dmat[idx.other,] = as.matrix(do.call(rbind, eig.mat))
-		obj@smat@sdev = obj.landmark@smat@sdev
-
-		# add landmark column
-		if(nrow(obj@metaData) == 0){
-			obj@metaData = data.frame(landmark=rep(0, num.total.cells));
-			obj@metaData$landmark[idx.landmark] = 1;
-		}else{
-			obj@metaData$landmark = rep(0, num.total.cells);
-			obj@metaData$landmark[idx.landmark] = 1;
-		}
-		
-		rm(eig.mat);
-		rm(obj.landmark);
-	}
-	if(input.mat == "bmat"){
-		obj@bmat = data.use;
-		obj@feature = peak.use;
-	}else if(input.mat == "pmat"){
-		obj@pmat = data.use;
-		obj@peak = peak.use;
-	}else if(input.mat == "gmat"){
-		obj@gmat = data.use;		
-	}else{
-		stop("input.mat does not exist in obj")
-	}
-	obj@jmat = newJaccard();
-	message("Epoch: Done");
-	return(obj);
-}
+#runLDM <- function(
+#	obj,
+#	norm=TRUE,
+#	chr.exclude=NULL,
+#	bin.filter.cutoff=0.95,
+#	input.mat=c("bmat", "pmat", "gmat"), 
+#	num.eigs=20,
+#	num.landmarks=10000,
+#	ncell.chunk=10000,
+#	seed.use=10
+#){
+#	nmat.outlier = 0.99;
+#	message("Epoch: checking the inputs ...");
+#	if(missing(obj)){
+#		stop("obj is missing");
+#	}else{
+#		if(!is(obj, "snap")){
+#			stop("obj is not a snap obj")
+#		}		
+#	}
+#		
+#	if(!is.logical(norm)){
+#		stop("norm is not a logical")
+#	}
+#	
+#	# 2. check if input matrix exists
+#	input.mat = match.arg(input.mat);	
+#	if(input.mat == "bmat"){
+#		data.use = obj@bmat;
+#		peak.use = obj@feature;
+#	}else if(input.mat == "pmat"){
+#		data.use = obj@pmat;
+#		peak.use = obj@peak;
+#	}else if(input.mat == "gmat"){
+#		data.use = obj@gmat;		
+#		peak.use = GenomicRanges::GRanges();
+#	}else{
+#		stop("input.mat does not exist in obj")
+#	}
+#	
+#	if((x = nrow(data.use)) == 0L){
+#		stop("input matrix is empty");
+#	}else{
+#		if((x = max(data.use)) > 1L){
+#			stop("input.mat is not a binary matrix")
+#		}
+#	}
+#	
+#	# check if empty rows exist in bmat;
+#	if(any(Matrix::rowSums(data.use) == 0)){
+#		stop("input matrix contains empty rows, remove empty rows first")	
+#	}
+#	
+#	# exclude the chromsome;
+#	idy.use = list();
+#	if(!is.null(chr.exclude)){
+#		message("Epoch: excluding unwanted chromsomes ...");
+#		peak.use.copy = peak.use;
+#		seqlevels(peak.use.copy, force=TRUE) <- setdiff(seqlevels(peak.use.copy), chr.exclude);
+#		idy.use = append(idy.use, list(which(peak.use$name %in% peak.use.copy$name)));
+#		rm(peak.use.copy);
+#	}
+#	
+#	bin.cov = log10(Matrix::colSums(data.use)+1);
+#	cutoff = quantile(bin.cov, bin.filter.cutoff);
+#	idy.use = append(idy.use, list(which(bin.cov <= cutoff)));
+#	if(length(idy.use) > 1L){
+#		idy.use = sort(Reduce(intersect, idy.use));		
+#	}else{
+#		idy.use = sort(idy.use[[1]]);
+#	}
+#	obj = obj[,idy.use, mat=input.mat];
+#	
+#	num.total.cells = nrow(obj);
+#	if(num.landmarks >= num.total.cells){
+#		message("Epoch: computing jaccard similarity matrix ...");
+#		obj = runJaccard2(obj, obj, input.mat=input.mat);
+#		
+#		if(norm == TRUE){
+#			message("Epoch: fitting regression model ...");
+#			obj = trainRegression(obj)
+#			message("Epoch: performing normalization ...");
+#			obj = normJaccard(obj, obj@regModel[1], obj@regModel[2], obj@regModel[3])			
+#		}else{
+#			obj@jmat@nmat = obj@jmat@jmat;
+#		}
+#
+#		# remove the outliers
+#		nmat.cutoff = quantile(obj@jmat@nmat, nmat.outlier);
+#		obj@jmat@nmat[obj@jmat@nmat > nmat.cutoff] = nmat.cutoff;
+#		
+#		message("Epoch: computing eigen decomposition ...");
+#		obj = runEigDecomp(obj, num.eigs);
+#
+#		# add landmark columns to the metaData
+#		if(nrow(obj@metaData) == 0){
+#			obj@metaData$landmark = rep(1, num.total.cells);			
+#		}else{
+#			obj@metaData = data.frame(landmark=rep(1, num.total.cells));						
+#		}
+#	}else{
+#		message("Epoch: sampling landmarks ...");
+#		# calcualte the log-scaled cell coverage
+#		row.covs = log10(Matrix::rowSums(data.use)+1);
+#		# estimate the density distribution
+#		row.covs.dens <- density(x = row.covs, bw = 'nrd', adjust = 1);
+#		sampling_prob <- 1 / (approx(x = row.covs.dens$x, y = row.covs.dens$y, xout = row.covs)$y + .Machine$double.eps);
+#		set.seed(seed.use);
+#		# sample landmarks
+#		idx.landmark <- sort(sample(x = seq(num.total.cells), size = num.landmarks, prob = sampling_prob));
+#		idx.other <- setdiff(seq(num.total.cells), idx.landmark);
+#		obj.landmark = obj[idx.landmark,]
+#
+#		message("Epoch: computing jaccard similarity matrix for landmarks ...");
+#		obj.landmark = runJaccard2(obj.landmark, obj.landmark, input.mat=input.mat);
+#		
+#		if(norm){
+#			message("Epoch: fitting regression model ...");
+#			obj.landmark = trainRegression(obj.landmark)
+#			message("Epoch: performing normalization ...");
+#			obj.landmark = normJaccard(obj.landmark, obj.landmark@regModel[1], obj.landmark@regModel[2], obj.landmark@regModel[3]);			
+#		}else{
+#			obj.landmark@jmat@nmat = obj.landmark@jmat@jmat;
+#		}
+#
+#		# clap the max value for normalize similarity 
+#		nmat.cutoff = quantile(obj.landmark@jmat@nmat, nmat.outlier);
+#		obj.landmark@jmat@nmat[obj@jmat@nmat > nmat.cutoff] = nmat.cutoff;
+#		
+#		message("Epoch: computing eigen decomposition for landmarks ...");
+#		obj.landmark = runEigDecomp(obj.landmark, num.eigs);
+#
+#		idx.other.ls = split(idx.other, ceiling(seq_along(seq(idx.other))/ncell.chunk))
+#		eig.mat =list()
+#
+#		message("Epoch: projecting the remaining cells ...");
+#		
+#		for(i in seq(idx.other.ls)){
+#			idx = idx.other.ls[[i]];
+#			print(paste("Epoch: extending for chunk", i, "...", sep=" "))
+#			obj.other.i = obj[idx,];
+#			eig.mat[[i]] = runEigDecompExd(
+#				obj.other.i, 
+#				obj.landmark, 
+#				norm, 
+#				obj.landmark@regModel[1], 
+#				obj.landmark@regModel[2], 
+#				obj.landmark@regModel[3]
+#			);
+#			rm(obj.other.i); # free memory
+#			rm(idx); # free memory
+#		}
+#		
+#		# combine embeddings
+#		obj@smat@dmat = matrix(0, nr=num.total.cells, nc=num.eigs);
+#		obj@smat@dmat[idx.landmark,] = obj.landmark@smat@dmat;
+#		obj@smat@dmat[idx.other,] = as.matrix(do.call(rbind, eig.mat))
+#		obj@smat@sdev = obj.landmark@smat@sdev
+#
+#		# add landmark column
+#		if(nrow(obj@metaData) == 0){
+#			obj@metaData = data.frame(landmark=rep(0, num.total.cells));
+#			obj@metaData$landmark[idx.landmark] = 1;
+#		}else{
+#			obj@metaData$landmark = rep(0, num.total.cells);
+#			obj@metaData$landmark[idx.landmark] = 1;
+#		}
+#		
+#		rm(eig.mat);
+#		rm(obj.landmark);
+#	}
+#	if(input.mat == "bmat"){
+#		obj@bmat = data.use;
+#		obj@feature = peak.use;
+#	}else if(input.mat == "pmat"){
+#		obj@pmat = data.use;
+#		obj@peak = peak.use;
+#	}else if(input.mat == "gmat"){
+#		obj@gmat = data.use;		
+#	}else{
+#		stop("input.mat does not exist in obj")
+#	}
+#	obj@jmat = newJaccard();
+#	message("Epoch: Done");
+#	return(obj);
+#}
+#
