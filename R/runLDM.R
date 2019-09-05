@@ -193,9 +193,9 @@ runDiffusionMapsExtension <- function(
 		stop("input matrix contains empty rows, remove empty rows first")	
 	}
 	
-	peak.use.qry = as.data.frame(peak.use.qry);
-	peak.use.qry$name = paste(peak.use.qry[,1], paste(peak.use.qry[,2], peak.use.qry[,3], sep="-"), sep=":")
-	rm(peak.use.qry); # free memory 
+	peak.use.qry.df = as.data.frame(peak.use.qry);
+	peak.use.qry$name = paste(peak.use.qry.df[,1], paste(peak.use.qry.df[,2], peak.use.qry.df[,3], sep="-"), sep=":")
+	rm(peak.use.qry.df); # free memory 
 	
 	if(any(peak.use.qry$name != peak.use.ref$name)){
 		stop("the column of cell matrix for obj1 and obj2 do not match");
