@@ -4,16 +4,31 @@ In this example, we will be integrating two datasets from adult mouse brain gene
 
 <img src="./intro.png" width="900" height="300" />  
 
-Step 0. Download data
+## Table of Contents
+
+- [Step 0. Download data](#download_data)
+- [Step 1. Create snap object](#create_snap)
+- [Step 2. Select barcode](#select_barcode)
+- [Step 3. Add cell-by-bin matrix](#add_bmat)
+- [Step 4. Combine snap objects](#combine_snap)
+- [Step 5. Filter bins](#filter_bin)
+- [Step 6. Dimensionality reduction](#reduce_dim)
+- [Step 7. Determine significant components](#select_dim)
+- [Step 8. Remove batch effect](#run_harmony)
+- [Step 9. Graph-based cluster](#cluster)
+- [Step 10. Visualization](#viz)
+
+
+<a name="download_data"></a>**Step 0. Download data**
 
 ```
 $ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.snap
+$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.barcode.txt
 $ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/atac_v1_adult_brain_fresh_5k.snap	
 $ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/atac_v1_adult_brain_fresh_5k.barcode.txt
-$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.barcode.txt
 ```
 
-**Step 1. Create snap object**       
+<a name="create_snap"></a>**Step 1. Create snap object**       
 In this example, we will create a list of snap objects that contains two datasets.
 
 ```R
@@ -43,7 +58,7 @@ In this example, we will create a list of snap objects that contains two dataset
 ## number of motifs: 0
 ```
 
-**Step 2. Select barcode**.        
+<a name="create_snap"></a>**Step 2. Select barcode**        
 Next, we read the barcode list which contains the high-quality barcodes. See [here](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_brain_5k/README.md) for barcode selection.
 
 ```R
@@ -73,7 +88,7 @@ Next, we read the barcode list which contains the high-quality barcodes. See [he
 ## number of motifs: 0
 ```
 
-**Step 3. Add cell-by-bin matrix**.        
+<a name="add_bmat"></a>**Step 3. Add cell-by-bin matrix**        
 
 ```R
 > x.sp.list = lapply(seq(x.sp.list), function(i){
@@ -97,10 +112,10 @@ Next, we read the barcode list which contains the high-quality barcodes. See [he
 ## number of peaks: 0
 ## number of motifs: 0
 ```
-These two snap objects have different number of bins because they were generated seperately using different reference genome.  
+These two snap objects have different number of bins because they were generated seperately using slightly different reference genome.  
 
-**Step 4. Combine snap objects**
-Common bins are selected and snap objects are combined.
+<a name="combine_snap"></a>**Step 4. Combine snap objects**         
+To combine these two snap objects, common bins are selected.
 
 ```R
 > bin.shared = Reduce(intersect, lapply(x.sp.list, function(x.sp) x.sp@feature$name));
@@ -118,13 +133,13 @@ Common bins are selected and snap objects are combined.
 ##  4100   9646
 ```
 
-**Step 5. Binarize matrix**      
+<a name="binary_mat"></a>**Step 5. Binarize matrix**      
 
 ```R
 > x.sp = makeBinary(x.sp, mat="bmat");
 ```
 
-**Step 6. Filter bins**            
+<a name="filter_bin"></a>**Step 6. Filter bins**            
 First, we filter out any bins overlapping with the ENCODE blacklist to prevent from potential artifacts.
 
 ```R
@@ -180,8 +195,8 @@ Third, the bin coverage roughly obeys a log normal distribution. We remove the t
 ## number of motifs: 0
 ```
 
-**Step 8. Dimensionality reduction**            
-We compute landmark diffusion maps for dimentionality reduction.
+<a name="reduce_dim"></a>**Step 7. Reduce dimensionality**            
+We compute landmark diffusion maps for dimentionality reduction. We first randomly sample 10,000 cells as landmarks and project the remaining cells (query) onto the diffusion maps embedding.
 
 ```R
 > row.covs = log10(Matrix::rowSums(x.sp@bmat)+1);
@@ -208,10 +223,11 @@ We compute landmark diffusion maps for dimentionality reduction.
 > x.query.sp@metaData$landmark = 0;
 > x.sp = snapRbind(x.landmark.sp, x.query.sp);
 ## combine landmarks and query cells;
-> x.sp = x.sp[order(x.sp@sample),];
+> x.sp = x.sp[order(x.sp@sample),]; # IMPORTANT
+> rm(x.landmark.sp, x.query.sp); # free memory
 ```
 
-**Step 9. Determine significant components**            
+<a name="select_dim"></a>**Step 8. Determine significant components**            
 
 ```R
 > plotDimReductPW(
@@ -230,88 +246,36 @@ We compute landmark diffusion maps for dimentionality reduction.
 
 <img src="./eigs_scatter_plot.png" width="900" height="900" />  
 
-**Step 10. Visualization**            
-
-```R
-> x.sp = runViz(
-    obj=x.sp, 
-    tmp.folder=tempdir(),
-    dims=2,
-    eigs.dims=1:22, 
-    method="Rtsne",
-    seed.use=10
-  );
-> par(mfrow = c(2, 2));
-> plotViz(
-    obj=x.sp,
-    method="tsne", 
-    main="Sample",
-    point.color=x.sp@sample, 
-    point.size= 0.2, 
-    point.shape=19, 
-    point.alpha=0.8, 
-    text.add=FALSE,
-    text.size=1.5,
-    text.color="black",
-    text.halo.add=TRUE,
-    text.halo.color="white",
-    text.halo.width=0.2,
-    down.sample=10000,
-    legend.add=TRUE
-  );
-> plotViz(
-    obj=x.sp,
-    method="tsne", 
-    main="Landmark",
-    point.color=x.sp@metaData[,"landmark"], 
-    point.size=0.2, 
-    point.shape=19, 
-    point.alpha=0.8, 
-    text.add=FALSE,
-    text.size=1.5,
-    text.color="black",
-    text.halo.add=TRUE,
-    text.halo.color="white",
-    text.halo.width=0.2,
-    down.sample=10000,
-    legend.add=TRUE
-  );
-```
-
-<img src="./viz.png" width="900" height="450" />  
-
-
-**Step 11. Remove batch effect**
+<a name="run_harmony"></a>**Step 9. Remove batch effect**
 
 ```
 > library(harmony);
-> x.sp = runHarmony(
+> x.after.sp = runHarmony(
     obj=x.sp, 
-    pca.dims=1:22, 
-    weight.by.sd=FALSE,
-    meta_data=x.sp@sample
+    eigs.dims=1:22, 
+    meta_data=x.sp@sample # sample index
   );
 ```
 
-**Step 12. Graph-based cluster**
+<a name="cluster"></a>**Step 10. Graph-based cluster**
 
 ```R
-> x.sp = runKNN(
-    obj=x.sp,
+> x.after.sp = runKNN(
+    obj= x.after.sp,
     eigs.dim=1:22,
     k=15
   );
-> x.sp = runCluster(
-     obj=x.sp,
+> x.after.sp = runCluster(
+     obj=x.after.sp,
      tmp.folder=tempdir(),
      louvain.lib="R-igraph",
      path.to.snaptools=NULL,
      seed.use=10
   );
-> x.sp@metaData$cluster = x.sp@cluster;
+> x.after.sp@metaData$cluster = x.after.sp@cluster;
 ```
 
-**Step 13. Visualization**
+<a name="viz"></a>**Step 11. Visualization**
 
 ```R
 > x.sp = runViz(
@@ -322,17 +286,43 @@ We compute landmark diffusion maps for dimentionality reduction.
     method="Rtsne",
     seed.use=10
   );
-> par(mfrow = c(2, 2));
+> x.after.sp = runViz(
+    obj=x.after.sp, 
+    tmp.folder=tempdir(),
+    dims=2,
+    eigs.dims=1:22, 
+    method="Rtsne",
+    seed.use=10
+  );
+> par(mfrow = c(2, 3));
 > plotViz(
     obj=x.sp,
     method="tsne", 
+    main="Before Harmony",
+    point.color=x.sp@sample, 
+    point.size=0.1, 
+    text.add= FALSE,
+    down.sample=10000,
+    legend.add=TRUE
+  );
+> plotViz(
+    obj=x.after.sp,
+    method="tsne", 
+    main="After Harmony",
+    point.color=x.sp@sample, 
+    point.size=0.1, 
+    text.add=FALSE,
+    down.sample=10000,
+    legend.add=TRUE
+  );
+> plotViz(
+    obj=x.after.sp,
+    method="tsne", 
     main="Cluster",
-    point.color=x.sp@cluster, 
-    point.size=0.2, 
-    point.shape=19, 
-    point.alpha=0.8, 
+    point.color=x.after.sp@cluster, 
+    point.size=0.1, 
     text.add=TRUE,
-    text.size=0.8,
+    text.size=1,
     text.color="black",
     text.halo.add=TRUE,
     text.halo.color="white",
@@ -340,24 +330,8 @@ We compute landmark diffusion maps for dimentionality reduction.
     down.sample=10000,
     legend.add=FALSE
   );
-> plotViz(
-    obj=x.sp,
-    method="tsne", 
-    main="Sample",
-    point.color=x.sp@sample, 
-    point.size= 0.2, 
-    point.shape=19, 
-    point.alpha=0.8, 
-    text.add=FALSE,
-    text.size=1.5,
-    text.color="black",
-    text.halo.add=TRUE,
-    text.halo.color="white",
-    text.halo.width=0.2,
-    down.sample=10000,
-    legend.add=TRUE
-  );
 ```
 
-<img src="./viz2.png" width="900" height="450" />  
+<img src="./viz2.png" width="900" height="300" />  
+
 

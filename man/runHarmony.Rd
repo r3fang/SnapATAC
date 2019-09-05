@@ -4,14 +4,12 @@
 \alias{runHarmony}
 \title{Perform batch effect using harmony}
 \usage{
-runHarmony(obj, pca.dims, weight.by.sd, meta_data, vars_use, ...)
+runHarmony(obj, eigs.dim, meta_data, vars_use, ...)
 }
 \arguments{
 \item{obj}{A snap object}
 
-\item{pca.dims}{A vector of the dimensions to use in construction of the KNN graph.}
-
-\item{weight.by.sd}{Weight the cell embeddings by the sd of each PC}
+\item{eigs.dim}{A vector of the components to use in construction of the KNN graph.}
 
 \item{meta_data}{Either (1) Dataframe with variables to integrate or (2) vector with labels.}
 
