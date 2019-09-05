@@ -1,25 +1,25 @@
-![](images/SnapATAC_intro.gif)
-
 ## SnapATAC (Development)
-**SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast and accurate method for analyzing single cell ATAC-seq datasets. SnapATAC 1) overcomes the limitation of reliance on population-level peak annotation, 2) improves the clustering accuracy by integrating "off-peak" reads, 3) controls for the major bias using a regression-based normalization method and 4) substantially outperforms current methods in scalability.
+**SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast, accurate and comprehensive method for analyzing single cell ATAC-seq datasets. 
 
 ## Latest News
-* [SnapATAC enables other dimentionality reduction (LSA, LSA-logTF, LDA)](https://github.com/r3fang/SnapATAC/tree/master/examples/Fang_2019/Fang_2019.md)
-* [SnapATAC enables clustering using leiden algorithm](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_P50)
-* [SnapATAC enables batch effect correction](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_sci)
-* [SnapATAC enables motif analysis using chromVAR](https://github.com/r3fang/SnapATAC/tree/master/examples/10X_P50)
+* [SnapATAC links distal elements to putative target genes](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_PBMC_15K/README.md#gene_peak_pair)
+* [SnapATAC integrates scRNA and scATAC](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_PBMC_15K/README.md)
+* [SnapATAC employs a new method for dimensionality reduction](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_brain_5k/README.md#diffusion_maps)
+* [SnapATAC enables clustering using leiden algorithm](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_brain_5k/README.md#cluster)
+* [SnapATAC enables batch effect correction](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_snATAC/README.md)
+* [SnapATAC enables motif analysis using chromVAR](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_brain_5k/README.md#homer_chromVAR)
 
 ## FAQs
 * [How to run SnapATAC on 10X dataset?](https://github.com/r3fang/SnapATAC/wiki/FAQs#10X_snap)
 * [I already ran CellRanger, can I use its output for SnapATAC?](https://github.com/r3fang/SnapATAC/wiki/FAQs#cellranger_output)
 * [How can I analyze combine multiple samples together?](https://github.com/r3fang/SnapATAC/wiki/FAQs#multi_snap)
 * [How to group reads from any subset of cells?](https://github.com/r3fang/SnapATAC/wiki/FAQs#group_reads)
-* [What is a snap file anyway?](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)
+* [What is a snap file?](https://github.com/r3fang/SnapATAC/wiki/FAQs#whatissnap)
 * [How to create a snap file from fastq file?](https://github.com/r3fang/SnapATAC/wiki/FAQs#CEMBA_snap)
 
 ## Requirements  
 * Linux/Unix
-* Python (>= 2.7) (SnapTools)
+* Python (>= 2.7 & <= 3.6) (SnapTools)
 * R (>= 3.4.0) (SnapATAC)
 
 ## Pre-print  
@@ -33,7 +33,7 @@ SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) an
 * SnapATAC  - a R package for the clustering, annotation, motif discovery and downstream analysis.    
 
 Install snaptools from PyPI. See how to install snaptools on [FAQs](https://github.com/r3fang/SnapATAC/wiki/FAQs). 
-**NOTE**
+**NOTE:** Please use python 2.7 if possible. 
 
 ```bash
 $ pip install snaptools
