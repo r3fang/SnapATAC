@@ -33,6 +33,7 @@ SnapATAC has two components: [Snaptools](https://github.com/r3fang/SnapTools) an
 * SnapATAC  - a R package for the clustering, annotation, motif discovery and downstream analysis.    
 
 Install snaptools from PyPI. See how to install snaptools on [FAQs](https://github.com/r3fang/SnapATAC/wiki/FAQs). 
+**NOTE**
 
 ```bash
 $ pip install snaptools
