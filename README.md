@@ -49,4 +49,4 @@ $ R
 ## Galleries & Tutorials (click on the image for details)
 [<img src="./images/10X_brain_5k.png" width="280" height="318" />](./examples/10X_brain_5k/README.md)
 [<img src="./images/PBMC_ATAC_RNA.png" width="280" height="318" />](./examples/10X_PBMC_15K/README.md)
-[<img src="./images/10X_sci.png" width="280" height="318" />](./examples/10X_sci/README.md)
+[<img src="./images/10X_snATAC.png" width="280" height="318" />](./examples/10X_snATAC/README.md)
