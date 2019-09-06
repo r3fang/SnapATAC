@@ -586,7 +586,7 @@ See [here](http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/homer/C5/k
 
 SnapATAC also incorporates chromVAR (Schep et al) for motif variability analysis.
 
-```
+```R
 > library(chromVAR);
 > library(motifmatchr);
 > library(SummarizedExperiment);
