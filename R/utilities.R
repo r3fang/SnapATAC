@@ -127,8 +127,7 @@ trainRegression <- function(obj){
 	row.covs = log(Matrix::rowSums(obj@bmat)+1,10);		
 	row.covs.dens <- density(x = row.covs, bw = 'nrd', adjust = 1)
 	sampling_prob <- 1 / (approx(x = row.covs.dens$x, y = row.covs.dens$y, xout = row.covs)$y + .Machine$double.eps)
-	idx.ds <- sort(sample(x = seq(row.covs), size = 1000, prob = sampling_prob));
-
+	idx.ds <- sort(sample(x = seq(row.covs), size = min(1000, length(row.covs)), prob = sampling_prob), replace=FALSE);
 	jmat.tr = obj@jmat@jmat[idx.ds,idx.ds];
 	b1.tr = obj@jmat@p1[idx.ds];
 	b2.tr = obj@jmat@p2[idx.ds];
