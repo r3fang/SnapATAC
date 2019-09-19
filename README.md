@@ -1,4 +1,4 @@
-## SnapATAC (Development)
+## SnapATAC (Latest Updates: 2019-09-19)
 **SnapATAC** (**S**ingle **N**ucleus **A**nalysis **P**ipeline for **ATAC**-seq) is a fast, accurate and comprehensive method for analyzing single cell ATAC-seq datasets. 
 
 ## Latest News

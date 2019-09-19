@@ -14,11 +14,7 @@
 #' @importFrom plyr llply
 #' 
 #' @export
-predictGenePeakPair<- function(obj, input.mat, gene.name, gene.loci, do.par, num.cores){
-  UseMethod("predictGenePeakPair", obj);
-}
-
-predictGenePeakPair.default <- function(
+predictGenePeakPair <- function(
 	obj, 
 	input.mat=c("pmat", "bmat"),
 	gene.name=NULL,

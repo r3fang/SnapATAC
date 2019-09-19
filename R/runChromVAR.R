@@ -8,11 +8,7 @@
 #' @return Return a matrix object that contains the cell-by-motif matrix
 #'
 #' @export
-runChromVAR<- function(obj, input.mat, genome, min.count, species){
-  UseMethod("runChromVAR", obj);
-}
-
-runChromVAR.default <- function(
+runChromVAR <- function(
 	obj, 
 	input.mat=c("pmat", "bmat"),
 	genome=BSgenome.Hsapiens.UCSC.hg19,
