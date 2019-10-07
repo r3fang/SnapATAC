@@ -19,8 +19,8 @@
 
 ## Requirements  
 * Linux/Unix
-* Python (>= 2.7 & <= 3.6) (SnapTools)
-* R (>= 3.4.0) (SnapATAC)
+* Python (>= 2.7 & < 3.0) (SnapTools) (highly recommanded for 2.7);
+* R (>= 3.4.0 & < 3.6.0) (SnapATAC) (3.6 does not work for rhdf5 package);
 
 ## Pre-print  
 Rongxin Fang, Sebastian Preissl, Xiaomeng Hou, Jacinta Lucero, Xinxin Wang, Amir Motamedi, Andrew K. Shiau, Eran A. Mukamel, Yanxiao Zhang, M. Margarita Behrens, Joseph Ecker, Bing Ren. *Fast and Accurate Clustering of Single Cell Epigenomes Reveals Cis-Regulatory Elements in Rare Cell Types.* bioRxiv 615179; doi: https://doi.org/10.1101/615179
