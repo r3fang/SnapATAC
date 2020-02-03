@@ -154,6 +154,8 @@ plotBinCoverage.default <- function(
 #' @param pdf.file.name pdf file name to save the plot [NULL].
 #' @param pdf.width the width of the graphics region in inches [7].
 #' @param pdf.height the height of the graphics region in inches [7].
+#' @param xlims x axis limits
+#' @param ylims y axis limits
 #' @param ... Arguments passed to plot method.
 #'
 #' @examples 
@@ -191,8 +193,8 @@ plotViz <- function(obj,
 	pdf.file.name, 
 	pdf.width, 
 	pdf.height, 
-	x_limits,
-	y_limits
+	xlims,
+	ylims,
 	...
 ){
   UseMethod("plotViz", obj);
@@ -246,17 +248,12 @@ plotViz.default <- function(obj,
 	}
 	
 	
-	if(!exists("x_limits")){
+	if(!exists("xlims")){
 	  xlims = c(-max(abs(data.use[,1])) * 1.05, max(abs(data.use[,1])) * 1.2);
 	}
-	else{
-	  xlims = x_limits
-	}
-	if(!exists("y_limits")){
+	
+	if(!exists("ylims")){
 	  ylims = c(-max(abs(data.use[,2])) * 1.05, max(abs(data.use[,2])) * 1.05);
-	}
-	else{
-	  ylims = y_limits
 	}
 	
 	cluster = point.color;
