@@ -191,6 +191,8 @@ plotViz <- function(obj,
 	pdf.file.name, 
 	pdf.width, 
 	pdf.height, 
+	x_limits,
+	y_limits
 	...
 ){
   UseMethod("plotViz", obj);
