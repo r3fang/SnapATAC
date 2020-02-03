@@ -242,8 +242,20 @@ plotViz.default <- function(obj,
 	if((x=nrow(data.use)) == 0L){
 		stop("visulization method does not exist, run runViz first!")
 	}
-	xlims = c(-max(abs(data.use[,1])) * 1.05, max(abs(data.use[,1])) * 1.2);
-	ylims = c(-max(abs(data.use[,2])) * 1.05, max(abs(data.use[,2])) * 1.05);
+	
+	
+	if(!exists("x_limits")){
+	  xlims = c(-max(abs(data.use[,1])) * 1.05, max(abs(data.use[,1])) * 1.2);
+	}
+	else{
+	  xlims = x_limits
+	}
+	if(!exists("y_limits")){
+	  ylims = c(-max(abs(data.use[,2])) * 1.05, max(abs(data.use[,2])) * 1.05);
+	}
+	else{
+	  ylims = y_limits
+	}
 	
 	cluster = point.color;
 	if(((x=length(cluster)) == 0L) | (is.null(point.color))){
