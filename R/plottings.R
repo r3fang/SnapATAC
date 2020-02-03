@@ -221,9 +221,10 @@ plotViz.default <- function(obj,
 		pdf.file.name=NULL,
 		pdf.width=7, 
 		pdf.height=7,
+		xlims = "default",
+		ylims = "default",
 		...
 ){
-  xlims=c(-10,10)
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
@@ -249,13 +250,14 @@ plotViz.default <- function(obj,
 	}
 	
 	
-	if(!exists("xlims")){
+	if(xlims[1] == "default"){
 	  xlims = c(-max(abs(data.use[,1])) * 1.05, max(abs(data.use[,1])) * 1.2);
 	}
 	
-	if(!exists("ylims")){
+	if(ylims[1] == "default"){
 	  ylims = c(-max(abs(data.use[,2])) * 1.05, max(abs(data.use[,2])) * 1.05);
 	}
+	
 	
 	cluster = point.color;
 	if(((x=length(cluster)) == 0L) | (is.null(point.color))){
