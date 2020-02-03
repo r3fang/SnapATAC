@@ -222,7 +222,8 @@ plotViz.default <- function(obj,
 		pdf.width=7, 
 		pdf.height=7,
 		...
-){	
+){
+  xlims=c(-10,10)
 	if(missing(obj)){
 		stop("obj is missing");
 	}else{
