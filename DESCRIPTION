@@ -27,6 +27,7 @@ Imports:
 	foreach,
 	doParallel,
 	igraph,
+	plot3D,
 	plyr,
 	bigmemory,
 	grDevices, 
