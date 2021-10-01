@@ -1,6 +1,6 @@
 ## Integrative Analysis of 10X and snATAC
 
-In this example, we will be integrating two datasets from adult mouse brain generated using 10X and snATAC-seq. All the datasets used in this example can be downloaded from [here](http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/).
+In this example, we will be integrating two datasets from adult mouse brain generated using 10X and snATAC-seq. 
 
 <img src="./intro.png" width="900" height="300" />  
 
