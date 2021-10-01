@@ -24,12 +24,15 @@ In this example, we will be analyzing a dataset of 5K cells from the adult mouse
 
 
 <a name="data_download"></a>**Step 0. Data download**        
-In this example, we will skip the snap generation (See [here](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_PBMC_15K/README.md) for how to generate a snap file). Instead, we will download the snap file. The downloaded snap file already contains the cell-by-bin/cell-by-peak matrix.
+In this example, we will skip the snap generation (See [here](https://github.com/r3fang/SnapATAC/blob/master/examples/10X_PBMC_15K/README.md) for how to generate a snap file). Instead, we will download the snap file(See [here](https://drive.google.com/drive/folders/1xPqPtVXtWjOwZJynQhGalNrjEwKmxFhc?usp=sharing)). The downloaded snap file already contains the cell-by-bin/cell-by-peak matrix.
 
-```bash
-$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/atac_v1_adult_brain_fresh_5k.snap
-$ http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/atac_v1_adult_brain_fresh_5k_singlecell.csv
-```
+[comment]: <> (```bash)
+
+[comment]: <> (#$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/atac_v1_adult_brain_fresh_5k.snap)
+
+[comment]: <> (#$ http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/atac_v1_adult_brain_fresh_5k_singlecell.csv)
+
+[comment]: <> (```)
 
 <a name="barcode_selection"></a>**Step 1. Barcode selection**     
 We select high-quality barcodes based on two criteria: 1) number of unique fragments; 2) fragments in promoter ratio; 
@@ -276,7 +279,7 @@ SnapATAC visualizes and explores the data using tSNE (FI-tsne) or UMAP. In this 
 To help annotate identified cell clusters, SnapATAC next creates the cell-by-gene matrix and visualize the enrichment of marker genes.
 
 ```R
-> system("wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X/gencode.vM16.gene.bed");
+# get the gencode.vM16.gene.bed from the dataset download link.
 > genes = read.table("gencode.vM16.gene.bed");
 > genes.gr = GRanges(genes[,1], 
     IRanges(genes[,2], genes[,3]), name=genes[,4]

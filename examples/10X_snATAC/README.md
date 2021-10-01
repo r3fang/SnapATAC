@@ -21,12 +21,19 @@ In this example, we will be integrating two datasets from adult mouse brain gene
 
 <a name="download_data"></a>**Step 0. Download data**
 
-```
-$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.snap
-$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.barcode.txt
-$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/atac_v1_adult_brain_fresh_5k.snap	
-$ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/atac_v1_adult_brain_fresh_5k.barcode.txt
-```
+We will download the snap file(See [here](https://drive.google.com/drive/folders/1yI2DNLxRhyAJJt8ogkDZs1uBKAUyy5gt?usp=sharing)).
+
+[comment]: <> (```)
+
+[comment]: <> ($ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.snap)
+
+[comment]: <> ($ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/CEMBA180305_2B.barcode.txt)
+
+[comment]: <> ($ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/atac_v1_adult_brain_fresh_5k.snap	)
+
+[comment]: <> ($ wget http://renlab.sdsc.edu/r3fang/share/github/Mouse_Brain_10X_snATAC/atac_v1_adult_brain_fresh_5k.barcode.txt)
+
+[comment]: <> (```)
 
 <a name="create_snap"></a>**Step 1. Create snap object**       
 In this example, we will create a list of snap objects that contains two datasets.
