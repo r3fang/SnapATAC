@@ -14,7 +14,7 @@ In this example, we will be analyzing a dataset of 5K cells from the adult mouse
 - [Step 7. Graph-based clustering](#cluster)
 - [Step 8. Visualization](#viz)
 - [Step 9. Gene based annotation](#gene_tsne)
-- [Step 10. Heretical clustering](#heretical_clustering)
+- [Step 10. Hierarchical clustering](#hierarchical_clustering)
 - [Step 11. Identify peak](#peak_call)
 - [Step 12. Create a cell-by-peak matrix](#create_pmat)
 - [Step 13. Add cell-by-peak matrix](#add_pmat)
@@ -328,8 +328,8 @@ To help annotate identified cell clusters, SnapATAC next creates the cell-by-gen
 
 <img src="./gene_plot.png" width="900" height="900" />
 
-<a name="heretical_clustering"></a>**Step 10. Heretical clustering**        
-Next, cells belonging to the same cluster are pooled to create the aggregate signal for heretical clustering.
+<a name="hierarchical_clustering"></a>**Step 10. Hierarchical clustering**        
+Next, cells belonging to the same cluster are pooled to create the aggregate signal for hierarchical clustering.
 
 ```R
 # calculate the ensemble signals for each cluster
